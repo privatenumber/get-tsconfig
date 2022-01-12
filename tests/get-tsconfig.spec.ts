@@ -33,8 +33,6 @@ test('get tsconfig from cwd', () => {
 			esModuleInterop: true,
 			declaration: true,
 			strict: true,
-			module: 1,
-			target: 6,
 			configFilePath: undefined,
 		},
 	});
