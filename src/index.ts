@@ -37,6 +37,12 @@ function getTsconfig(
 		throw new Error('Could not find a tsconfig.json file.');
 	}
 
+	tsconfig = cache.get(tsconfigPath);
+
+	if (tsconfig) {
+		return tsconfig;
+	}
+
 	const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
 
 	if (configFile.error?.messageText) {
@@ -58,6 +64,10 @@ function getTsconfig(
 	};
 
 	cache.set(searchPath, tsconfig);
+
+	if (tsconfigPath !== searchPath) {
+		cache.set(tsconfigPath, tsconfig);
+	}
 
 	return tsconfig;
 }
