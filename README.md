@@ -7,7 +7,7 @@ Find and/or parse the `tsconfig.json` file from a file or directory path.
 - Supports comments & dangling commas
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Validates and throws parsing errors
-- Tiny! `710 bytes`
+- Tiny! `413 B`
 
 ## 🚀 Install
 
