@@ -1,5 +1,5 @@
 import AggregateError from 'aggregate-error';
-import getTsconfig from '../src';
+import getTsconfig from '../src/index';
 
 test('error: invalid path', () => {
 	expect(() => getTsconfig('/')).toThrow('Could not find a tsconfig.json file.');

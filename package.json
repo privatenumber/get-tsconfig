@@ -19,10 +19,19 @@
 	"files": [
 		"dist"
 	],
-	"main": "dist/index.js",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
 	"scripts": {
 		"lint": "eslint .",
-		"build": "rm -rf dist && tsc",
+		"build": "tsup src/index.ts --clean --format cjs,esm --dts --minify",
 		"test": "jest"
 	},
 	"husky": {
@@ -51,6 +60,7 @@
 		"husky": "^4.3.8",
 		"jest": "^27.4.7",
 		"lint-staged": "^12.1.7",
+		"tsup": "^5.11.11",
 		"typescript": "^4.5.4"
 	},
 	"eslintConfig": {

@@ -72,4 +72,4 @@ function getTsconfig(
 	return tsconfig;
 }
 
-export = getTsconfig;
+export default getTsconfig;
