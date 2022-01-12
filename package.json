@@ -1,13 +1,13 @@
 {
 	"name": "get-tsconfig",
 	"version": "0.0.0-semantic-release",
-	"description": "Create a require() function from any file-system",
+	"description": "Find and/or parse the tsconfig.json file from a file or directory path",
 	"keywords": [
 		"get-tsconfig",
-		"fs",
-		"require",
-		"memfs",
-		"testing"
+		"get",
+		"typescript",
+		"tsconfig",
+		"tsconfig.json"
 	],
 	"license": "MIT",
 	"repository": "privatenumber/get-tsconfig",
@@ -19,7 +19,7 @@
 	"files": [
 		"dist"
 	],
-	"main": "dist/get-tsconfig.js",
+	"main": "dist/index.js",
 	"scripts": {
 		"lint": "eslint .",
 		"build": "rm -rf dist && tsc",
