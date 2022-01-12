@@ -1,0 +1,4 @@
+{
+	// Some comment
+	"extends": "./tsconfig.b.json", // Dangling comma
+}
