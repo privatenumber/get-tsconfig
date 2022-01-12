@@ -1,4 +1,4 @@
-# get-tsconfig [![Latest version](https://badgen.net/npm/v/get-tsconfig)](https://npm.im/get-tsconfig) [![Monthly downloads](https://badgen.net/npm/dm/get-tsconfig)](https://npm.im/get-tsconfig) [![Install size](https://packagephobia.now.sh/badge?p=get-tsconfig)](https://packagephobia.now.sh/result?p=get-tsconfig) [![Bundle size](https://badgen.net/bundlephobia/minzip/get-tsconfig)](https://bundlephobia.com/result?p=get-tsconfig)
+# get-tsconfig [![Latest version](https://badgen.net/npm/v/get-tsconfig)](https://npm.im/get-tsconfig)
 
 Find and/or parse the `tsconfig.json` file from a file or directory path.
 
