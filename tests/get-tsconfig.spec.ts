@@ -26,27 +26,26 @@ test('error: invalid tsconfig.json', () => {
 test('get tsconfig from cwd', () => {
 	const tsconfig = getTsconfig();
 
-	expect(tsconfig).toMatchObject({
+	expect(tsconfig.getRaw()).toMatchObject({
 		compilerOptions: {
-			moduleResolution: 2,
+			moduleResolution: 'NodeJs',
 			isolatedModules: true,
 			esModuleInterop: true,
 			declaration: true,
 			strict: true,
-			configFilePath: undefined,
 		},
+		include: ['src'],
 	});
 });
 
 test('get tsconfig from directory path', () => {
 	const tsconfig = getTsconfig('./tests/fixtures');
 
-	expect(tsconfig).toMatchObject({
+	expect(tsconfig.getRaw()).toMatchObject({
 		compilerOptions: {
 			strict: true,
-			jsx: 2,
+			jsx: 'React',
 			jsxFactory: 'h',
-			configFilePath: undefined,
 		},
 	});
 });
@@ -54,12 +53,11 @@ test('get tsconfig from directory path', () => {
 test('get tsconfig from tsconfig.json path', () => {
 	const tsconfig = getTsconfig('./tests/fixtures/tsconfig.json');
 
-	expect(tsconfig).toMatchObject({
+	expect(tsconfig.getRaw()).toMatchObject({
 		compilerOptions: {
 			strict: true,
-			jsx: 2,
+			jsx: 'React',
 			jsxFactory: 'h',
-			configFilePath: undefined,
 		},
 	});
 });
@@ -67,12 +65,11 @@ test('get tsconfig from tsconfig.json path', () => {
 test('get tsconfig from index.js path', () => {
 	const tsconfig = getTsconfig('./tests/fixtures/index.js');
 
-	expect(tsconfig).toMatchObject({
+	expect(tsconfig.getRaw()).toMatchObject({
 		compilerOptions: {
 			strict: true,
-			jsx: 2,
+			jsx: 'React',
 			jsxFactory: 'h',
-			configFilePath: undefined,
 		},
 	});
 });

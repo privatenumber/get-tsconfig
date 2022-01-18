@@ -4,15 +4,65 @@ import {
 	findConfigFile,
 	readConfigFile,
 	parseJsonConfigFileContent,
+	ModuleKind,
+	ModuleResolutionKind,
+	JsxEmit,
+	ImportsNotUsedAsValues,
+	NewLineKind,
+	ScriptTarget,
 } from 'typescript';
-import type { CompilerOptions } from 'typescript';
+import type { ParsedCommandLine, CompilerOptions } from 'typescript';
 import AggregateError from 'aggregate-error';
 
-type TsConfig = {
-	compilerOptions: CompilerOptions;
+const reverseLookup = {
+	importsNotUsedAsValues: ImportsNotUsedAsValues,
+	jsx: JsxEmit,
+	module: ModuleKind,
+	moduleResolution: ModuleResolutionKind,
+	newLine: NewLineKind,
+	target: ScriptTarget,
 };
 
-const cache = new Map<string, TsConfig>();
+function getRaw(this: TsConfigResult) {
+	const { raw, options } = this.parsed;
+
+	const compilerOptions: CompilerOptions = { ...options };
+	delete compilerOptions.configFilePath;
+
+	// eslint-disable-next-line guard-for-in
+	for (const key in reverseLookup) {
+		const lookupMap = reverseLookup[key as keyof typeof reverseLookup];
+		if (key in compilerOptions) {
+			compilerOptions[key] = lookupMap[compilerOptions[key] as any];
+		}
+	}
+
+	const result = {
+		...raw,
+		compilerOptions,
+	};
+
+	// Already flattened
+	delete result.extends;
+
+	return result;
+}
+
+type TsConfigResult = {
+	/**
+	 * The path to the tsconfig.json file
+	 */
+	path: string;
+
+	/**
+	 * The parsed tsconfig.json file
+	 */
+	parsed: ParsedCommandLine;
+
+	getRaw: typeof getRaw;
+};
+
+const cache = new Map<string, TsConfigResult>();
 
 /**
  * If a JSON file is passed in, it will parse that as tsconfig
@@ -59,17 +109,19 @@ function getTsconfig(
 		throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
 	}
 
-	tsconfig = {
-		compilerOptions: parsedConfig.options,
+	const result: TsConfigResult = {
+		path: tsconfigPath,
+		parsed: parsedConfig,
+		getRaw,
 	};
 
-	cache.set(searchPath, tsconfig);
+	cache.set(searchPath, result);
 
 	if (tsconfigPath !== searchPath) {
-		cache.set(tsconfigPath, tsconfig);
+		cache.set(tsconfigPath, result);
 	}
 
-	return tsconfig;
+	return result;
 }
 
 export default getTsconfig;
