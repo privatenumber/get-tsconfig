@@ -14,6 +14,8 @@ import {
 import type { ParsedCommandLine, CompilerOptions } from 'typescript';
 import AggregateError from 'aggregate-error';
 
+// Based on:
+// https://github.com/microsoft/TypeScript/blob/82377825d73a22f09dd13d19f/src/server/protocol.ts#L3425
 const reverseLookup = {
 	importsNotUsedAsValues: ImportsNotUsedAsValues,
 	jsx: JsxEmit,
