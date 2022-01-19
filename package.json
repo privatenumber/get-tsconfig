@@ -31,7 +31,7 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"build": "tsup src/index.ts --clean --format cjs,esm --dts --minify",
+		"build": "tsup src/index.ts --clean --format cjs,esm --dts-resolve --minify",
 		"test": "jest"
 	},
 	"husky": {
@@ -61,6 +61,7 @@
 		"jest": "^27.4.7",
 		"lint-staged": "^12.1.7",
 		"tsup": "^5.11.11",
+		"type-fest": "^2.9.0",
 		"typescript": "^4.5.4"
 	},
 	"eslintConfig": {

@@ -11,7 +11,8 @@ import {
 	NewLineKind,
 	ScriptTarget,
 } from 'typescript';
-import type { ParsedCommandLine, CompilerOptions } from 'typescript';
+import type { TsConfigJson, Except } from 'type-fest';
+import type { ParsedCommandLine } from 'typescript';
 import AggregateError from 'aggregate-error';
 
 // Based on:
@@ -25,10 +26,10 @@ const reverseLookup = {
 	target: ScriptTarget,
 };
 
-function getRaw(this: TsConfigResult) {
+function getRaw(this: TsConfigResult): Except<TsConfigJson, 'extends'> {
 	const { raw, options } = this.parsed;
 
-	const compilerOptions: CompilerOptions = { ...options };
+	const compilerOptions = { ...options };
 	delete compilerOptions.configFilePath;
 
 	// eslint-disable-next-line guard-for-in
