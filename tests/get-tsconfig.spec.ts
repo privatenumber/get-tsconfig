@@ -1,10 +1,6 @@
 import AggregateError from 'aggregate-error';
 import getTsconfig from '../src/index';
 
-test('error: invalid path', () => {
-	expect(() => getTsconfig('/')).toThrow('Could not find a tsconfig.json file.');
-});
-
 test('error: invalid json path', () => {
 	expect(() => getTsconfig('.json')).toThrow('Cannot read file \'.json\'.');
 });
@@ -74,17 +70,76 @@ test('get tsconfig from index.js path', () => {
 	});
 });
 
-test('get tsconfig from directory path', () => {
-	const tsconfig = getTsconfig('./tests/missing');
+describe('no tsconfig', () => {
+	test('get tsconfig', () => {
+		const tsconfig = getTsconfig('/');
 
-	expect(tsconfig.getRaw(true)).toBe({
-		compilerOptions: {
-			target: 'ES3',
-			module: 'CommonJS',
-			moduleResolution: 'NodeJs',
-			strict: true,
-			jsx: 'React',
-			jsxFactory: 'h',
-		},
+		expect(tsconfig.path).toBe(undefined);
+		expect(tsconfig.parsed).toBe(undefined);
+		expect(tsconfig.getRaw()).toStrictEqual({});
+	});
+
+	test('get tsconfig with defaults', () => {
+		const tsconfig = getTsconfig('/');
+	
+		expect(tsconfig.path).toBe(undefined);
+		expect(tsconfig.parsed).toBe(undefined);
+
+		const rawConfigWithDefaults = tsconfig.getRaw(true);
+
+		expect(
+			rawConfigWithDefaults.compilerOptions!.typeRoots![0]
+		).toMatch(/node_modules\/@types/);
+
+		delete rawConfigWithDefaults.compilerOptions!.typeRoots;
+
+		expect(rawConfigWithDefaults).toStrictEqual({
+			"compilerOptions": {
+				"allowSyntheticDefaultImports": false,
+				"alwaysStrict": false,
+				"declaration": undefined,
+				"esModuleInterop": undefined,
+				"generateCpuProfile": "profile.cpuprofile",
+				"incremental": undefined,
+				"jsxFactory": "React.createElement",
+				"jsxImportSource": "react",
+				"module": "CommonJS",
+				"moduleResolution": "NodeJs",
+				"noImplicitAny": false,
+				"noImplicitThis": false,
+				"preserveConstEnums": false,
+				"reactNamespace": "React",
+				"strictBindCallApply": false,
+				"strictFunctionTypes": false,
+				"strictNullChecks": false,
+				"strictPropertyInitialization": false,
+				"target": "ES3",
+				"tsBuildInfoFile": ".tsbuildinfo",
+				"types": [
+					"babel__core",
+					"babel__generator",
+					"babel__template",
+					"babel__traverse",
+					"graceful-fs",
+					"istanbul-lib-coverage",
+					"istanbul-lib-report",
+					"istanbul-reports",
+					"jest",
+					"json-schema",
+					"json5",
+					"mdast",
+					"node",
+					"normalize-package-data",
+					"parse-json",
+					"prettier",
+					"stack-utils",
+					"unist",
+					"yargs",
+					"yargs-parser",
+				],
+				"useDefineForClassFields": false,
+				"useUnknownInCatchVariables": false,
+			},
+		});
 	});
 });

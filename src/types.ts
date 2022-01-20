@@ -5,12 +5,12 @@ export type TsConfigResult = {
 	/**
 	 * The path to the tsconfig.json file
 	 */
-	path: string;
+	path: string | undefined;
 
 	/**
 	 * The parsed tsconfig.json file
 	 */
-	parsed: ParsedCommandLine;
+	parsed: ParsedCommandLine | undefined;
 
 	getRaw: typeof getRaw;
 };

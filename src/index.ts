@@ -30,30 +30,29 @@ function getTsconfig(
 			: findConfigFile(searchPath, tsSys.fileExists, 'tsconfig.json')
 	);
 
-	if (!tsconfigPath) {
-		throw new Error('Could not find a tsconfig.json file.');
-	}
+	let parsedConfig;
+	if (tsconfigPath) {
+		tsconfig = cache.get(tsconfigPath);
 
-	tsconfig = cache.get(tsconfigPath);
-
-	if (tsconfig) {
-		return tsconfig;
-	}
-
-	const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
-
-	if (configFile.error?.messageText) {
-		throw new Error(configFile.error.messageText.toString());
-	}
-
-	const parsedConfig = parseJsonConfigFileContent(
-		configFile.config,
-		tsSys,
-		path.dirname(tsconfigPath),
-	);
-
-	if (parsedConfig.errors.length > 0) {
-		throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
+		if (tsconfig) {
+			return tsconfig;
+		}
+	
+		const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
+	
+		if (configFile.error?.messageText) {
+			throw new Error(configFile.error.messageText.toString());
+		}
+	
+		parsedConfig = parseJsonConfigFileContent(
+			configFile.config,
+			tsSys,
+			path.dirname(tsconfigPath),
+		);
+	
+		if (parsedConfig.errors.length > 0) {
+			throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
+		}
 	}
 
 	const result: TsConfigResult = {
@@ -64,7 +63,7 @@ function getTsconfig(
 
 	cache.set(searchPath, result);
 
-	if (tsconfigPath !== searchPath) {
+	if (tsconfigPath && tsconfigPath !== searchPath) {
 		cache.set(tsconfigPath, result);
 	}
 

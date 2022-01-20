@@ -1,9 +1,8 @@
-
 import type {
 	CompilerOptions,
 	ScriptTarget,
 	ModuleKind,
-	ModuleResolutionKind
+	ModuleResolutionKind,
 } from 'typescript';
 
 declare module 'typescript' {

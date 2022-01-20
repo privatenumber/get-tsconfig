@@ -19,7 +19,7 @@ import {
 } from 'typescript';
 import type { CompilerOptions } from 'typescript';
 import type { TsConfigJson, Except } from 'type-fest';
-import { TsConfigResult } from './types';
+import type { TsConfigResult } from './types';
 
 function applyCompilerOptionsDefaults(compilerOptions: CompilerOptions) {
 	compilerOptions.target = getEmitScriptTarget(compilerOptions);
@@ -45,7 +45,7 @@ function applyCompilerOptionsDefaults(compilerOptions: CompilerOptions) {
 	compilerOptions.reactNamespace = compilerOptions.reactNamespace ?? 'React';
 
 	// https://www.typescriptlang.org/tsconfig#jsxFactory
-	compilerOptions.jsxFactory = compilerOptions.jsxFactory ?? (compilerOptions.reactNamespace + '.createElement');
+	compilerOptions.jsxFactory = compilerOptions.jsxFactory ?? `${compilerOptions.reactNamespace}.createElement`;
 
 	// https://www.typescriptlang.org/tsconfig#jsxImportSource
 	compilerOptions.jsxImportSource = compilerOptions.jsxImportSource ?? 'react';
@@ -85,18 +85,25 @@ const reverseLookup = {
 	target: ScriptTarget,
 };
 
+type TsconfigResolved = Except<TsConfigJson, 'extends'>;
+
 export function getRaw(
 	this: TsConfigResult,
 	withDefault = false,
-): Except<TsConfigJson, 'extends'> {
-	const { raw, options } = this.parsed;
-	const compilerOptions = { ...options };
+): TsconfigResolved {
+	const compilerOptions: CompilerOptions = {};
+	const result: TsConfigJson = {};
+
+	if (this.parsed) {
+		const { raw, options } = this.parsed;
+		Object.assign(result, raw);
+		Object.assign(compilerOptions, options);
+		delete compilerOptions.configFilePath;
+	}
 
 	if (withDefault) {
 		applyCompilerOptionsDefaults(compilerOptions);
 	}
-
-	delete compilerOptions.configFilePath;
 
 	// eslint-disable-next-line guard-for-in
 	for (const key in reverseLookup) {
@@ -106,13 +113,12 @@ export function getRaw(
 		}
 	}
 
-	const result = {
-		...raw,
-		compilerOptions,
-	};
-
 	// Already flattened
 	delete result.extends;
+
+	if (Object.keys(compilerOptions).length > 0) {
+		result.compilerOptions = compilerOptions as TsConfigJson.CompilerOptions;
+	}
 
 	return result;
 }
