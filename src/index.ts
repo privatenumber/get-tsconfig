@@ -4,10 +4,13 @@ import {
 	findConfigFile,
 	readConfigFile,
 	parseJsonConfigFileContent,
+	DiagnosticCategory,
 } from 'typescript';
 import AggregateError from 'aggregate-error';
 import { getRaw } from './get-raw';
 import type { TsConfigResult } from './types';
+
+const errorCodeNoInputFound = 18_003;
 
 const cache = new Map<string, TsConfigResult>();
 
@@ -30,28 +33,38 @@ function getTsconfig(
 			: findConfigFile(searchPath, tsSys.fileExists, 'tsconfig.json')
 	);
 
-	let parsedConfig;
+	let configFile;
 	if (tsconfigPath) {
 		tsconfig = cache.get(tsconfigPath);
 
 		if (tsconfig) {
 			return tsconfig;
 		}
-	
-		const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
-	
+
+		configFile = readConfigFile(tsconfigPath, tsSys.readFile);
+
 		if (configFile.error?.messageText) {
 			throw new Error(configFile.error.messageText.toString());
 		}
-	
-		parsedConfig = parseJsonConfigFileContent(
-			configFile.config,
-			tsSys,
-			path.dirname(tsconfigPath),
-		);
-	
-		if (parsedConfig.errors.length > 0) {
-			throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
+	}
+
+	const parsedConfig = parseJsonConfigFileContent(
+		configFile ? configFile.config : {},
+		tsSys,
+		path.dirname(tsconfigPath || searchPath),
+	);
+
+	if (parsedConfig.errors.length > 0) {
+		const errors = parsedConfig.errors.filter((error) => {
+			if (!tsconfigPath && error.code === errorCodeNoInputFound) {
+				return;
+			}
+
+			return error.category === DiagnosticCategory.Error;
+		});
+
+		if (errors.length > 0) {
+			throw new AggregateError(errors.map(error => error.messageText));
 		}
 	}
 

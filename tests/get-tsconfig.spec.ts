@@ -1,5 +1,14 @@
+import fs from 'fs';
+import os from 'os';
 import AggregateError from 'aggregate-error';
 import getTsconfig from '../src/index';
+
+const temporaryDirectory = os.tmpdir();
+const emptyDirectoryPath = `${temporaryDirectory}/empty-directory`;
+
+if (!fs.existsSync(emptyDirectoryPath)) {
+	fs.mkdirSync(emptyDirectoryPath);
+}
 
 test('error: invalid json path', () => {
 	expect(() => getTsconfig('.json')).toThrow('Cannot read file \'.json\'.');
@@ -70,76 +79,145 @@ test('get tsconfig from index.js path', () => {
 	});
 });
 
+test('get tsconfig from index.js path with defaults', () => {
+	const tsconfig = getTsconfig('./tests/fixtures/index.js');
+	const rawConfigWithDefaults = tsconfig.getRaw(true);
+
+	expect(
+		rawConfigWithDefaults.compilerOptions!.typeRoots![0],
+	).toMatch(/node_modules\/@types/);
+
+	delete rawConfigWithDefaults.compilerOptions!.typeRoots;
+
+	expect(rawConfigWithDefaults).toStrictEqual({
+		compileOnSave: false,
+		compilerOptions: {
+			allowSyntheticDefaultImports: false,
+			alwaysStrict: true,
+			declaration: undefined,
+			esModuleInterop: undefined,
+			generateCpuProfile: 'profile.cpuprofile',
+			incremental: undefined,
+			jsx: 'React',
+			jsxFactory: 'h',
+			jsxImportSource: 'react',
+			module: 'CommonJS',
+			moduleResolution: 'NodeJs',
+			noImplicitAny: true,
+			noImplicitThis: true,
+			preserveConstEnums: false,
+			reactNamespace: 'React',
+			strict: true,
+			strictBindCallApply: true,
+			strictFunctionTypes: true,
+			strictNullChecks: true,
+			strictPropertyInitialization: true,
+			target: 'ES3',
+			tsBuildInfoFile: '.tsbuildinfo',
+			types: [
+				'babel__core',
+				'babel__generator',
+				'babel__template',
+				'babel__traverse',
+				'graceful-fs',
+				'istanbul-lib-coverage',
+				'istanbul-lib-report',
+				'istanbul-reports',
+				'jest',
+				'json-schema',
+				'json5',
+				'mdast',
+				'node',
+				'normalize-package-data',
+				'parse-json',
+				'prettier',
+				'stack-utils',
+				'unist',
+				'yargs',
+				'yargs-parser',
+			],
+			useDefineForClassFields: false,
+			useUnknownInCatchVariables: true,
+		},
+		include: [
+			'**/*',
+		],
+	});
+});
+
 describe('no tsconfig', () => {
 	test('get tsconfig', () => {
-		const tsconfig = getTsconfig('/');
+		const tsconfig = getTsconfig(emptyDirectoryPath);
 
 		expect(tsconfig.path).toBe(undefined);
-		expect(tsconfig.parsed).toBe(undefined);
-		expect(tsconfig.getRaw()).toStrictEqual({});
+		expect(tsconfig.getRaw()).toStrictEqual({
+			compileOnSave: false,
+			include: ['**/*'],
+		});
 	});
 
 	test('get tsconfig with defaults', () => {
-		const tsconfig = getTsconfig('/');
-	
+		const tsconfig = getTsconfig(emptyDirectoryPath);
+
 		expect(tsconfig.path).toBe(undefined);
-		expect(tsconfig.parsed).toBe(undefined);
 
 		const rawConfigWithDefaults = tsconfig.getRaw(true);
 
 		expect(
-			rawConfigWithDefaults.compilerOptions!.typeRoots![0]
+			rawConfigWithDefaults.compilerOptions!.typeRoots![0],
 		).toMatch(/node_modules\/@types/);
 
 		delete rawConfigWithDefaults.compilerOptions!.typeRoots;
 
 		expect(rawConfigWithDefaults).toStrictEqual({
-			"compilerOptions": {
-				"allowSyntheticDefaultImports": false,
-				"alwaysStrict": false,
-				"declaration": undefined,
-				"esModuleInterop": undefined,
-				"generateCpuProfile": "profile.cpuprofile",
-				"incremental": undefined,
-				"jsxFactory": "React.createElement",
-				"jsxImportSource": "react",
-				"module": "CommonJS",
-				"moduleResolution": "NodeJs",
-				"noImplicitAny": false,
-				"noImplicitThis": false,
-				"preserveConstEnums": false,
-				"reactNamespace": "React",
-				"strictBindCallApply": false,
-				"strictFunctionTypes": false,
-				"strictNullChecks": false,
-				"strictPropertyInitialization": false,
-				"target": "ES3",
-				"tsBuildInfoFile": ".tsbuildinfo",
-				"types": [
-					"babel__core",
-					"babel__generator",
-					"babel__template",
-					"babel__traverse",
-					"graceful-fs",
-					"istanbul-lib-coverage",
-					"istanbul-lib-report",
-					"istanbul-reports",
-					"jest",
-					"json-schema",
-					"json5",
-					"mdast",
-					"node",
-					"normalize-package-data",
-					"parse-json",
-					"prettier",
-					"stack-utils",
-					"unist",
-					"yargs",
-					"yargs-parser",
+			compileOnSave: false,
+			compilerOptions: {
+				allowSyntheticDefaultImports: false,
+				alwaysStrict: false,
+				declaration: undefined,
+				esModuleInterop: undefined,
+				generateCpuProfile: 'profile.cpuprofile',
+				incremental: undefined,
+				jsxFactory: 'React.createElement',
+				jsxImportSource: 'react',
+				module: 'CommonJS',
+				moduleResolution: 'NodeJs',
+				noImplicitAny: false,
+				noImplicitThis: false,
+				preserveConstEnums: false,
+				reactNamespace: 'React',
+				strictBindCallApply: false,
+				strictFunctionTypes: false,
+				strictNullChecks: false,
+				strictPropertyInitialization: false,
+				target: 'ES3',
+				tsBuildInfoFile: '.tsbuildinfo',
+				types: [
+					'babel__core',
+					'babel__generator',
+					'babel__template',
+					'babel__traverse',
+					'graceful-fs',
+					'istanbul-lib-coverage',
+					'istanbul-lib-report',
+					'istanbul-reports',
+					'jest',
+					'json-schema',
+					'json5',
+					'mdast',
+					'node',
+					'normalize-package-data',
+					'parse-json',
+					'prettier',
+					'stack-utils',
+					'unist',
+					'yargs',
+					'yargs-parser',
 				],
-				"useDefineForClassFields": false,
-				"useUnknownInCatchVariables": false,
+				useDefineForClassFields: false,
+				useUnknownInCatchVariables: false,
 			},
+			include: ['**/*'],
 		});
 	});
 });

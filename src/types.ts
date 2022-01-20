@@ -10,7 +10,7 @@ export type TsConfigResult = {
 	/**
 	 * The parsed tsconfig.json file
 	 */
-	parsed: ParsedCommandLine | undefined;
+	parsed: ParsedCommandLine;
 
 	getRaw: typeof getRaw;
 };

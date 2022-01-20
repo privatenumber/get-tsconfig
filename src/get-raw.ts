@@ -120,5 +120,7 @@ export function getRaw(
 		result.compilerOptions = compilerOptions as TsConfigJson.CompilerOptions;
 	}
 
+	result.include = result.include ?? (result.files ? [] : ['**/*']);
+
 	return result;
 }
