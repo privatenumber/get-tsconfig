@@ -73,3 +73,18 @@ test('get tsconfig from index.js path', () => {
 		},
 	});
 });
+
+test('get tsconfig from directory path', () => {
+	const tsconfig = getTsconfig('./tests/missing');
+
+	expect(tsconfig.getRaw(true)).toBe({
+		compilerOptions: {
+			target: 'ES3',
+			module: 'CommonJS',
+			moduleResolution: 'NodeJs',
+			strict: true,
+			jsx: 'React',
+			jsxFactory: 'h',
+		},
+	});
+});
