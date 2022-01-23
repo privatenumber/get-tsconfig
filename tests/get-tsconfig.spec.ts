@@ -1,9 +1,14 @@
+import fs from 'fs';
+import os from 'os';
 import AggregateError from 'aggregate-error';
 import getTsconfig from '../src/index';
 
-test('error: invalid path', () => {
-	expect(() => getTsconfig('/')).toThrow('Could not find a tsconfig.json file.');
-});
+const temporaryDirectory = os.tmpdir();
+const emptyDirectoryPath = `${temporaryDirectory}/empty-directory`;
+
+if (!fs.existsSync(emptyDirectoryPath)) {
+	fs.mkdirSync(emptyDirectoryPath);
+}
 
 test('error: invalid json path', () => {
 	expect(() => getTsconfig('.json')).toThrow('Cannot read file \'.json\'.');
@@ -21,6 +26,16 @@ test('error: invalid tsconfig.json', () => {
 			expect(errorsArray[1].message).toMatch('Argument for \'--jsx\' option must be: \'preserve\', \'react-native\', \'react\'');
 		}
 	}
+});
+
+test('no tsconfig found', () => {
+	const tsconfig = getTsconfig(emptyDirectoryPath);
+
+	expect(tsconfig.path).toBe(undefined);
+	expect(tsconfig.getRaw()).toStrictEqual({
+		compileOnSave: false,
+		compilerOptions: {},
+	});
 });
 
 test('get tsconfig from cwd', () => {
