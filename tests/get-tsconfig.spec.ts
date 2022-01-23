@@ -28,6 +28,16 @@ test('error: invalid tsconfig.json', () => {
 	}
 });
 
+test('no tsconfig found', () => {
+	const tsconfig = getTsconfig(emptyDirectoryPath);
+
+	expect(tsconfig.path).toBe(undefined);
+	expect(tsconfig.getRaw()).toStrictEqual({
+		compileOnSave: false,
+		compilerOptions: {},
+	});
+});
+
 test('get tsconfig from cwd', () => {
 	const tsconfig = getTsconfig();
 
@@ -75,6 +85,7 @@ test('get tsconfig from index.js path', () => {
 			strict: true,
 			jsx: 'React',
 			jsxFactory: 'h',
+			target: 'ESNext',
 		},
 	});
 });

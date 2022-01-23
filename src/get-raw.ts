@@ -74,6 +74,10 @@ function applyCompilerOptionsDefaults(compilerOptions: CompilerOptions) {
 	compilerOptions.types = getAutomaticTypeDirectiveNames(compilerOptions, host);
 }
 
+enum ScriptTargetPatch {
+	ESNext = 99
+}
+
 // Based on:
 // https://github.com/microsoft/TypeScript/blob/82377825d73a22f09dd13d19f/src/server/protocol.ts#L3425
 const reverseLookup = {
@@ -82,7 +86,10 @@ const reverseLookup = {
 	module: ModuleKind,
 	moduleResolution: ModuleResolutionKind,
 	newLine: NewLineKind,
-	target: ScriptTarget,
+	target: {
+		...ScriptTarget,
+		...ScriptTargetPatch,
+	},
 };
 
 type TsconfigResolved = Except<TsConfigJson, 'extends'>;

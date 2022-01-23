@@ -7,12 +7,12 @@ import {
 	DiagnosticCategory,
 } from 'typescript';
 import AggregateError from 'aggregate-error';
-import { getRaw } from './get-raw';
 import type { TsConfigResult } from './types';
-
-const errorCodeNoInputFound = 18_003;
+import { getRaw } from './get-raw';
 
 const cache = new Map<string, TsConfigResult>();
+
+const errorCodeNoInputFound = 18_003;
 
 /**
  * If a JSON file is passed in, it will parse that as tsconfig

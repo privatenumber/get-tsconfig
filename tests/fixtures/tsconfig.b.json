@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"strict": true,
 		"jsx": "react",
-		"jsxFactory": "h"
+		"jsxFactory": "h",
+		"target": "ESNext"
 	}
 }
