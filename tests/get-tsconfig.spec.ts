@@ -85,6 +85,7 @@ test('get tsconfig from index.js path', () => {
 			strict: true,
 			jsx: 'React',
 			jsxFactory: 'h',
+			target: 'ESNext',
 		},
 	});
 });
