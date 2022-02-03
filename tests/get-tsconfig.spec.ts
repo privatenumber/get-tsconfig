@@ -28,6 +28,20 @@ test('error: invalid tsconfig.json', () => {
 	}
 });
 
+test('error: no source files', () => {
+	try {
+		getTsconfig('./tests/fixtures/tsconfig.no-source.json');
+	} catch (error) {
+		expect(error).toBeInstanceOf(Error);
+
+		if (error instanceof Error) {
+			expect(error.message).toBe(
+				'No inputs were found in config file \'tsconfig.json\'. Specified \'include\' paths were \'["non-existent"]\' and \'exclude\' paths were \'[]\'.',
+			);
+		}
+	}
+});
+
 test('no tsconfig found', () => {
 	const tsconfig = getTsconfig(emptyDirectoryPath);
 

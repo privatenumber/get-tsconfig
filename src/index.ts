@@ -64,7 +64,21 @@ function getTsconfig(
 		});
 
 		if (errors.length > 0) {
-			throw new AggregateError(errors.map(error => error.messageText));
+			const errorInstances = errors.map(
+				({ messageText, code, file }) => Object.assign(
+					new Error(messageText.toString()),
+					{
+						code,
+						file,
+					},
+				),
+			);
+
+			if (errorInstances.length === 1) {
+				throw errorInstances[0];
+			}
+
+			throw new AggregateError(errorInstances);
 		}
 	}
 
