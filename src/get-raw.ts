@@ -27,7 +27,9 @@ const reverseLookup = {
 	},
 };
 
-export function getRaw(this: TsConfigResult): Except<TsConfigJson, 'extends'> {
+export type TsConfigExtendsResolved = Except<TsConfigJson, 'extends'>;
+
+export function getRaw(this: TsConfigResult): TsConfigExtendsResolved {
 	const { raw, options } = this.parsed;
 
 	const compilerOptions = { ...options };

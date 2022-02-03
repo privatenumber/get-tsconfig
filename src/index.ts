@@ -84,3 +84,6 @@ function getTsconfig(
 }
 
 export default getTsconfig;
+export type { TsConfigResult };
+export type { TsConfigJson } from 'type-fest';
+export type { TsConfigExtendsResolved } from './get-raw';
