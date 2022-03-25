@@ -20,6 +20,7 @@ const cache = new Map<string, TsConfig>();
  */
 function getTsconfig(
 	searchPath = process.cwd(),
+	configName = 'tsconfig.json',
 ) {
 	let tsconfig = cache.get(searchPath);
 
@@ -28,9 +29,9 @@ function getTsconfig(
 	}
 
 	const tsconfigPath = (
-		searchPath.endsWith('.json')
+		searchPath.endsWith(configName)
 			? searchPath
-			: findConfigFile(searchPath, tsSys.fileExists, 'tsconfig.json')
+			: findConfigFile(searchPath, tsSys.fileExists, configName)
 	);
 
 	if (!tsconfigPath) {
