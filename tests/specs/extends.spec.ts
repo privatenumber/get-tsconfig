@@ -7,7 +7,6 @@ import { getTscConfig } from '../utils/get-tsc-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('extends', ({ describe, test }) => {
-
 		// error - extends empty file
 		//  error - invalid path
 
@@ -22,7 +21,7 @@ export default testSuite(({ describe }) => {
 
 			const expectedTsconfig = await getTscConfig(fixture.path);
 			delete expectedTsconfig.files;
-			
+
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
@@ -44,18 +43,18 @@ export default testSuite(({ describe }) => {
 						'file.ts': '',
 					},
 				});
-	
-				const testDirectory = fixture.path + '/tests';
+
+				const testDirectory = `${fixture.path}/tests`;
 				const expectedTsconfig = await getTscConfig(testDirectory);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(testDirectory);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
-	
+
 			test('extends dependency package', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/tsconfig.json': tsconfigJson({
@@ -69,14 +68,14 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 		});
@@ -128,15 +127,15 @@ export default testSuite(({ describe }) => {
 						extends: './some-dir/tsconfig.base.json',
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
-	
+
 			test('gets overwritten', async () => {
 				const fixture = await createFixture({
 					'some-dir': {
@@ -157,14 +156,14 @@ export default testSuite(({ describe }) => {
 						],
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
-			});	
+			});
 		});
 
 		describe('include', ({ test }) => {
@@ -182,17 +181,17 @@ export default testSuite(({ describe }) => {
 						extends: './src-a/tsconfig.base.json',
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-				
+
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
-	
+
 			test('gets overwritten', async () => {
 				const fixture = await createFixture({
 					'src-a': {
@@ -213,16 +212,16 @@ export default testSuite(({ describe }) => {
 						include: ['src-b'],
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
-			});	
+			});
 		});
 
 		describe('baseUrl', ({ test }) => {
@@ -239,20 +238,20 @@ export default testSuite(({ describe }) => {
 						},
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
-	
+
 			test('gets inherited with relative path', async () => {
 				const fixture = await createFixture({
-					'project': {
+					project: {
 						'src-a': {
 							'a.ts': '',
 							'b.ts': '',
@@ -268,14 +267,14 @@ export default testSuite(({ describe }) => {
 						extends: './project/tsconfig.json',
 					}),
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = getTsconfig(fixture.path);
-	
+
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 		});
@@ -305,35 +304,35 @@ export default testSuite(({ describe }) => {
 
 			const expectedTsconfig = await getTscConfig(fixture.path);
 			delete expectedTsconfig.files;
-			
+
 			const tsconfig = getTsconfig(fixture.path);
 
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
 			await fixture.cleanup();
 		});
-		
+
 		test('watchOptions', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.base.json': tsconfigJson({
 					watchOptions: {
 						synchronousWatchDirectory: true,
-						excludeDirectories: ['a', 'b']
+						excludeDirectories: ['a', 'b'],
 					},
 				}),
 				'tsconfig.json': tsconfigJson({
 					extends: './tsconfig.base.json',
 					watchOptions: {
 						fallbackPolling: 'fixedinterval',
-						excludeDirectories: ['c']
-					}
+						excludeDirectories: ['c'],
+					},
 				}),
 			});
 
 			const expectedTsconfig = await getTscConfig(fixture.path);
 			delete expectedTsconfig.files;
-			
+
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 

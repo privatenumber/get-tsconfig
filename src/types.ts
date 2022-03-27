@@ -15,4 +15,3 @@ export type TsConfigResult = {
 	 */
 	 config: TsConfigJsonResolved;
 };
-

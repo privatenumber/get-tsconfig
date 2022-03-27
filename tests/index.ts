@@ -1,6 +1,6 @@
 import path from 'path';
-import getTsconfig from '../src/index';
 import { test, describe, expect } from 'manten';
+import getTsconfig from '../src/index';
 import specErrors from './specs/errors.spec';
 import specFindsConfig from './specs/finds-config.spec';
 import specExtends from './specs/extends.spec';
@@ -19,11 +19,11 @@ import specExtends from './specs/extends.spec';
 
 (async () => {
 	// for (const nodeVersion of nodeVersions) {
-		// const node = await getNode(nodeVersion);
-		await describe(`get-tsconfig`, ({ runTestSuite }) => {
-			// runTestSuite(specErrors);
-			// runTestSuite(specFindsConfig);
-			runTestSuite(specExtends);
-		});
+	// const node = await getNode(nodeVersion);
+	await describe('get-tsconfig', ({ runTestSuite }) => {
+		// runTestSuite(specErrors);
+		// runTestSuite(specFindsConfig);
+		runTestSuite(specExtends);
+	});
 	// }
 })();

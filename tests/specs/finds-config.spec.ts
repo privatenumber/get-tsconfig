@@ -6,7 +6,7 @@ export default testSuite(({ describe }) => {
 	describe('find tsconfig', ({ test }) => {
 		test('from cwd', () => {
 			const tsconfig = getTsconfig();
-		
+
 			expect(tsconfig).toStrictEqual({
 				path: path.join(process.cwd(), 'tsconfig.json'),
 				config: {
@@ -25,7 +25,7 @@ export default testSuite(({ describe }) => {
 
 		test('from directory path', () => {
 			const tsconfig = getTsconfig('./tests/fixtures');
-		
+
 			expect(tsconfig).toStrictEqual({
 				path: 'tests/fixtures/tsconfig.json',
 				config: {
@@ -40,7 +40,7 @@ export default testSuite(({ describe }) => {
 
 		test('from tsconfig.json path', () => {
 			const tsconfig = getTsconfig('./tests/fixtures/tsconfig.json');
-		
+
 			expect(tsconfig).toStrictEqual({
 				path: 'tests/fixtures/tsconfig.json',
 				config: {

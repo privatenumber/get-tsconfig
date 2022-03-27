@@ -30,7 +30,7 @@ function findConfigFile(
 /**
  * Use indirect eval for compilers:
  * https://esbuild.github.io/content-types/#direct-eval
- * 
+ *
  * eval is considered a security risk in the frontend.
  * In Node.js, dependencies can run potentially malicious
  * code even without eval.
@@ -74,7 +74,6 @@ function readConfigFile(
 			);
 		}
 
-
 		if (extendsConfig.files) {
 			extendsConfig.files = extendsConfig.files.map(
 				file => path.relative(
@@ -94,7 +93,6 @@ function readConfigFile(
 		}
 
 		delete config.extends;
-
 
 		const merged = {
 			...extendsConfig,
@@ -122,7 +120,6 @@ function readConfigFile(
 		compilerOptions.baseUrl = normalizePath(compilerOptions.baseUrl!);
 	}
 
-
 	if (config.files) {
 		config.files = config.files.map(normalizePath);
 	}
@@ -133,7 +130,7 @@ function readConfigFile(
 		if (watchOptions.excludeDirectories) {
 			watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
 				excludePath => path.resolve(directoryPath, excludePath),
-			);	
+			);
 		}
 	}
 

@@ -7,7 +7,6 @@ const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig');
 
 type FileTree = { [path: string]: string | FileTree };
 
-
 // import getTsconfig from '../../src/index';
 
 // describe('extends', () => {
@@ -41,9 +40,6 @@ function flattenFileTree(
 	return files;
 }
 
-
-
-
 let id = 1;
 export async function createFixture(
 	fileTree: FileTree,
@@ -61,7 +57,7 @@ export async function createFixture(
 			await fs.writeFile(file.path, file.content);
 		}),
 	);
-	
+
 	return {
 		path: fixturePath,
 		cleanup() {
