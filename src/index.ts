@@ -1,76 +1,161 @@
+import fs from 'fs';
 import path from 'path';
-import {
-	sys as tsSys,
-	findConfigFile,
-	readConfigFile,
-	parseJsonConfigFileContent,
-} from 'typescript';
-import type { CompilerOptions } from 'typescript';
-import AggregateError from 'aggregate-error';
+import type { TsConfigJson, TsConfigJsonResolved } from './types';
 
-type TsConfig = {
-	compilerOptions: CompilerOptions;
-};
+const normalizePath = (filePath: string) => (
+	/^[./]/.test(filePath)
+		? filePath
+		: `./${filePath}`
+);
 
-const cache = new Map<string, TsConfig>();
+function findConfigFile(
+	searchPath: string,
+	configName: string,
+) {
+	while (true) {
+		const configPath = path.join(searchPath, configName);
+		if (fs.existsSync(configPath)) {
+			return configPath;
+		}
+
+		const parentPath = path.dirname(searchPath);
+		if (parentPath === searchPath) {
+			return;
+		}
+
+		searchPath = parentPath;
+	}
+}
 
 /**
- * If a JSON file is passed in, it will parse that as tsconfig
- * If a non JSON file (directory or TS file) is passed in, it searches up for a tsconfig from there
+ * Use indirect eval for compilers:
+ * https://esbuild.github.io/content-types/#direct-eval
+ * 
+ * eval is considered a security risk in the frontend.
+ * In Node.js, dependencies can run potentially malicious
+ * code even without eval.
  */
+const indirectEval = eval;
+
+function readConfigFile(
+	filePath: string,
+): TsConfigJsonResolved {
+	const fileRealPath = fs.realpathSync(filePath);
+	const directoryPath = path.dirname(fileRealPath);
+	const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+	// TODO add error
+	let config: TsConfigJson = indirectEval(`(${fileContent}\n)`);
+
+	if (config.extends) {
+		let extendsPath = config.extends;
+
+		try {
+			extendsPath = require.resolve(extendsPath, { paths: [path.dirname(filePath)] });
+		} catch (error) {
+			if ((error as any).code === 'MODULE_NOT_FOUND') {
+				extendsPath = require.resolve(
+					path.join(extendsPath, 'tsconfig.json'),
+					{ paths: [path.dirname(filePath)] },
+				);
+			}
+		}
+
+		const extendsConfig = readConfigFile(extendsPath);
+
+		delete extendsConfig.references;
+
+		if (extendsConfig.compilerOptions?.baseUrl) {
+			const { compilerOptions } = extendsConfig;
+
+			compilerOptions.baseUrl = path.relative(
+				directoryPath,
+				path.join(path.dirname(extendsPath), compilerOptions.baseUrl!),
+			);
+		}
+
+
+		if (extendsConfig.files) {
+			extendsConfig.files = extendsConfig.files.map(
+				file => path.relative(
+					directoryPath,
+					path.join(path.dirname(extendsPath), file),
+				),
+			);
+		}
+
+		if (extendsConfig.include) {
+			extendsConfig.include = extendsConfig.include.map(
+				file => path.relative(
+					directoryPath,
+					path.join(path.dirname(extendsPath), file),
+				),
+			);
+		}
+
+		delete config.extends;
+
+
+		const merged = {
+			...extendsConfig,
+			...config,
+
+			compilerOptions: {
+				...extendsConfig.compilerOptions,
+				...config.compilerOptions,
+			},
+		};
+
+		if (extendsConfig.watchOptions) {
+			merged.watchOptions = {
+				...extendsConfig.watchOptions,
+				...config.watchOptions,
+			};
+		}
+
+		config = merged;
+	}
+
+	if (config.compilerOptions?.baseUrl) {
+		const { compilerOptions } = config;
+
+		compilerOptions.baseUrl = normalizePath(compilerOptions.baseUrl!);
+	}
+
+
+	if (config.files) {
+		config.files = config.files.map(normalizePath);
+	}
+
+	if (config.watchOptions) {
+		const { watchOptions } = config;
+
+		if (watchOptions.excludeDirectories) {
+			watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
+				excludePath => path.resolve(directoryPath, excludePath),
+			);	
+		}
+	}
+
+	return config;
+}
+
 function getTsconfig(
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
 ) {
-	let tsconfig = cache.get(searchPath);
+	const configFile = findConfigFile(searchPath, configName);
 
-	if (tsconfig) {
-		return tsconfig;
+	if (!configFile) {
+		return null;
 	}
 
-	const tsconfigPath = (
-		searchPath.endsWith(configName)
-			? searchPath
-			: findConfigFile(searchPath, tsSys.fileExists, configName)
-	);
+	const config = readConfigFile(configFile);
 
-	if (!tsconfigPath) {
-		throw new Error('Could not find a tsconfig.json file.');
-	}
-
-	tsconfig = cache.get(tsconfigPath);
-
-	if (tsconfig) {
-		return tsconfig;
-	}
-
-	const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
-
-	if (configFile.error?.messageText) {
-		throw new Error(configFile.error.messageText.toString());
-	}
-
-	const parsedConfig = parseJsonConfigFileContent(
-		configFile.config,
-		tsSys,
-		path.dirname(tsconfigPath),
-	);
-
-	if (parsedConfig.errors.length > 0) {
-		throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
-	}
-
-	tsconfig = {
-		compilerOptions: parsedConfig.options,
+	return {
+		path: configFile,
+		config,
 	};
-
-	cache.set(searchPath, tsconfig);
-
-	if (tsconfigPath !== searchPath) {
-		cache.set(tsconfigPath, tsconfig);
-	}
-
-	return tsconfig;
 }
 
 export default getTsconfig;

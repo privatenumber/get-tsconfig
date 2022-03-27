@@ -1,3 +1,9 @@
+// comment at top
 {
-	"extends": "./tsconfig.a.json",
-}
+	/* compiler options */
+	"compilerOptions": {
+		"jsx": "react",
+		"jsxFactory": "h",
+		"strict": true, // dangling-comma
+	},
+} //comment at bottom
