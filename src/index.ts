@@ -35,6 +35,7 @@ function findConfigFile(
  * In Node.js, dependencies can run potentially malicious
  * code even without eval.
  */
+// eslint-disable-next-line no-eval
 const indirectEval = eval;
 
 function readConfigFile(

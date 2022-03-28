@@ -69,6 +69,16 @@
 		"extends": "@pvtnbr/eslint-config",
 		"ignorePatterns": [
 			"tests/fixtures"
+		],
+		"overrides": [
+			{
+				"files": "tests/**/*.ts",
+				"rules": {
+					"@typescript-eslint/no-shadow": ["error", {
+						"allow": ["test", "describe"]
+					}]
+				}
+			}
 		]
 	}
 }

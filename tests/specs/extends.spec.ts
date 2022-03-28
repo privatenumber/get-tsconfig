@@ -1,6 +1,4 @@
-import path from 'path';
 import { testSuite, expect } from 'manten';
-import { execa } from 'execa';
 import getTsconfig from '../../src/index';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
 import { getTscConfig } from '../utils/get-tsc-tsconfig';

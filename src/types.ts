@@ -13,5 +13,5 @@ export type TsConfigResult = {
 	/**
 	 * The parsed tsconfig.json file
 	 */
-	 config: TsConfigJsonResolved;
+	config: TsConfigJsonResolved;
 };
