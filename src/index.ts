@@ -157,3 +157,4 @@ function getTsconfig(
 }
 
 export default getTsconfig;
+export * from './types';
