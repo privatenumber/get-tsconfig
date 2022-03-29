@@ -13,8 +13,5 @@ export async function getTscConfig(
 		{ cwd },
 	);
 
-	const expectedTsconfig: TsConfigJson = JSON.parse(tscProcess.stdout);
-	// delete expectedTsconfig.files;
-
-	return expectedTsconfig;
+	return JSON.parse(tscProcess.stdout);
 }

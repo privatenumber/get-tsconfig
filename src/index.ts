@@ -38,15 +38,34 @@ function findConfigFile(
 // eslint-disable-next-line no-eval
 const indirectEval = eval;
 
+const safeEval = (expression: string) => {
+	return indirectEval(`
+		const emptyGlobal = new Proxy({}, {
+			has: () => true,
+		});
+		with (emptyGlobal) {
+			(${expression}\n)
+		}
+	`);
+};
+
 function readConfigFile(
 	filePath: string,
 ): TsConfigJsonResolved {
 	const fileRealPath = fs.realpathSync(filePath);
 	const directoryPath = path.dirname(fileRealPath);
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = fs.readFileSync(filePath, 'utf-8').trim();
 
 	// TODO add error
-	let config: TsConfigJson = indirectEval(`(${fileContent}\n)`);
+	let config: TsConfigJson = {};
+
+	if (fileContent) {
+		try {
+			config = safeEval(fileContent);
+		} catch {
+			throw new SyntaxError('Failed to parse JSON: ' + filePath);
+		}
+	}
 
 	if (config.extends) {
 		let extendsPath = config.extends;
@@ -55,10 +74,12 @@ function readConfigFile(
 			extendsPath = require.resolve(extendsPath, { paths: [path.dirname(filePath)] });
 		} catch (error) {
 			if ((error as any).code === 'MODULE_NOT_FOUND') {
-				extendsPath = require.resolve(
-					path.join(extendsPath, 'tsconfig.json'),
-					{ paths: [path.dirname(filePath)] },
-				);
+				try {
+					extendsPath = require.resolve(
+						path.join(extendsPath, 'tsconfig.json'),
+						{ paths: [path.dirname(filePath)] },
+					);	
+				} catch {}
 			}
 		}
 

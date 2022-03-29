@@ -5,10 +5,54 @@ import { getTscConfig } from '../utils/get-tsc-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('extends', ({ describe, test }) => {
-		// error - extends empty file
-		//  error - invalid path
+		describe('error handling', ({ test }) => {
+			test('invalid path', async () => {
+				const fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': tsconfigJson({
+						extends: './non-existent.json',
+					}),
+				});
 
-		test('extends empty json', async () => {
+				expect(() => getTsconfig(fixture.path)).toThrow('no such file or directory');
+
+				await fixture.cleanup();
+			});
+
+			test('invalid json', async () => {
+				const fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.empty.json': 'require("fs")',
+					'tsconfig.json': tsconfigJson({
+						extends: './tsconfig.empty.json',
+					}),
+				});
+
+				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse JSON');
+
+				await fixture.cleanup();
+			});
+		});
+
+		test('empty file', async () => {
+			const fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.empty.json': '',
+				'tsconfig.json': tsconfigJson({
+					extends: './tsconfig.empty.json',
+				}),
+			});
+
+			const expectedTsconfig = await getTscConfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+			await fixture.cleanup();
+		});
+
+		test('empty json', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.empty.json': tsconfigJson({}),

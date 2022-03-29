@@ -3,16 +3,9 @@ import path from 'path';
 import os from 'os';
 import type { TsConfigJson } from 'type-fest';
 
-const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig');
-
 type FileTree = { [path: string]: string | FileTree };
 
-// import getTsconfig from '../../src/index';
-
-// describe('extends', () => {
-// 	// extends empty compiler options
-// 	// compiler options are merged
-// });
+const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig');
 
 function flattenFileTree(
 	fileTree: FileTree,
@@ -51,8 +44,6 @@ export async function createFixture(
 ) {
 	const fixturePath = path.join(temporaryDirectory, `fixture-${id}`);
 	id += 1;
-
-	// await fs.mkdir(fixturePath, { recursive: true });
 
 	const files = flattenFileTree(fileTree, fixturePath);
 

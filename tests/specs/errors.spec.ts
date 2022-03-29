@@ -12,7 +12,5 @@ export default testSuite(({ describe }) => {
 		// cant read file (permissions?)
 
 		// non json file - parsing error
-
-		// extends not found
 	});
 });
