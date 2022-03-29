@@ -9,11 +9,6 @@
 // eslint-disable-next-line no-eval
 const indirectEval = eval;
 
-export const safeEval = (expression: string) => indirectEval(`
-	const emptyGlobal = new Proxy({}, {
-		has: () => true,
-	});
-	with (emptyGlobal) {
-		(${expression}\n)
-	}
-`);
+export const safeEval = (expression: string) => indirectEval(
+	`const emptyGlobal = new Proxy({}, { has: () => true });with (emptyGlobal) { (${expression}\n) }`,
+);
