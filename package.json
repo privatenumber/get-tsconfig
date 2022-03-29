@@ -60,7 +60,7 @@
 		"manten": "^0.0.3",
 		"pkgroll": "github:privatenumber/pkgroll#built/develop",
 		"tsup": "^5.11.11",
-		"type-fest": "github:privatenumber/type-fest#tsconfig-watch-options",
+		"type-fest": "github:privatenumber/type-fest#built/tsconfig-watch-options",
 		"typescript": "^4.5.4"
 	},
 	"eslintConfig": {
