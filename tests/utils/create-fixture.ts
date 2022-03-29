@@ -17,7 +17,6 @@ function flattenFileTree(
 	}[] = [];
 
 	for (const filePath in fileTree) {
-		// eslint-disable-next-line no-use-extend-native/no-use-extend-native
 		if (!Object.hasOwn(fileTree, filePath)) {
 			continue;
 		}

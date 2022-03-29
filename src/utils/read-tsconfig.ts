@@ -9,7 +9,7 @@ export function readTsconfig(
 ): TsConfigJsonResolved {
 	const fileRealPath = fs.realpathSync(filePath);
 	const directoryPath = path.dirname(fileRealPath);
-	const fileContent = fs.readFileSync(filePath, 'utf-8').trim();
+	const fileContent = fs.readFileSync(filePath, 'utf8').trim();
 
 	let config: TsConfigJson = {};
 
