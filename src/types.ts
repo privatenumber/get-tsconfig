@@ -11,7 +11,7 @@ export type TsConfigResult = {
 	path: string | undefined;
 
 	/**
-	 * The parsed tsconfig.json file
+	 * The resolved tsconfig.json file
 	 */
 	config: TsConfigJsonResolved;
 };
