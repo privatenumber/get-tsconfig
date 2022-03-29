@@ -31,7 +31,7 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"build": "tsup src/index.ts --clean --format cjs,esm --dts --minify",
+		"build": "pkgroll",
 		"test": "esno tests"
 	},
 	"husky": {
@@ -42,14 +42,11 @@
 	"lint-staged": {
 		"*.{js,ts}": [
 			"eslint",
-			"jest --bail --findRelatedTests"
+			"npm test"
 		]
 	},
 	"peerDependencies": {
 		"typescript": "^4.0.8"
-	},
-	"dependencies": {
-		"aggregate-error": "3.1.0"
 	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.11.0",
@@ -61,6 +58,7 @@
 		"husky": "^4.3.8",
 		"lint-staged": "^12.1.7",
 		"manten": "^0.0.3",
+		"pkgroll": "github:privatenumber/pkgroll#built/develop",
 		"tsup": "^5.11.11",
 		"type-fest": "github:privatenumber/type-fest#tsconfig-watch-options",
 		"typescript": "^4.5.4"
@@ -74,9 +72,15 @@
 			{
 				"files": "tests/**/*.ts",
 				"rules": {
-					"@typescript-eslint/no-shadow": ["error", {
-						"allow": ["test", "describe"]
-					}]
+					"@typescript-eslint/no-shadow": [
+						"error",
+						{
+							"allow": [
+								"test",
+								"describe"
+							]
+						}
+					]
 				}
 			}
 		]

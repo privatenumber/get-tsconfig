@@ -17,6 +17,7 @@ export default testSuite(({ describe }) => {
 						declaration: true,
 						outDir: 'dist',
 						strict: true,
+						target: 'esnext',
 					},
 					include: ['src'],
 				},
