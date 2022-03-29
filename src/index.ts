@@ -38,16 +38,14 @@ function findConfigFile(
 // eslint-disable-next-line no-eval
 const indirectEval = eval;
 
-const safeEval = (expression: string) => {
-	return indirectEval(`
-		const emptyGlobal = new Proxy({}, {
-			has: () => true,
-		});
-		with (emptyGlobal) {
-			(${expression}\n)
-		}
-	`);
-};
+const safeEval = (expression: string) => indirectEval(`
+	const emptyGlobal = new Proxy({}, {
+		has: () => true,
+	});
+	with (emptyGlobal) {
+		(${expression}\n)
+	}
+`);
 
 function readConfigFile(
 	filePath: string,
@@ -63,7 +61,7 @@ function readConfigFile(
 		try {
 			config = safeEval(fileContent);
 		} catch {
-			throw new SyntaxError('Failed to parse JSON: ' + filePath);
+			throw new SyntaxError(`Failed to parse JSON: ${filePath}`);
 		}
 	}
 
@@ -78,7 +76,7 @@ function readConfigFile(
 					extendsPath = require.resolve(
 						path.join(extendsPath, 'tsconfig.json'),
 						{ paths: [path.dirname(filePath)] },
-					);	
+					);
 				} catch {}
 			}
 		}
