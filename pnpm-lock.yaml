@@ -25,7 +25,7 @@ devDependencies:
   lint-staged: 12.3.7
   manten: 0.0.3
   pkgroll: github.com/privatenumber/pkgroll/b7fcc36a281a1d9755b9948353892fcee027f5e1_typescript@4.6.3
-  type-fest: github.com/privatenumber/type-fest/9884ad3d3ab81f114208e0a7f9b6e41d91b435e6
+  type-fest: github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912
   typescript: 4.6.3
 
 packages:
@@ -3407,8 +3407,8 @@ packages:
       - supports-color
     dev: true
 
-  github.com/privatenumber/type-fest/9884ad3d3ab81f114208e0a7f9b6e41d91b435e6:
-    resolution: {tarball: https://codeload.github.com/privatenumber/type-fest/tar.gz/9884ad3d3ab81f114208e0a7f9b6e41d91b435e6}
+  github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912:
+    resolution: {tarball: https://codeload.github.com/privatenumber/type-fest/tar.gz/b628502e7c2d65f696a66f2ed436e258b33d5912}
     name: type-fest
     version: 2.12.1
     engines: {node: '>=12.20'}
