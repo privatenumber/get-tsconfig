@@ -45,9 +45,6 @@
 			"npm test"
 		]
 	},
-	"peerDependencies": {
-		"typescript": "^4.0.8"
-	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.19.1",
 		"@types/node": "^17.0.23",
