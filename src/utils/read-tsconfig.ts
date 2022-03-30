@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { parse } from 'jsonc-parser';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
-import { safeEval } from './safe-eval';
 import { normalizePath } from './normalize-path';
 
 export function readTsconfig(
@@ -14,9 +14,9 @@ export function readTsconfig(
 	let config: TsConfigJson = {};
 
 	if (fileContent) {
-		try {
-			config = safeEval(fileContent);
-		} catch {
+		config = parse(fileContent);
+
+		if (!config || typeof config !== 'object') {
 			throw new SyntaxError(`Failed to parse JSON: ${filePath}`);
 		}
 	}
