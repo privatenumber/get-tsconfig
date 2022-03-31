@@ -1,7 +1,7 @@
 {
 	"name": "get-tsconfig",
 	"version": "0.0.0-semantic-release",
-	"description": "Find and/or parse the tsconfig.json file from a file or directory path",
+	"description": "Find and parse the tsconfig.json file from a directory path",
 	"keywords": [
 		"get-tsconfig",
 		"get",
