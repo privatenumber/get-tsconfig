@@ -8,7 +8,7 @@ Find and parse `tsconfig.json` files.
 - Supports comments & dangling commas in `tsconfig.json`
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Validates and throws parsing errors
-- Tiny! `2.9 kB`
+- Tiny! `3 kB` Minified + Gzipped
 
 ## 🚀 Install
 
