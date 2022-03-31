@@ -1,5 +1,6 @@
 import { testSuite, expect } from 'manten';
 import getTsconfig from '../../src/index';
+import { createFixture } from '../utils/create-fixture';
 
 export default testSuite(({ describe }) => {
 	describe('error cases', ({ test }) => {
@@ -9,8 +10,14 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).toBe(null);
 		});
 
-		// cant read file (permissions?)
+		test('non json file', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': 'asdf',
+			});
 
-		// non json file - parsing error
+			expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse JSON');
+
+			await fixture.cleanup();
+		});
 	});
 });
