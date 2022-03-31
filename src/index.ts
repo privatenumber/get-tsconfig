@@ -1,75 +1,24 @@
-import path from 'path';
-import {
-	sys as tsSys,
-	findConfigFile,
-	readConfigFile,
-	parseJsonConfigFileContent,
-} from 'typescript';
-import type { CompilerOptions } from 'typescript';
-import AggregateError from 'aggregate-error';
+import { findConfigFile } from './utils/find-config-file';
+import { readTsconfig } from './utils/read-tsconfig';
+import type { TsConfigResult } from './types';
 
-type TsConfig = {
-	compilerOptions: CompilerOptions;
-};
-
-const cache = new Map<string, TsConfig>();
-
-/**
- * If a JSON file is passed in, it will parse that as tsconfig
- * If a non JSON file (directory or TS file) is passed in, it searches up for a tsconfig from there
- */
 function getTsconfig(
 	searchPath = process.cwd(),
-) {
-	let tsconfig = cache.get(searchPath);
+	configName = 'tsconfig.json',
+): TsConfigResult {
+	const configFile = findConfigFile(searchPath, configName);
 
-	if (tsconfig) {
-		return tsconfig;
+	if (!configFile) {
+		return null;
 	}
 
-	const tsconfigPath = (
-		searchPath.endsWith('.json')
-			? searchPath
-			: findConfigFile(searchPath, tsSys.fileExists, 'tsconfig.json')
-	);
+	const config = readTsconfig(configFile);
 
-	if (!tsconfigPath) {
-		throw new Error('Could not find a tsconfig.json file.');
-	}
-
-	tsconfig = cache.get(tsconfigPath);
-
-	if (tsconfig) {
-		return tsconfig;
-	}
-
-	const configFile = readConfigFile(tsconfigPath, tsSys.readFile);
-
-	if (configFile.error?.messageText) {
-		throw new Error(configFile.error.messageText.toString());
-	}
-
-	const parsedConfig = parseJsonConfigFileContent(
-		configFile.config,
-		tsSys,
-		path.dirname(tsconfigPath),
-	);
-
-	if (parsedConfig.errors.length > 0) {
-		throw new AggregateError(parsedConfig.errors.map(error => error.messageText));
-	}
-
-	tsconfig = {
-		compilerOptions: parsedConfig.options,
+	return {
+		path: configFile,
+		config,
 	};
-
-	cache.set(searchPath, tsconfig);
-
-	if (tsconfigPath !== searchPath) {
-		cache.set(tsconfigPath, tsconfig);
-	}
-
-	return tsconfig;
 }
 
 export default getTsconfig;
+export * from './types';
