@@ -13,7 +13,7 @@ specifiers:
   manten: ^0.0.3
   pkgroll: ^1.0.1
   slash: ^4.0.0
-  type-fest: github:privatenumber/type-fest#built/tsconfig-watch-options
+  type-fest: ^2.12.2
   typescript: ^4.6.3
 
 devDependencies:
@@ -29,7 +29,7 @@ devDependencies:
   manten: 0.0.3
   pkgroll: 1.0.1_typescript@4.6.3
   slash: 4.0.0
-  type-fest: github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912
+  type-fest: 2.12.2
   typescript: 4.6.3
 
 packages:
@@ -3288,6 +3288,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /type-fest/2.12.2:
+    resolution: {integrity: sha512-qt6ylCGpLjZ7AaODxbpyBZSs9fCI9SkL3Z9q2oxMBQhs/uyY+VD8jHA8ULCGmWQJlBgqvO3EJeAngOHD8zQCrQ==}
+    engines: {node: '>=12.20'}
+    dev: true
+
   /typescript/4.6.3:
     resolution: {integrity: sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==}
     engines: {node: '>=4.2.0'}
@@ -3405,11 +3410,4 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
-
-  github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912:
-    resolution: {tarball: https://codeload.github.com/privatenumber/type-fest/tar.gz/b628502e7c2d65f696a66f2ed436e258b33d5912}
-    name: type-fest
-    version: 2.12.1
-    engines: {node: '>=12.20'}
     dev: true
