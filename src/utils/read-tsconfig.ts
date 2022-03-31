@@ -102,7 +102,7 @@ export function readTsconfig(
 	}
 
 	if (config.include) {
-		config.include = config.include.map(normalizePath);
+		config.include = config.include.map(slash);
 	}
 
 	if (config.watchOptions) {
