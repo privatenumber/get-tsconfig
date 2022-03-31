@@ -11,7 +11,7 @@ specifiers:
   jsonc-parser: ^3.0.0
   lint-staged: ^12.3.7
   manten: ^0.0.3
-  pkgroll: file:vendors/pkgroll-0.0.0.tgz
+  pkgroll: ^1.0.1
   slash: ^4.0.0
   type-fest: github:privatenumber/type-fest#built/tsconfig-watch-options
   typescript: ^4.6.3
@@ -27,7 +27,7 @@ devDependencies:
   jsonc-parser: 3.0.0
   lint-staged: 12.3.7
   manten: 0.0.3
-  pkgroll: file:vendors/pkgroll-0.0.0.tgz_typescript@4.6.3
+  pkgroll: 1.0.1_typescript@4.6.3
   slash: 4.0.0
   type-fest: github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912
   typescript: 4.6.3
@@ -2771,6 +2771,28 @@ packages:
       find-up: 5.0.0
     dev: true
 
+  /pkgroll/1.0.1_typescript@4.6.3:
+    resolution: {integrity: sha512-dOexsNskNtkAt7B/M/NHWjUgHjqqcwGQfvlhctVl9wgz6ydIg/vzhrlvBu0T1htPQ26DuT9snLxKW4qizrxh6A==}
+    hasBin: true
+    peerDependencies:
+      typescript: ~4.1 || ~4.2 || ~4.3 || ~4.4 || ~4.5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@rollup/plugin-alias': 3.1.9_rollup@2.70.1
+      '@rollup/plugin-commonjs': 21.0.3_rollup@2.70.1
+      '@rollup/plugin-inject': 4.0.4_rollup@2.70.1
+      '@rollup/plugin-json': 4.1.0_rollup@2.70.1
+      '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
+      '@rollup/plugin-replace': 4.0.0_rollup@2.70.1
+      '@rollup/pluginutils': 4.2.0
+      esbuild: 0.14.29
+      magic-string: 0.26.1
+      rollup: 2.70.1
+      typescript: 4.6.3
+    dev: true
+
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha1-rt3T+ZTJM+StmLmdmlVu+g4v6UI=}
     dependencies:
@@ -3383,31 +3405,6 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
-
-  file:vendors/pkgroll-0.0.0.tgz_typescript@4.6.3:
-    resolution: {integrity: sha512-1INFh0iaECAFbpOskN2E7wYIUBMbRbimVxmfnJkr2crtShXt7DkBR8LHdtF/d4E5mRsPRI1IxvuaHV1azzYd8Q==, tarball: file:vendors/pkgroll-0.0.0.tgz}
-    id: file:vendors/pkgroll-0.0.0.tgz
-    name: pkgroll
-    version: 0.0.0-semantic-release
-    hasBin: true
-    peerDependencies:
-      typescript: ~4.1 || ~4.2 || ~4.3 || ~4.4 || ~4.5
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@rollup/plugin-alias': 3.1.9_rollup@2.70.1
-      '@rollup/plugin-commonjs': 21.0.3_rollup@2.70.1
-      '@rollup/plugin-inject': 4.0.4_rollup@2.70.1
-      '@rollup/plugin-json': 4.1.0_rollup@2.70.1
-      '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
-      '@rollup/plugin-replace': 4.0.0_rollup@2.70.1
-      '@rollup/pluginutils': 4.2.0
-      esbuild: 0.14.29
-      magic-string: 0.26.1
-      rollup: 2.70.1
-      typescript: 4.6.3
     dev: true
 
   github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912:
