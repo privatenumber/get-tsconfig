@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'jsonc-parser';
+import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
 import { normalizePath } from './normalize-path';
 
@@ -100,12 +101,16 @@ export function readTsconfig(
 		config.files = config.files.map(normalizePath);
 	}
 
+	if (config.include) {
+		config.include = config.include.map(normalizePath);
+	}
+
 	if (config.watchOptions) {
 		const { watchOptions } = config;
 
 		if (watchOptions.excludeDirectories) {
 			watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
-				excludePath => path.resolve(directoryPath, excludePath),
+				excludePath => slash(path.resolve(directoryPath, excludePath)),
 			);
 		}
 	}

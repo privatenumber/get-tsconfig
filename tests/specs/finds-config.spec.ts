@@ -1,5 +1,6 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
+import slash from 'slash';
 import getTsconfig from '../../src/index';
 
 export default testSuite(({ describe }) => {
@@ -8,7 +9,7 @@ export default testSuite(({ describe }) => {
 			const tsconfig = getTsconfig();
 
 			expect(tsconfig).toStrictEqual({
-				path: path.join(process.cwd(), 'tsconfig.json'),
+				path: slash(path.join(process.cwd(), 'tsconfig.json')),
 				config: {
 					compilerOptions: {
 						moduleResolution: 'node',
