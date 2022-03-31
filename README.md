@@ -13,7 +13,7 @@ Find and parse `tsconfig.json` files.
 ## 🚀 Install
 
 ```bash
-npm install --save-dev typescript get-tsconfig
+npm install --save-dev get-tsconfig
 ```
 
 ## 🙋‍♀️ Why?
