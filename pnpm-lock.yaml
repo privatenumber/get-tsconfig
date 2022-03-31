@@ -11,7 +11,7 @@ specifiers:
   jsonc-parser: ^3.0.0
   lint-staged: ^12.3.7
   manten: ^0.0.3
-  pkgroll: github:privatenumber/pkgroll#built/develop
+  pkgroll: file:vendors/pkgroll-0.0.0.tgz
   type-fest: github:privatenumber/type-fest#built/tsconfig-watch-options
   typescript: ^4.6.3
 

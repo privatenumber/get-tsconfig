@@ -13,7 +13,7 @@ lerna-debug.log*
 node_modules/
 
 # Output of 'npm pack'
-*.tgz
+/*.tgz
 
 # dotenv environment variables file
 .env
