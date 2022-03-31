@@ -7,6 +7,9 @@ type FileTree = { [path: string]: string | FileTree };
 
 const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig');
 
+const { hasOwnProperty } = Object.prototype;
+const hasOwn = (object: any, key: string) => hasOwnProperty.call(object, key);
+
 function flattenFileTree(
 	fileTree: FileTree,
 	pathPrefix: string,
@@ -17,7 +20,7 @@ function flattenFileTree(
 	}[] = [];
 
 	for (const filePath in fileTree) {
-		if (!Object.hasOwn(fileTree, filePath)) {
+		if (!hasOwn(fileTree, filePath)) {
 			continue;
 		}
 
