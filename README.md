@@ -49,12 +49,12 @@ type TsconfigResult = {
     /**
      * The path to the tsconfig.json file
      */
-    path: string | undefined;
+    path: string | undefined
 
     /**
      * The resolved tsconfig.json file
      */
-    config: TsConfigJsonResolved;
+    config: TsConfigJsonResolved
 } | null
 ```
 
@@ -82,22 +82,22 @@ However, if you already have TypeScript as a dependency, you can simply use it's
 
 ```ts
 import {
-	sys as tsSys,
-	findConfigFile,
-	readConfigFile,
-	parseJsonConfigFileContent,
-} from 'typescript';
+    sys as tsSys,
+    findConfigFile,
+    readConfigFile,
+    parseJsonConfigFileContent
+} from 'typescript'
 
 // Find tsconfig.json file
-const tsconfigPath = findConfigFile(process.cwd(), tsSys.fileExists, 'tsconfig.json');
+const tsconfigPath = findConfigFile(process.cwd(), tsSys.fileExists, 'tsconfig.json')
 
 // Read tsconfig.json file
-const tsconfigFile = readConfigFile(tsconfigPath, tsSys.readFile);
+const tsconfigFile = readConfigFile(tsconfigPath, tsSys.readFile)
 
 // Resolve extends
 const parsedTsconfig = parseJsonConfigFileContent(
-	tsconfigFile.config,
-	tsSys,
-	path.dirname(tsconfigPath),
-);
+    tsconfigFile.config,
+    tsSys,
+    path.dirname(tsconfigPath)
+)
 ```
