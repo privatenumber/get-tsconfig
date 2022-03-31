@@ -31,7 +31,8 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"build": "pkgroll --minify",
+		"build": "pkgroll --minify --target node12.20",
+		"pretest": "npm run build",
 		"test": "esno tests"
 	},
 	"husky": {

@@ -1,5 +1,5 @@
 import { testSuite, expect } from 'manten';
-import getTsconfig from '../../src/index';
+import getTsconfig from '../../dist/index.js';
 import { createFixture } from '../utils/create-fixture';
 
 export default testSuite(({ describe }) => {
