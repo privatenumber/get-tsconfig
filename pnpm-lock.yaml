@@ -12,6 +12,7 @@ specifiers:
   lint-staged: ^12.3.7
   manten: ^0.0.3
   pkgroll: file:vendors/pkgroll-0.0.0.tgz
+  slash: ^4.0.0
   type-fest: github:privatenumber/type-fest#built/tsconfig-watch-options
   typescript: ^4.6.3
 
@@ -27,6 +28,7 @@ devDependencies:
   lint-staged: 12.3.7
   manten: 0.0.3
   pkgroll: file:vendors/pkgroll-0.0.0.tgz_typescript@4.6.3
+  slash: 4.0.0
   type-fest: github.com/privatenumber/type-fest/b628502e7c2d65f696a66f2ed436e258b33d5912
   typescript: 4.6.3
 
@@ -3014,6 +3016,11 @@ packages:
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+    dev: true
+
+  /slash/4.0.0:
+    resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
+    engines: {node: '>=12'}
     dev: true
 
   /slice-ansi/3.0.0:

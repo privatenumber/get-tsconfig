@@ -57,6 +57,7 @@
 		"lint-staged": "^12.3.7",
 		"manten": "^0.0.3",
 		"pkgroll": "file:vendors/pkgroll-0.0.0.tgz",
+		"slash": "^4.0.0",
 		"type-fest": "github:privatenumber/type-fest#built/tsconfig-watch-options",
 		"typescript": "^4.6.3"
 	},
