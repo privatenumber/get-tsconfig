@@ -50,7 +50,7 @@ type TsconfigResult = {
     /**
      * The path to the tsconfig.json file
      */
-    path: string | undefined
+    path: string
 
     /**
      * The resolved tsconfig.json file
