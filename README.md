@@ -56,7 +56,7 @@ type TsconfigResult = {
      * The resolved tsconfig.json file
      */
     config: TsConfigJsonResolved
-} | null
+}
 ```
 
 #### searchPath
@@ -73,6 +73,23 @@ Default: `tsconfig.json`
 
 The file name of the TypeScript config file.
 
+### createPathsMatcher(tsconfig: TsconfigResult)
+
+Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
+
+```ts
+import { createPathsMatcher } from 'get-tsconfig/paths'
+
+const tsconfig = getTsconfig()
+const pathsMatcher = createPathsMatcher(tsconfig)
+```
+
+The matcher function accepts an [import specifier (the path to resolve)](https://nodejs.org/api/esm.html#terminology), checks it against `compilerOptions.paths`, and returns an array of possible paths to check:
+```ts
+function pathsMatcher(specifier: string): string[]
+```
+
+This function only returns possible paths and doesn't actually do any resolution. This helps increase compatibility wtih file/build systems which usually have their own resolvers.
 
 ## FAQ
 
