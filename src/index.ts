@@ -5,7 +5,7 @@ import type { TsConfigResult } from './types';
 function getTsconfig(
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
-): TsConfigResult {
+): TsConfigResult | null {
 	const configFile = findConfigFile(searchPath, configName);
 
 	if (!configFile) {

@@ -14,6 +14,7 @@ export default testSuite(({ describe }) => {
 					compilerOptions: {
 						moduleResolution: 'node',
 						isolatedModules: true,
+						module: 'NodeNext',
 						esModuleInterop: true,
 						declaration: true,
 						outDir: 'dist',

@@ -23,9 +23,16 @@
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"exports": {
-		"require": "./dist/index.js",
-		"import": "./dist/index.mjs",
-		"types": "./dist/index.d.ts"
+		".": {
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		},
+		"./paths": {
+			"require": "./dist/paths.js",
+			"import": "./dist/paths.mjs",
+			"types": "./dist/paths.d.ts"
+		}
 	},
 	"scripts": {
 		"lint": "eslint .",
