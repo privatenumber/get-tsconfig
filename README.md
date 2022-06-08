@@ -78,6 +78,7 @@ The file name of the TypeScript config file.
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
 
 ```ts
+import getTsconfig from 'get-tsconfig'
 import { createPathsMatcher } from 'get-tsconfig/paths'
 
 const tsconfig = getTsconfig()
