@@ -1,37 +1,12 @@
 import path from 'path';
-import type { TsConfigResult } from './types';
-
-type StarPattern = {
-	prefix: string;
-	suffix: string;
-};
-
-type PathEntry<T extends string | StarPattern> = {
-	pattern: T;
-	substitutions: string[];
-};
-
-const isRelativePathPattern = /^\.{1,2}\//;
-const starPattern = /\*/g;
-
-const assertStarCount = (
-	pattern: string,
-	errorMessage: string,
-) => {
-	const starCount = pattern.match(starPattern);
-	if (starCount && starCount.length > 1) {
-		throw new Error(errorMessage);
-	}
-};
-
-function parsePattern(pattern: string) {
-	if (pattern.includes('*')) {
-		const [prefix, suffix] = pattern.split('*');
-		return { prefix, suffix } as StarPattern;
-	}
-
-	return pattern;
-}
+import type { TsConfigResult } from '../types';
+import {
+	assertStarCount,
+	isRelativePathPattern,
+	parsePattern,
+	isPatternMatch,
+} from './utils';
+import type { StarPattern, PathEntry } from './types';
 
 function parsePaths(
 	paths: Partial<Record<string, string[]>>,
@@ -58,14 +33,6 @@ function parsePaths(
 		} as PathEntry<string | StarPattern>;
 	});
 }
-
-const isPatternMatch = (
-	{ prefix, suffix }: StarPattern,
-	candidate: string,
-) => (
-	candidate.startsWith(prefix)
-	&& candidate.endsWith(suffix)
-);
 
 /**
  * Reference:
@@ -127,7 +94,7 @@ export function createPathsMatcher(
 		);
 
 		return matchedValue.substitutions.map(
-			substitution => substitution.replace(starPattern, matchedPath),
+			substitution => substitution.replace('*', matchedPath),
 		);
 	};
 }
