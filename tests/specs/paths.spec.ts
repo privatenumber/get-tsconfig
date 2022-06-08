@@ -7,7 +7,7 @@ import { createFixture, tsconfigJson } from '../utils/create-fixture';
 export default testSuite(({ describe }) => {
 	describe('paths', ({ describe, test }) => {
 		describe('error cases', ({ test }) => {
-			test('no paths', async () => {
+			test('no baseUrl or paths', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson({
 						compilerOptions: {},
@@ -86,6 +86,26 @@ export default testSuite(({ describe }) => {
 				expect(matcher).not.toBeNull();
 				expect(matcher('specifier')).toStrictEqual([]);
 			});
+		});
+
+		test('baseUrl', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						baseUrl: '.',
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(matcher).not.toBeNull();
+			expect(matcher('exactMatch')).toStrictEqual([
+				path.join(fixture.path, 'exactMatch'),
+			]);
 		});
 
 		test('exact match', async () => {
@@ -194,6 +214,26 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('./relative')).toStrictEqual([]);
+		});
+
+		test('matches absolute paths', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						paths: {
+							'/absolute': ['./a'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(tsconfig).not.toBeNull();
+			expect(matcher('/absolute')).toStrictEqual([path.join(fixture.path, 'a')]);
 		});
 	});
 });

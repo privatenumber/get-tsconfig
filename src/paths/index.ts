@@ -41,18 +41,21 @@ function parsePaths(
 export function createPathsMatcher(
 	tsconfig: TsConfigResult,
 ) {
-	if (!tsconfig.config.compilerOptions?.paths) {
+	if (!tsconfig.config.compilerOptions) {
 		return null;
 	}
 
 	const { baseUrl, paths } = tsconfig.config.compilerOptions;
+	if (!baseUrl && !paths) {
+		return null;
+	}
 
 	const resolvedBaseUrl = path.resolve(
 		path.dirname(tsconfig.path),
 		baseUrl || '.',
 	);
 
-	const pathEntries = parsePaths(paths, baseUrl, resolvedBaseUrl);
+	const pathEntries = paths ? parsePaths(paths, baseUrl, resolvedBaseUrl) : [];
 
 	return function pathsMatcher(specifier: string) {
 		if (isRelativePathPattern.test(specifier)) {
@@ -85,7 +88,11 @@ export function createPathsMatcher(
 		}
 
 		if (!matchedValue) {
-			return [];
+			return (
+				baseUrl
+					? [path.join(resolvedBaseUrl, specifier)]
+					: []
+			);
 		}
 
 		const matchedPath = specifier.slice(
