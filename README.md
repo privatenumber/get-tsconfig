@@ -9,7 +9,7 @@ Find and parse `tsconfig.json` files.
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
 - Validates and throws parsing errors
-- Tiny! `3 kB` Minified + Gzipped
+- Tiny! `3.6 kB` Minified + Gzipped
 
 ## 🚀 Install
 
