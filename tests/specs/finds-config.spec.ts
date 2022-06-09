@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import slash from 'slash';
-import getTsconfig from '../../dist/index.js';
+import { getTsconfig } from '../../dist/index.js';
 
 export default testSuite(({ describe }) => {
 	describe('find tsconfig', ({ test }) => {
