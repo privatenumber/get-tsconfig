@@ -9,7 +9,7 @@ Find and parse `tsconfig.json` files.
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
 - Validates and throws parsing errors
-- Tiny! `3 kB` Minified + Gzipped
+- Tiny! `3.6 kB` Minified + Gzipped
 
 ## 🚀 Install
 
@@ -23,7 +23,7 @@ For TypeScript related tooling to correctly parse `tsconfig.json` file without d
 ## 👨‍🏫 Usage
 
 ```ts
-import getTsconfig from 'get-tsconfig'
+import { getTsconfig } from 'get-tsconfig'
 
 // Finds tsconfig.json in the current directory
 console.log(getTsconfig())
@@ -78,8 +78,7 @@ The file name of the TypeScript config file.
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
 
 ```ts
-import getTsconfig from 'get-tsconfig'
-import { createPathsMatcher } from 'get-tsconfig/paths'
+import { getTsconfig, createPathsMatcher } from 'get-tsconfig'
 
 const tsconfig = getTsconfig()
 const pathsMatcher = createPathsMatcher(tsconfig)
