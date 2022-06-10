@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"module": "NodeNext",
 		"moduleResolution": "node",
 		"isolatedModules": true,
 		"esModuleInterop": true,

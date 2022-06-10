@@ -314,7 +314,6 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
-
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
 				await fixture.cleanup();

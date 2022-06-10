@@ -1,10 +1,8 @@
 import { describe } from 'manten';
-import specErrors from './specs/errors.spec';
-import specFindsConfig from './specs/finds-config.spec';
-import specExtends from './specs/extends.spec';
 
 describe('get-tsconfig', ({ runTestSuite }) => {
-	runTestSuite(specErrors);
-	runTestSuite(specFindsConfig);
-	runTestSuite(specExtends);
+	runTestSuite(import('./specs/errors.spec'));
+	runTestSuite(import('./specs/finds-config.spec'));
+	runTestSuite(import('./specs/extends.spec'));
+	runTestSuite(import('./specs/paths.spec'));
 });
