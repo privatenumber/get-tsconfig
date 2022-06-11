@@ -122,6 +122,32 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		test('extends dependency package with index.js', async () => {
+			const fixture = await createFixture({
+				'node_modules/dep/package.json': '{"main": "./index.js"}',
+				'node_modules/dep/index.js': 'require("fs")',
+				'node_modules/dep/tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						strict: true,
+						jsx: 'react',
+					},
+				}),
+				'tsconfig.json': tsconfigJson({
+					extends: 'dep',
+				}),
+				'file.ts': '',
+			});
+
+			const expectedTsconfig = await getTscConfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = getTsconfig(fixture.path);
+
+			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+			await fixture.cleanup();
+		});
+
 		test('references is ignored', async () => {
 			const fixture = await createFixture({
 				'tsconfig.base.json': tsconfigJson({
