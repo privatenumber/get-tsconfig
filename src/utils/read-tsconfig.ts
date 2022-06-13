@@ -4,6 +4,7 @@ import { parse } from 'jsonc-parser';
 import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
 import { normalizePath } from './normalize-path';
+import { resolveExtends } from './resolve-extends';
 
 export function readTsconfig(
 	filePath: string,
@@ -23,20 +24,10 @@ export function readTsconfig(
 	}
 
 	if (config.extends) {
-		let extendsPath = config.extends;
-
-		try {
-			extendsPath = require.resolve(extendsPath, { paths: [path.dirname(filePath)] });
-		} catch (error) {
-			if ((error as any).code === 'MODULE_NOT_FOUND') {
-				try {
-					extendsPath = require.resolve(
-						path.join(extendsPath, 'tsconfig.json'),
-						{ paths: [path.dirname(filePath)] },
-					);
-				} catch {}
-			}
-		}
+		const extendsPath = resolveExtends(
+			config.extends,
+			directoryPath,
+		);
 
 		const extendsConfig = readTsconfig(extendsPath);
 
