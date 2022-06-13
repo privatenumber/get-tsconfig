@@ -223,6 +223,39 @@ export default testSuite(({ describe }) => {
 				await fixture.cleanup();
 			});
 
+			test('extends dependency package with path name no json', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'package.json': '{"main": "./index.js"}',
+						'index.js': 'require("fs")',
+						'react-native.json': tsconfigJson({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react-native',
+							},
+						}),
+						'tsconfig.json': tsconfigJson({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react',
+							},
+						}),
+					},
+					'tsconfig.json': tsconfigJson({
+						extends: 'dep/react-native',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscConfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+				await fixture.cleanup();
+			});
+
 			test('extends dependency package with invalid package.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
