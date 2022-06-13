@@ -2,12 +2,12 @@ import path from 'path';
 import fs from 'fs';
 import slash from 'slash';
 
-export function findConfigFile(
+export function findUp(
 	searchPath: string,
-	configName: string,
+	fileName: string,
 ) {
 	while (true) {
-		const configPath = path.join(searchPath, configName);
+		const configPath = path.join(searchPath, fileName);
 		if (fs.existsSync(configPath)) {
 			return slash(configPath);
 		}
