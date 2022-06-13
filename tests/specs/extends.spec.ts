@@ -3,7 +3,7 @@ import { getTsconfig } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
 import { getTscConfig } from '../utils/get-tsc-tsconfig';
 
-export default testSuite(({ test, describe }) => {
+export default testSuite(({ describe }) => {
 	describe('extends', ({ describe, test }) => {
 		describe('error handling', ({ test }) => {
 			test('invalid path', async () => {
@@ -50,7 +50,7 @@ export default testSuite(({ test, describe }) => {
 
 			test('no extension', async () => {
 				const fixture = await createFixture({
-					'asdf': tsconfigJson({
+					asdf: tsconfigJson({
 						compilerOptions: {
 							jsx: 'react',
 							allowJs: true,
@@ -59,8 +59,8 @@ export default testSuite(({ test, describe }) => {
 					'tsconfig.json': tsconfigJson({
 						extends: './asdf',
 						compilerOptions: {
-							strict: true
-						}
+							strict: true,
+						},
 					}),
 					'file.ts': '',
 				});
@@ -87,8 +87,8 @@ export default testSuite(({ test, describe }) => {
 						'tsconfig.json': tsconfigJson({
 							extends: '..',
 							compilerOptions: {
-								strict: true
-							}
+								strict: true,
+							},
 						}),
 						'file.ts': '',
 					},
@@ -119,7 +119,7 @@ export default testSuite(({ test, describe }) => {
 
 				expect(
 					() => getTsconfig(fixture.path),
-				).toThrow('File \'./directory/\' not found.')
+				).toThrow('File \'./directory/\' not found.');
 
 				await fixture.cleanup();
 			});
@@ -206,20 +206,20 @@ export default testSuite(({ test, describe }) => {
 								strict: true,
 								jsx: 'react',
 							},
-						}),	
+						}),
 					},
 					'tsconfig.json': tsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-		
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 
@@ -244,13 +244,13 @@ export default testSuite(({ test, describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 
@@ -276,13 +276,13 @@ export default testSuite(({ test, describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
-		
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 
@@ -308,13 +308,13 @@ export default testSuite(({ test, describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscConfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.cleanup();
 			});
 		});
