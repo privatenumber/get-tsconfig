@@ -14,13 +14,15 @@ export function resolveExtends(
 	filePath: string,
 	directoryPath: string,
 ) {
-	if (filePath === '..') {
-		filePath += '/tsconfig.json';
+	let currentFilePath = filePath;
+
+	if (currentFilePath === '..') {
+		currentFilePath += '/tsconfig.json';
 	}
 
 	// Relative path
-	if (filePath.startsWith('.')) {
-		let tsconfigPath = path.resolve(directoryPath, filePath);
+	if (currentFilePath.startsWith('.')) {
+		let tsconfigPath = path.resolve(directoryPath, currentFilePath);
 
 		if (
 			pathExists(tsconfigPath)
@@ -37,32 +39,43 @@ export function resolveExtends(
 			}
 		}
 	} else {
-		let currentPath = findUp(
+		let packagePath = findUp(
 			directoryPath,
-			path.join('node_modules', filePath),
+			path.join('node_modules', currentFilePath),
 		);
 
-		if (currentPath) {
-			if (fs.statSync(currentPath).isDirectory()) {
-				const packageJsonpath = path.join(currentPath, 'package.json');
+		if (packagePath) {
+			if (fs.statSync(packagePath).isDirectory()) {
+				const packageJsonpath = path.join(packagePath, 'package.json');
 
 				if (pathExists(packageJsonpath)) {
 					const packageJson = safeJsonParse(fs.readFileSync(packageJsonpath, 'utf8'));
 
 					if (packageJson && 'tsconfig' in packageJson) {
-						currentPath = path.join(currentPath, packageJson.tsconfig);
+						packagePath = path.join(packagePath, packageJson.tsconfig);
 					} else {
-						currentPath = path.join(currentPath, 'tsconfig.json');
+						packagePath = path.join(packagePath, 'tsconfig.json');
 					}
 				} else {
-					currentPath = path.join(currentPath, 'tsconfig.json');
+					packagePath = path.join(packagePath, 'tsconfig.json');
 				}
 
-				if (pathExists(currentPath)) {
-					return currentPath;
+				if (pathExists(packagePath)) {
+					return packagePath;
 				}
-			} else {
-				return currentPath;
+			} else if (packagePath.endsWith('.json')) {
+				return packagePath;
+			}
+		} else if (!currentFilePath.endsWith('.json')) {
+			currentFilePath += '.json';
+
+			packagePath = findUp(
+				directoryPath,
+				path.join('node_modules', currentFilePath),
+			);
+
+			if (packagePath) {
+				return packagePath;
 			}
 		}
 	}

@@ -223,6 +223,52 @@ export default testSuite(({ describe }) => {
 				await fixture.cleanup();
 			});
 
+			test('extends dependency package with path name w/o .json extension', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'react-native.json': tsconfigJson({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react-native',
+							},
+						}),
+					},
+					'tsconfig.json': tsconfigJson({
+						extends: 'dep/react-native',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscConfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+				await fixture.cleanup();
+			});
+
+			test('extends dependency package file should not resolve extensionless file', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'react-native': tsconfigJson({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react-native',
+							},
+						}),
+					},
+					'tsconfig.json': tsconfigJson({
+						extends: 'dep/react-native',
+					}),
+					'file.ts': '',
+				});
+
+				expect(() => getTsconfig(fixture.path)).toThrow('File \'dep/react-native\' not found');
+
+				await fixture.cleanup();
+			});
+
 			test('extends dependency package with invalid package.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {

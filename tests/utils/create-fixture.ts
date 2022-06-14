@@ -5,7 +5,7 @@ import type { TsConfigJson } from 'type-fest';
 
 type FileTree = { [path: string]: string | FileTree };
 
-const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig');
+const temporaryDirectory = path.join(os.tmpdir(), `get-tsconfig${Date.now()}`);
 
 const { hasOwnProperty } = Object.prototype;
 const hasOwn = (object: any, key: string) => hasOwnProperty.call(object, key);
