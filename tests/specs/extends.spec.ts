@@ -550,8 +550,6 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'src-a': {
 						'a.ts': '',
-						'b.ts': '',
-						'c.ts': '',
 					},
 					'tsconfig.json': tsconfigJson({
 						compilerOptions: {
@@ -575,8 +573,6 @@ export default testSuite(({ describe }) => {
 					project: {
 						'src-a': {
 							'a.ts': '',
-							'b.ts': '',
-							'c.ts': '',
 						},
 						'tsconfig.json': tsconfigJson({
 							compilerOptions: {
@@ -587,6 +583,28 @@ export default testSuite(({ describe }) => {
 					'tsconfig.json': tsconfigJson({
 						extends: './project/tsconfig.json',
 					}),
+				});
+
+				const expectedTsconfig = await getTscConfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+				await fixture.cleanup();
+			});
+
+			test('resolves parent baseUrl path', async () => {
+				const fixture = await createFixture({
+					'project/tsconfig.json': tsconfigJson({
+						compilerOptions: {
+							baseUrl: '..',
+						},
+					}),
+					'tsconfig.json': tsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'a.ts': '',
 				});
 
 				const expectedTsconfig = await getTscConfig(fixture.path);

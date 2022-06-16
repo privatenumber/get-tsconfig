@@ -107,6 +107,37 @@ export default testSuite(({ describe }) => {
 			]);
 		});
 
+		test('baseUrl from extends', async () => {
+			const fixture = await createFixture({
+				'some-dir/tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						baseUrl: '..',
+						paths: {
+							$lib: [
+								'src/lib',
+							],
+							'$lib/*': [
+								'src/lib/*',
+							],
+						},
+					},
+				}),
+				'tsconfig.json': tsconfigJson({
+					extends: './some-dir/tsconfig.json',
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(matcher).not.toBeNull();
+			expect(matcher('$lib')).toStrictEqual([
+				path.join(fixture.path, 'src/lib'),
+			]);
+		});
+
 		test('exact match', async () => {
 			const fixture = await createFixture({
 				'tsconfig.json': tsconfigJson({
