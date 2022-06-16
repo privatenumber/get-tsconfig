@@ -39,7 +39,7 @@ export function readTsconfig(
 			compilerOptions.baseUrl = path.relative(
 				directoryPath,
 				path.join(path.dirname(extendsPath), compilerOptions.baseUrl!),
-			);
+			) || './';
 		}
 
 		if (extendsConfig.files) {
