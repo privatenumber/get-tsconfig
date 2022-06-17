@@ -33,6 +33,9 @@
 		"pretest": "npm run build",
 		"test": "tsx tests"
 	},
+    "dependencies": {
+	    "type-fest": "^2.13.1"
+	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.22.0",
 		"@types/node": "^17.0.41",
