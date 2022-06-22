@@ -3,6 +3,11 @@ import { testSuite, expect } from 'manten';
 import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
 
+/**
+ * Resolution is tested against the TypeScript compiler using:
+ * npx tsc --traceResolution --noEmit
+ */
+
 export default testSuite(({ describe }) => {
 	describe('paths', ({ describe, test }) => {
 		describe('error cases', ({ test }) => {
@@ -226,6 +231,46 @@ export default testSuite(({ describe }) => {
 			]);
 		});
 
+		test('doesnt match current directory', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						paths: {
+							'.': ['./a'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(tsconfig).not.toBeNull();
+			expect(matcher('.')).toStrictEqual([]);
+		});
+
+		test('doesnt match parent directory', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						paths: {
+							'..': ['./a'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(tsconfig).not.toBeNull();
+			expect(matcher('..')).toStrictEqual([]);
+		});
+
 		test('doesnt match relative paths', async () => {
 			const fixture = await createFixture({
 				'tsconfig.json': tsconfigJson({
@@ -264,6 +309,26 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('/absolute')).toStrictEqual([path.join(fixture.path, 'a')]);
+		});
+
+		test('matches path that starts with .', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						paths: {
+							'.src': ['./src'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(tsconfig).not.toBeNull();
+			expect(matcher('.src')).toStrictEqual([path.join(fixture.path, 'src')]);
 		});
 	});
 });
