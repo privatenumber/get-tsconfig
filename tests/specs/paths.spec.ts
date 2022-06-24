@@ -39,6 +39,23 @@ export default testSuite(({ describe }) => {
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
 			});
 
+			// #17
+			test('no baseUrl & ../ relative paths', async () => {
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJson({
+						compilerOptions: {
+							paths: {
+								'@': ['../src'],
+							},
+						},
+					}),
+				});
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
+				expect(() => createPathsMatcher(tsconfig!)).not.toThrow('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+			});
+
 			test('multiple * in pattern', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson({
