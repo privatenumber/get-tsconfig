@@ -165,6 +165,29 @@ export default testSuite(({ describe }) => {
 			]);
 		});
 
+		// #17
+		test('exact match with parent path', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						paths: {
+							exactMatch: ['../src'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(matcher).not.toBeNull();
+			expect(matcher('exactMatch')).toStrictEqual([
+				path.join(fixture.path, '../src'),
+			]);
+		});
+
 		test('exact match with wildcard', async () => {
 			const fixture = await createFixture({
 				'tsconfig.json': tsconfigJson({
