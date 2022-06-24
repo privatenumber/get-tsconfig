@@ -24,7 +24,7 @@ function parsePaths(
 					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
 				);
 
-				if (!substitution.startsWith('./') && !substitution.startsWith('../') && !baseUrl) {
+				if (!baseUrl && !isRelativePathPattern.test(substitution)) {
 					throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
 				}
 
