@@ -353,5 +353,27 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('.src')).toStrictEqual([path.join(fixture.path, 'src')]);
 		});
+
+		test('matches baseUrl + .js extension with .ts source', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson({
+					compilerOptions: {
+						baseUrl: './',
+						paths: {
+							'#/*': ['*'],
+						},
+					},
+				}),
+				'tsImportee.ts': "export default 'tsImportee.ts'",
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+
+			expect(tsconfig).not.toBeNull();
+			expect(matcher('#/tsImportee.js')).toStrictEqual([path.join(fixture.path, 'tsImportee.ts')]);
+		});
 	});
 });
