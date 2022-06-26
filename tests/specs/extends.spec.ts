@@ -363,6 +363,25 @@ export default testSuite(({ describe }) => {
 
 				await fixture.cleanup();
 			});
+
+			test('extends json from node_modules with same name dir', async () => {
+				const fixture = await createFixture({
+					'node_modules/@1stg/tsconfig/package.json': JSON.stringify({
+						name: '@1stg/tsconfig',
+					}),
+					'node_modules/@1stg/tsconfig/lib/.gitkeep': '',
+					'node_modules/@1stg/tsconfig/lib.json': tsconfigJson({
+						compilerOptions: {
+							jsx: 'react-jsx',
+						},
+					}),
+					'tsconfig.json': tsconfigJson({
+						extends: '@1stg/tsconfig/lib',
+					}),
+				});
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
+			});
 		});
 
 		test('empty file', async () => {
