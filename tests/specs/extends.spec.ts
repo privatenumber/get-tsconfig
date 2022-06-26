@@ -363,6 +363,29 @@ export default testSuite(({ describe }) => {
 
 				await fixture.cleanup();
 			});
+
+			test('extends dependency with colliding directory name', async () => {
+				const fixture = await createFixture({
+					'node_modules/config-package/lib/overlapping-directory': '',
+					'node_modules/config-package/lib.json': tsconfigJson({
+						compilerOptions: {
+							jsx: 'react-jsx',
+						},
+					}),
+					'tsconfig.json': tsconfigJson({
+						extends: 'config-package/lib',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscConfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+				await fixture.cleanup();
+			});
 		});
 
 		test('empty file', async () => {
