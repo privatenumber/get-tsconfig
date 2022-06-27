@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
-import { getTscResolve } from '../utils/tsc';
+import { getTscResolution } from '../utils/tsc';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
@@ -117,7 +117,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
+			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -152,7 +152,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('$lib', fixture.path);
+			const resolvedAttempts = await getTscResolution('$lib', fixture.path);
 			expect(matcher('$lib')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -177,7 +177,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
+			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -203,7 +203,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
+			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -229,7 +229,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
+			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -255,7 +255,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('prefix-specifier', fixture.path);
+			const resolvedAttempts = await getTscResolution('prefix-specifier', fixture.path);
 			expect(matcher('prefix-specifier')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -281,7 +281,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('specifier-suffix', fixture.path);
+			const resolvedAttempts = await getTscResolution('specifier-suffix', fixture.path);
 			expect(matcher('specifier-suffix')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -372,7 +372,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('/absolute', fixture.path);
+			const resolvedAttempts = await getTscResolution('/absolute', fixture.path);
 			expect(matcher('/absolute')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
@@ -397,7 +397,7 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolve('.src', fixture.path);
+			const resolvedAttempts = await getTscResolution('.src', fixture.path);
 			expect(matcher('.src')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);

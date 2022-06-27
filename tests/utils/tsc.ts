@@ -7,7 +7,7 @@ const randomId = () => Math.random().toString(36).slice(2);
 
 const tscPath = path.resolve('node_modules/.bin/tsc');
 
-export async function getTscConfig(
+export async function getTscTsconfig(
 	cwd: string,
 ): Promise<TsConfigJson> {
 	const tscProcess = await execa(
@@ -38,7 +38,7 @@ async function parseTscResolve(
 	) => ({ type, filePath }));
 }
 
-export async function getTscResolve(
+export async function getTscResolution(
 	request: string,
 	fixturePath: string,
 ) {

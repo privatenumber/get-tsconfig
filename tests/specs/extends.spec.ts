@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { getTsconfig } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
-import { getTscConfig } from '../utils/tsc';
+import { getTscTsconfig } from '../utils/tsc';
 
 export default testSuite(({ describe }) => {
 	describe('extends', ({ describe, test }) => {
@@ -65,7 +65,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -95,7 +95,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				const testDirectory = `${fixture.path}/tests/`;
-				const expectedTsconfig = await getTscConfig(testDirectory);
+				const expectedTsconfig = await getTscTsconfig(testDirectory);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(testDirectory);
@@ -138,7 +138,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -161,7 +161,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -187,7 +187,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				const fixturePath = `${fixture.path}/nested/nested/nested`;
-				const expectedTsconfig = await getTscConfig(fixturePath);
+				const expectedTsconfig = await getTscTsconfig(fixturePath);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixturePath);
@@ -214,7 +214,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -239,7 +239,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -291,7 +291,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -323,7 +323,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -355,7 +355,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -378,7 +378,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -397,7 +397,7 @@ export default testSuite(({ describe }) => {
 				}),
 			});
 
-			const expectedTsconfig = await getTscConfig(fixture.path);
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
 			const tsconfig = getTsconfig(fixture.path);
@@ -415,7 +415,7 @@ export default testSuite(({ describe }) => {
 				}),
 			});
 
-			const expectedTsconfig = await getTscConfig(fixture.path);
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
 			const tsconfig = getTsconfig(fixture.path);
@@ -443,7 +443,7 @@ export default testSuite(({ describe }) => {
 				'file.ts': '',
 			});
 
-			const expectedTsconfig = await getTscConfig(fixture.path);
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
 			const tsconfig = getTsconfig(fixture.path);
@@ -472,7 +472,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				const tsconfig = getTsconfig(fixture.path);
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
@@ -501,7 +501,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				const tsconfig = getTsconfig(fixture.path);
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
@@ -526,7 +526,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -557,7 +557,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -581,7 +581,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -608,7 +608,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -630,7 +630,7 @@ export default testSuite(({ describe }) => {
 					'a.ts': '',
 				});
 
-				const expectedTsconfig = await getTscConfig(fixture.path);
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = getTsconfig(fixture.path);
@@ -663,7 +663,7 @@ export default testSuite(({ describe }) => {
 				}),
 			});
 
-			const expectedTsconfig = await getTscConfig(fixture.path);
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
 			const tsconfig = getTsconfig(fixture.path);
@@ -691,7 +691,7 @@ export default testSuite(({ describe }) => {
 				}),
 			});
 
-			const expectedTsconfig = await getTscConfig(fixture.path);
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
 			const tsconfig = getTsconfig(fixture.path);
