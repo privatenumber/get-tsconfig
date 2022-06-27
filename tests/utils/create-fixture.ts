@@ -1,11 +1,11 @@
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import type { TsConfigJson } from 'type-fest';
 
 type FileTree = { [path: string]: string | FileTree };
 
-const temporaryDirectory = path.join(os.tmpdir(), `get-tsconfig${Date.now()}`);
+const temporaryDirectory = path.join(fs.realpathSync(os.tmpdir()), `get-tsconfig${Date.now()}`);
 
 const { hasOwnProperty } = Object.prototype;
 const hasOwn = (object: any, key: string) => hasOwnProperty.call(object, key);
@@ -51,15 +51,15 @@ export async function createFixture(
 
 	await Promise.all(
 		files.map(async (file) => {
-			await fs.mkdir(path.dirname(file.path), { recursive: true });
-			await fs.writeFile(file.path, file.content);
+			await fs.promises.mkdir(path.dirname(file.path), { recursive: true });
+			await fs.promises.writeFile(file.path, file.content);
 		}),
 	);
 
 	return {
 		path: fixturePath,
 		cleanup() {
-			return fs.rm(fixturePath, {
+			return fs.promises.rm(fixturePath, {
 				recursive: true,
 				force: true,
 			});
