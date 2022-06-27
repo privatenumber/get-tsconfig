@@ -67,7 +67,7 @@ export function createPathsMatcher(
 
 		for (const pathEntry of pathEntries) {
 			if (pathEntry.pattern === specifier) {
-				return pathEntry.substitutions;
+				return pathEntry.substitutions.map(slash);
 			}
 
 			if (typeof pathEntry.pattern !== 'string') {
