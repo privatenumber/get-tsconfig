@@ -1,7 +1,7 @@
-import path from 'path';
 import { testSuite, expect } from 'manten';
 import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
+import { getTscResolve } from '../utils/tsc';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
@@ -115,10 +115,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(matcher).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				path.join(fixture.path, 'exactMatch'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -126,6 +127,7 @@ export default testSuite(({ describe }) => {
 
 		test('baseUrl from extends', async () => {
 			const fixture = await createFixture({
+				'src/lib/file': '',
 				'some-dir/tsconfig.json': tsconfigJson({
 					compilerOptions: {
 						baseUrl: '..',
@@ -148,10 +150,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(matcher).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('$lib', fixture.path);
 			expect(matcher('$lib')).toStrictEqual([
-				path.join(fixture.path, 'src/lib'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -172,10 +175,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(matcher).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				path.join(fixture.path, 'b'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -197,17 +201,19 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(matcher).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				path.join(fixture.path, '../src'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
 		});
 
-		test('exact match with wildcard', async () => {
+		test('exact match with literal wildcard', async () => {
 			const fixture = await createFixture({
+				'b/file': '',
 				'tsconfig.json': tsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -221,10 +227,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(tsconfig).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				path.join(fixture.path, 'b/*'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -232,6 +239,7 @@ export default testSuite(({ describe }) => {
 
 		test('prefix match', async () => {
 			const fixture = await createFixture({
+				'prefixed/specifier': '',
 				'tsconfig.json': tsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -245,10 +253,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(tsconfig).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('prefix-specifier', fixture.path);
 			expect(matcher('prefix-specifier')).toStrictEqual([
-				path.join(fixture.path, 'prefixed/specifier'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -256,6 +265,7 @@ export default testSuite(({ describe }) => {
 
 		test('suffix match', async () => {
 			const fixture = await createFixture({
+				'suffixed/specifier': '',
 				'tsconfig.json': tsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -269,10 +279,11 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(tsconfig).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolve('specifier-suffix', fixture.path);
 			expect(matcher('specifier-suffix')).toStrictEqual([
-				path.join(fixture.path, 'suffixed/specifier'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.cleanup();
@@ -359,9 +370,12 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(tsconfig).not.toBeNull();
-			expect(matcher('/absolute')).toStrictEqual([path.join(fixture.path, 'a')]);
+
+			const resolvedAttempts = await getTscResolve('/absolute', fixture.path);
+			expect(matcher('/absolute')).toStrictEqual([
+				resolvedAttempts[0].filePath.slice(0, -3),
+			]);
 
 			await fixture.cleanup();
 		});
@@ -381,9 +395,12 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).not.toBeNull();
 
 			const matcher = createPathsMatcher(tsconfig!)!;
-
 			expect(tsconfig).not.toBeNull();
-			expect(matcher('.src')).toStrictEqual([path.join(fixture.path, 'src')]);
+
+			const resolvedAttempts = await getTscResolve('.src', fixture.path);
+			expect(matcher('.src')).toStrictEqual([
+				resolvedAttempts[0].filePath.slice(0, -3),
+			]);
 
 			await fixture.cleanup();
 		});
