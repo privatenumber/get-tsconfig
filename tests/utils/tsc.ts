@@ -35,7 +35,10 @@ async function parseTscResolve(
 
 	return Array.from(resolveAttempts).map((
 		[, type, filePath],
-	) => ({ type, filePath }));
+	) => ({
+		type,
+		filePath: filePath.replace(/\\/g, '/'),
+	}));
 }
 
 export async function getTscResolve(
