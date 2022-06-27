@@ -2,6 +2,7 @@ import path from 'path';
 import { testSuite, expect } from 'manten';
 import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
 import { createFixture, createTsconfigJson } from '../utils/create-fixture';
+import { getTscResolve } from '../utils/tsc';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
@@ -93,13 +94,17 @@ export default testSuite(({ describe }) => {
 		});
 
 		test('baseUrl', async () => {
+			const tsconfigJson = {
+				compilerOptions: {
+					baseUrl: '.',
+				},
+			};
+
 			const fixture = await createFixture({
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						baseUrl: '.',
-					},
-				}),
+				'tsconfig.json': createTsconfigJson(tsconfigJson),
 			});
+
+			const resolvedAttempts = await getTscResolve('exactMatch', fixture.path);
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).not.toBeNull();
@@ -108,8 +113,10 @@ export default testSuite(({ describe }) => {
 
 			expect(matcher).not.toBeNull();
 			expect(matcher('exactMatch')).toStrictEqual([
-				path.join(fixture.path, 'exactMatch'),
+				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('baseUrl from extends', async () => {

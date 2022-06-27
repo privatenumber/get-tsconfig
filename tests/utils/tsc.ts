@@ -1,11 +1,9 @@
 import path from 'path';
 import fs from 'fs/promises';
-import os from 'os';
 import { execa } from 'execa';
 import type { TsConfigJson } from 'type-fest';
 
 const randomId = () => Math.random().toString(36).slice(2);
-const temporaryDirectory = path.join(os.tmpdir(), 'get-tsconfig', randomId());
 
 const tscPath = path.resolve('node_modules/.bin/tsc');
 
@@ -22,39 +20,53 @@ export async function getTscConfig(
 }
 
 
+const resolveAttemptPattern = /^(File|Directory) '(.+)'/gm;
+
+async function parseTscResolve(
+	stdout: string,
+	request: string,
+) {
+	const startMatched = stdout.match(new RegExp(`={8} Resolving module '${request}'`));
+	const endMatched = stdout.match(new RegExp(`={8} Module name '${request}'`));
+	const resolveLog = stdout.slice(startMatched!.index, endMatched!.index);
+	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
+
+	return Array.from(resolveAttempts).map((
+		[, type, filePath]) => ({ type, filePath }),
+	);
+}
+
+
 export async function getTscResolve(
 	request: string,
-	tsconfig: TsConfigJson,
+	fixturePath: string,
 ) {
-	const directoryPath = path.join(temporaryDirectory, randomId());
-	await fs.mkdir(directoryPath, {
-		recursive: true,
-	});
+	const filePath = path.join(fixturePath, randomId() + '.ts');
 
 	await Promise.all([
 		fs.writeFile(
-			path.join(directoryPath, 'tsconfig.json'),
-			JSON.stringify(tsconfig),
+			filePath,
+			`import '${request}'`,
 		),
-		fs.writeFile(
-			path.join(directoryPath, 'index.ts'),
-			`import '${request}';`,
-		),
-		fs.mkdir(
-			path.join(directoryPath, request),
-		),
+
+		// Create empty directory with name so it looks into files in directory
+		// fs.mkdir(path.join(fixturePath, request)),
 	]);
 
-	const tscProcess = await execa(
+	let { stdout } = await execa(
 		tscPath,
-		['--traceResolution', '--noEmit'],
-		{ cwd: directoryPath },
+		[
+			'--traceResolution',
+			'--noEmit',
+		],
+		{ cwd: fixturePath },
 	);
 
-	console.log(tscProcess);
+	const parsed = await parseTscResolve(stdout, request);
 	
-	await fs.rm(directoryPath, {
-		recursive: true,
+	await fs.rm(filePath, {
 		force: true,
 	});
+
+	return parsed;
 }
