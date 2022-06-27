@@ -21,6 +21,8 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(createPathsMatcher(tsconfig!)).toBeNull();
+
+				await fixture.cleanup();
 			});
 
 			test('no baseUrl & non-relative paths', async () => {
@@ -37,6 +39,8 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+
+				await fixture.cleanup();
 			});
 
 			test('multiple * in pattern', async () => {
@@ -53,6 +57,8 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Pattern \'a/*/*\' can have at most one \'*\' character.');
+
+				await fixture.cleanup();
 			});
 
 			test('multiple * in substitution', async () => {
@@ -69,6 +75,8 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Substitution \'*/*\' in pattern \'a/*\' can have at most one \'*\' character.');
+
+				await fixture.cleanup();
 			});
 
 			test('no match', async () => {
@@ -89,6 +97,8 @@ export default testSuite(({ describe }) => {
 
 				expect(matcher).not.toBeNull();
 				expect(matcher('specifier')).toStrictEqual([]);
+
+				await fixture.cleanup();
 			});
 		});
 
@@ -110,6 +120,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				path.join(fixture.path, 'exactMatch'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('baseUrl from extends', async () => {
@@ -141,6 +153,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('$lib')).toStrictEqual([
 				path.join(fixture.path, 'src/lib'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('exact match', async () => {
@@ -163,6 +177,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				path.join(fixture.path, 'b'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		// #17
@@ -186,6 +202,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				path.join(fixture.path, '../src'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('exact match with wildcard', async () => {
@@ -208,6 +226,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				path.join(fixture.path, 'b/*'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('prefix match', async () => {
@@ -230,6 +250,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('prefix-specifier')).toStrictEqual([
 				path.join(fixture.path, 'prefixed/specifier'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('suffix match', async () => {
@@ -252,6 +274,8 @@ export default testSuite(({ describe }) => {
 			expect(matcher('specifier-suffix')).toStrictEqual([
 				path.join(fixture.path, 'suffixed/specifier'),
 			]);
+
+			await fixture.cleanup();
 		});
 
 		test('doesnt match current directory', async () => {
@@ -272,6 +296,8 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('.')).toStrictEqual([]);
+
+			await fixture.cleanup();
 		});
 
 		test('doesnt match parent directory', async () => {
@@ -292,6 +318,8 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('..')).toStrictEqual([]);
+
+			await fixture.cleanup();
 		});
 
 		test('doesnt match relative paths', async () => {
@@ -312,6 +340,8 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('./relative')).toStrictEqual([]);
+
+			await fixture.cleanup();
 		});
 
 		test('matches absolute paths', async () => {
@@ -332,6 +362,8 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('/absolute')).toStrictEqual([path.join(fixture.path, 'a')]);
+
+			await fixture.cleanup();
 		});
 
 		test('matches path that starts with .', async () => {
@@ -352,6 +384,8 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('.src')).toStrictEqual([path.join(fixture.path, 'src')]);
+
+			await fixture.cleanup();
 		});
 	});
 });
