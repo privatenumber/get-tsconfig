@@ -19,29 +19,30 @@ export async function getTscConfig(
 	return JSON.parse(tscProcess.stdout);
 }
 
-
 const resolveAttemptPattern = /^(File|Directory) '(.+)'/gm;
+
+const divider = '='.repeat(8);
 
 async function parseTscResolve(
 	stdout: string,
 	request: string,
 ) {
-	const startMatched = stdout.match(new RegExp(`={8} Resolving module '${request}'`));
-	const endMatched = stdout.match(new RegExp(`={8} Module name '${request}'`));
-	const resolveLog = stdout.slice(startMatched!.index, endMatched!.index);
+	const resolveLog = stdout.slice(
+		stdout.indexOf(`${divider} Resolving module '${request}'`),
+		stdout.indexOf(`${divider} Module name '${request}'`),
+	);
 	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
 
 	return Array.from(resolveAttempts).map((
-		[, type, filePath]) => ({ type, filePath }),
-	);
+		[, type, filePath],
+	) => ({ type, filePath }));
 }
-
 
 export async function getTscResolve(
 	request: string,
 	fixturePath: string,
 ) {
-	const filePath = path.join(fixturePath, randomId() + '.ts');
+	const filePath = path.join(fixturePath, `${randomId()}.ts`);
 
 	await Promise.all([
 		fs.writeFile(
@@ -53,7 +54,7 @@ export async function getTscResolve(
 		// fs.mkdir(path.join(fixturePath, request)),
 	]);
 
-	let { stdout } = await execa(
+	const { stdout } = await execa(
 		tscPath,
 		[
 			'--traceResolution',
@@ -63,7 +64,7 @@ export async function getTscResolve(
 	);
 
 	const parsed = await parseTscResolve(stdout, request);
-	
+
 	await fs.rm(filePath, {
 		force: true,
 	});
