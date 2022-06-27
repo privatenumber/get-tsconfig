@@ -66,7 +66,9 @@ export function resolveExtends(
 			} else if (packagePath.endsWith('.json')) {
 				return packagePath;
 			}
-		} else if (!currentFilePath.endsWith('.json')) {
+		}
+
+		if (!currentFilePath.endsWith('.json')) {
 			currentFilePath += '.json';
 
 			packagePath = findUp(
