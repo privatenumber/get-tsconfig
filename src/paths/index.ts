@@ -1,4 +1,5 @@
 import path from 'path';
+import slash from 'slash';
 import type { TsConfigResult } from '../types';
 import {
 	assertStarCount,
@@ -90,7 +91,7 @@ export function createPathsMatcher(
 		if (!matchedValue) {
 			return (
 				baseUrl
-					? [path.join(resolvedBaseUrl, specifier)]
+					? [slash(path.join(resolvedBaseUrl, specifier))]
 					: []
 			);
 		}
@@ -101,7 +102,7 @@ export function createPathsMatcher(
 		);
 
 		return matchedValue.substitutions.map(
-			substitution => substitution.replace('*', matchedPath),
+			substitution => slash(substitution.replace('*', matchedPath)),
 		);
 	};
 }
