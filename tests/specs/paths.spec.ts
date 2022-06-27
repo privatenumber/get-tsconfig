@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
-import { createFixture, tsconfigJson } from '../utils/create-fixture';
+import { createFixture, createTsconfigJson } from '../utils/create-fixture';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
@@ -13,7 +13,7 @@ export default testSuite(({ describe }) => {
 		describe('error cases', ({ test }) => {
 			test('no baseUrl or paths', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {},
 					}),
 				});
@@ -25,7 +25,7 @@ export default testSuite(({ describe }) => {
 
 			test('no baseUrl & non-relative paths', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
 								'@': ['src'],
@@ -41,7 +41,7 @@ export default testSuite(({ describe }) => {
 
 			test('multiple * in pattern', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
 								'a/*/*': ['src'],
@@ -57,7 +57,7 @@ export default testSuite(({ describe }) => {
 
 			test('multiple * in substitution', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
 								'a/*': ['*/*'],
@@ -73,7 +73,7 @@ export default testSuite(({ describe }) => {
 
 			test('no match', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
 								'no-match': ['./b'],
@@ -94,7 +94,7 @@ export default testSuite(({ describe }) => {
 
 		test('baseUrl', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						baseUrl: '.',
 					},
@@ -114,7 +114,7 @@ export default testSuite(({ describe }) => {
 
 		test('baseUrl from extends', async () => {
 			const fixture = await createFixture({
-				'some-dir/tsconfig.json': tsconfigJson({
+				'some-dir/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						baseUrl: '..',
 						paths: {
@@ -127,7 +127,7 @@ export default testSuite(({ describe }) => {
 						},
 					},
 				}),
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					extends: './some-dir/tsconfig.json',
 				}),
 			});
@@ -145,7 +145,7 @@ export default testSuite(({ describe }) => {
 
 		test('exact match', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							exactMatch: ['./b'],
@@ -168,7 +168,7 @@ export default testSuite(({ describe }) => {
 		// #17
 		test('exact match with parent path', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							exactMatch: ['../src'],
@@ -190,7 +190,7 @@ export default testSuite(({ describe }) => {
 
 		test('exact match with wildcard', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							exactMatch: ['./b/*'],
@@ -212,7 +212,7 @@ export default testSuite(({ describe }) => {
 
 		test('prefix match', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'prefix-*': ['./prefixed/*'],
@@ -234,7 +234,7 @@ export default testSuite(({ describe }) => {
 
 		test('suffix match', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'*-suffix': ['./suffixed/*'],
@@ -256,7 +256,7 @@ export default testSuite(({ describe }) => {
 
 		test('doesnt match current directory', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'.': ['./a'],
@@ -276,7 +276,7 @@ export default testSuite(({ describe }) => {
 
 		test('doesnt match parent directory', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'..': ['./a'],
@@ -296,7 +296,7 @@ export default testSuite(({ describe }) => {
 
 		test('doesnt match relative paths', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'./relative': ['./a'],
@@ -316,7 +316,7 @@ export default testSuite(({ describe }) => {
 
 		test('matches absolute paths', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'/absolute': ['./a'],
@@ -336,7 +336,7 @@ export default testSuite(({ describe }) => {
 
 		test('matches path that starts with .', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
 							'.src': ['./src'],

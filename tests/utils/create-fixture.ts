@@ -67,7 +67,7 @@ export async function createFixture(
 	};
 }
 
-export const tsconfigJson = (
+export const createTsconfigJson = (
 	tsconfig: TsConfigJson,
 ) => JSON.stringify(
 	tsconfig,
