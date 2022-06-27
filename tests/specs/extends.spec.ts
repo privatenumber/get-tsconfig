@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { getTsconfig } from '../../dist/index.js';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
-import { getTscConfig } from '../utils/get-tsc-tsconfig';
+import { getTscConfig } from '../utils/tsc';
 
 export default testSuite(({ describe }) => {
 	describe('extends', ({ describe, test }) => {
