@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import slash from 'slash';
-import { getTsconfig } from '#get-tsconfig';
+import { getTsconfig } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
 
 export default testSuite(({ describe }) => {
 	describe('find tsconfig', ({ test }) => {

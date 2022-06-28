@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
-import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
 import { getTscResolution } from '../utils/tsc';
+import { getTsconfig, createPathsMatcher } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
 
 /**
  * Resolution is tested against the TypeScript compiler using:
