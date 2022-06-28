@@ -73,6 +73,16 @@ Default: `tsconfig.json`
 
 The file name of the TypeScript config file.
 
+### parseConfig(tsconfigPath)
+The function used internally by `getTsconfig` to parse the `tsconfig.json` file.
+
+Returns the parsed tsconfig as `TsConfigJsonResolved`.
+
+#### tsconfigPath
+Type: `string`
+
+Required path to the tsconfig file.
+
 ### createPathsMatcher(tsconfig: TsconfigResult)
 
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
