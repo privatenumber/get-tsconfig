@@ -1,3 +1,3 @@
 export * from './types';
 export * from './get-tsconfig';
-export * from './paths';
+export * from './paths-matcher';
