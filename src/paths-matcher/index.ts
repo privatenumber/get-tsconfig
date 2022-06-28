@@ -1,9 +1,9 @@
 import path from 'path';
 import slash from 'slash';
 import type { TsConfigResult } from '../types';
+import { isRelativePathPattern } from '../utils/is-relative-path-pattern';
 import {
 	assertStarCount,
-	isRelativePathPattern,
 	parsePattern,
 	isPatternMatch,
 } from './utils';
