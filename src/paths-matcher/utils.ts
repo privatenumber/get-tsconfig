@@ -1,7 +1,5 @@
 import type { StarPattern } from './types';
 
-export const isRelativePathPattern = /^\.{1,2}(\/.*)?$/;
-
 const starPattern = /\*/g;
 
 export const assertStarCount = (

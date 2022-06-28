@@ -24,7 +24,7 @@ export default testSuite(({ describe }) => {
 						module: 'esnext',
 						esModuleInterop: true,
 						declaration: true,
-						// outDir: 'dist',
+						outDir: 'dist',
 						strict: true,
 						target: 'esnext',
 					},

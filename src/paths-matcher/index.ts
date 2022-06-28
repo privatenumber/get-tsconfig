@@ -3,10 +3,10 @@ import slash from 'slash';
 import type { TsConfigResult } from '../types';
 import {
 	assertStarCount,
-	isRelativePathPattern,
 	parsePattern,
 	isPatternMatch,
 } from './utils';
+import { isRelativePathPattern } from '../utils/is-relative-path-pattern';
 import type { StarPattern, PathEntry } from './types';
 
 function parsePaths(

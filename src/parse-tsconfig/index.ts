@@ -87,10 +87,21 @@ export function parseTsconfig(
 		config = merged;
 	}
 
-	if (config.compilerOptions?.baseUrl) {
+	if (config.compilerOptions) {
 		const { compilerOptions } = config;
 
-		compilerOptions.baseUrl = normalizePath(compilerOptions.baseUrl!);
+		if (compilerOptions.baseUrl) {
+			compilerOptions.baseUrl = normalizePath(compilerOptions.baseUrl);
+		}
+
+		if (compilerOptions.outDir) {
+			if (!Array.isArray(config.exclude)) {
+				config.exclude = [];
+			}
+
+			config.exclude.push(compilerOptions.outDir);
+			compilerOptions.outDir = normalizePath(compilerOptions.outDir);
+		}
 	}
 
 	if (config.files) {
