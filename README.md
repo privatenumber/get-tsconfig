@@ -75,7 +75,7 @@ console.log(getTsconfig('./path/to/tsconfig.json'))
 
 ---
 
-### parseConfig(tsconfigPath)
+### parseTsconfig(tsconfigPath)
 The `tsconfig.json` parser used internally by `getTsconfig`. Returns the parsed tsconfig as `TsConfigJsonResolved`.
 
 #### tsconfigPath
@@ -86,10 +86,10 @@ Required path to the tsconfig file.
 #### Example
 
 ```ts
-import { parseConfig } from 'get-tsconfig'
+import { parseTsconfig } from 'get-tsconfig'
 
 // Must pass in a path to an existing tsconfig.json file
-console.log(parseConfig('./path/to/tsconfig.custom.json'))
+console.log(parseTsconfig('./path/to/tsconfig.custom.json'))
 ```
 
 ---
@@ -115,7 +115,7 @@ const pathsMatcher = createPathsMatcher(tsconfig)
 
 function exampleResolver(request: string) {
     if (pathsMatcher) {
-        const tryPaths = pathsMatcher(request);
+        const tryPaths = pathsMatcher(request)
 
         // Check if paths in `tryPaths` exist
     }
