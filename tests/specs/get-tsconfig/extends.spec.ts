@@ -28,7 +28,7 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
-				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse JSON');
+				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse tsconfig at:');
 
 				await fixture.cleanup();
 			});

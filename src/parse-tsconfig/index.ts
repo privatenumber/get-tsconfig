@@ -24,7 +24,7 @@ export function parseTsconfig(
 		config = parse(fileContent);
 
 		if (!config || typeof config !== 'object') {
-			throw new SyntaxError(`Failed to parse JSON: ${tsconfigPath}`);
+			throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
 		}
 	}
 

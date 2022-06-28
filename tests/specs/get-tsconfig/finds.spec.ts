@@ -4,8 +4,22 @@ import slash from 'slash';
 import { createFixture } from '../../utils/create-fixture';
 import { getTsconfig } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
 
+const compilerOptions = {
+	jsx: 'react',
+	jsxFactory: 'h',
+	strict: true,
+};
+
+const tsconfigJson = `
+// comment at top
+{
+	/* compiler options */
+	"compilerOptions": ${JSON.stringify(compilerOptions, null, '\t')}, // dangling-comma
+} //comment at bottom
+`;
+
 export default testSuite(({ describe }) => {
-	describe('find tsconfig', ({ test }) => {
+	describe('find tsconfig', ({ test, describe }) => {
 		describe('error cases', ({ test }) => {
 			test('tsconfig not found', () => {
 				const tsconfig = getTsconfig('/');
@@ -18,75 +32,51 @@ export default testSuite(({ describe }) => {
 					'tsconfig.json': 'asdf',
 				});
 
-				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse JSON');
+				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse tsconfig at:');
 
 				await fixture.cleanup();
 			});
 		});
 
-		test('from cwd', () => {
+		test('from cwd', async () => {
 			const tsconfig = getTsconfig();
+			expect(tsconfig?.path).toBe(slash(path.join(process.cwd(), 'tsconfig.json')));
+		});
 
+		test('from directory path', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson,
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toStrictEqual({
-				path: slash(path.join(process.cwd(), 'tsconfig.json')),
-				config: {
-					compilerOptions: {
-						moduleResolution: 'node',
-						isolatedModules: true,
-						module: 'NodeNext',
-						esModuleInterop: true,
-						declaration: true,
-						outDir: 'dist',
-						strict: true,
-						target: 'esnext',
-					},
-					include: ['src'],
-				},
+				path: path.join(fixture.path, 'tsconfig.json'),
+				config: { compilerOptions },
 			});
 		});
 
-		test('from directory path', () => {
-			const tsconfig = getTsconfig('./tests/fixtures');
+		test('from index.js path', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson,
+			});
 
+			const tsconfig = getTsconfig(path.join(fixture.path, 'index.js'));
 			expect(tsconfig).toStrictEqual({
-				path: 'tests/fixtures/tsconfig.json',
-				config: {
-					compilerOptions: {
-						jsx: 'react',
-						jsxFactory: 'h',
-						strict: true,
-					},
-				},
+				path: path.join(fixture.path, 'tsconfig.json'),
+				config: { compilerOptions },
 			});
 		});
 
-		test('from tsconfig.json path', () => {
-			const tsconfig = getTsconfig('./tests/fixtures/tsconfig.json');
-
-			expect(tsconfig).toStrictEqual({
-				path: 'tests/fixtures/tsconfig.json',
-				config: {
-					compilerOptions: {
-						jsx: 'react',
-						jsxFactory: 'h',
-						strict: true,
-					},
-				},
+		test('custom name', async () => {
+			const customName = 'tsconfig-custom-name.json';
+			const fixture = await createFixture({
+				[customName]: tsconfigJson,
 			});
-		});
 
-		test('from index.js path', () => {
-			const tsconfig = getTsconfig('./tests/fixtures/index.js');
-
+			const tsconfig = getTsconfig(fixture.path, customName);
 			expect(tsconfig).toStrictEqual({
-				path: 'tests/fixtures/tsconfig.json',
-				config: {
-					compilerOptions: {
-						jsx: 'react',
-						jsxFactory: 'h',
-						strict: true,
-					},
-				},
+				path: path.join(fixture.path, customName),
+				config: { compilerOptions },
 			});
 		});
 	});
