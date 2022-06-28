@@ -1,6 +1,6 @@
 import { testSuite, expect } from 'manten';
-import { createFixture, tsconfigJson } from '../utils/create-fixture';
-import { getTscTsconfig } from '../utils/tsc';
+import { createFixture, tsconfigJson } from '../../utils/create-fixture';
+import { getTscTsconfig } from '../../utils/tsc';
 import { getTsconfig } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
 
 export default testSuite(({ describe }) => {
