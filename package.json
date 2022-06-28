@@ -27,11 +27,18 @@
 		"import": "./dist/index.mjs",
 		"types": "./dist/index.d.ts"
 	},
+	"imports": {
+		"#get-tsconfig": {
+			"development": "./src/index.ts",
+			"default": "./dist/index.mjs"
+		}
+	},
 	"scripts": {
 		"lint": "eslint .",
 		"build": "pkgroll --minify --target node12.20",
 		"pretest": "npm run build",
-		"test": "tsx tests"
+		"test": "tsx tests",
+		"dev": "tsx watch --conditions=development tests"
 	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.22.0",
@@ -42,7 +49,7 @@
 		"manten": "^0.1.0",
 		"pkgroll": "^1.3.1",
 		"slash": "^4.0.0",
-		"tsx": "^3.4.2",
+		"tsx": "^3.6.0",
 		"type-fest": "^2.13.1",
 		"typescript": "^4.7.3"
 	},

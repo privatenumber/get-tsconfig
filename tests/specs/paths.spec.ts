@@ -1,5 +1,5 @@
 import { testSuite, expect } from 'manten';
-import { getTsconfig, createPathsMatcher } from '../../dist/index.js';
+import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 import { createFixture, tsconfigJson } from '../utils/create-fixture';
 import { getTscResolution } from '../utils/tsc';
 
