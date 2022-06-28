@@ -4,7 +4,7 @@ Find and parse `tsconfig.json` files.
 
 ### Features
 - Zero dependency (not even TypeScript)
-- Tested against TypeScript for accuracy
+- Tested against TypeScript for correctness
 - Supports comments & dangling commas in `tsconfig.json`
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
@@ -20,27 +20,9 @@ npm install get-tsconfig
 ## 🙋‍♀️ Why?
 For TypeScript related tooling to correctly parse `tsconfig.json` file without depending on TypeScript.
 
-## 👨‍🏫 Usage
-
-```ts
-import { getTsconfig } from 'get-tsconfig'
-
-// Finds tsconfig.json in the current directory
-console.log(getTsconfig())
-
-// Find tsconfig.json from a TypeScript file path
-console.log(getTsconfig('./path/to/index.ts'))
-
-// Find tsconfig.json from a directory file path
-console.log(getTsconfig('./path/to/directory'))
-
-// Explicitly pass in tsconfig.json path
-console.log(getTsconfig('./path/to/tsconfig.json'))
-```
-
 ## ⚙️ API
 
-### getTsconfig(searchPath?: string, configName?: string)
+### getTsconfig(searchPath?, configName?)
 Searches for a `tsconfig.json` file and parses it. Returns `null` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
 
 Returns:
@@ -73,26 +55,48 @@ Default: `tsconfig.json`
 
 The file name of the TypeScript config file.
 
-### parseConfig(tsconfigPath)
-The function used internally by `getTsconfig` to parse the `tsconfig.json` file.
+#### Example
 
-Returns the parsed tsconfig as `TsConfigJsonResolved`.
+```ts
+import { getTsconfig } from 'get-tsconfig'
+
+// Searches for tsconfig.json starting in the current directory
+console.log(getTsconfig())
+
+// Find tsconfig.json from a TypeScript file path
+console.log(getTsconfig('./path/to/index.ts'))
+
+// Find tsconfig.json from a directory file path
+console.log(getTsconfig('./path/to/directory'))
+
+// Explicitly pass in tsconfig.json path
+console.log(getTsconfig('./path/to/tsconfig.json'))
+```
+
+---
+
+### parseConfig(tsconfigPath)
+The `tsconfig.json` parser used internally by `getTsconfig`. Returns the parsed tsconfig as `TsConfigJsonResolved`.
 
 #### tsconfigPath
 Type: `string`
 
 Required path to the tsconfig file.
 
+#### Example
+
+```ts
+import { parseConfig } from 'get-tsconfig'
+
+// Must pass in a path to an existing tsconfig.json file
+console.log(parseConfig('./path/to/tsconfig.custom.json'))
+```
+
+---
+
 ### createPathsMatcher(tsconfig: TsconfigResult)
 
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
-
-```ts
-import { getTsconfig, createPathsMatcher } from 'get-tsconfig'
-
-const tsconfig = getTsconfig()
-const pathsMatcher = createPathsMatcher(tsconfig)
-```
 
 The matcher function accepts an [import specifier (the path to resolve)](https://nodejs.org/api/esm.html#terminology), checks it against `compilerOptions.paths`, and returns an array of possible paths to check:
 ```ts
@@ -100,6 +104,23 @@ function pathsMatcher(specifier: string): string[]
 ```
 
 This function only returns possible paths and doesn't actually do any resolution. This helps increase compatibility wtih file/build systems which usually have their own resolvers.
+
+#### Example
+
+```ts
+import { getTsconfig, createPathsMatcher } from 'get-tsconfig'
+
+const tsconfig = getTsconfig()
+const pathsMatcher = createPathsMatcher(tsconfig)
+
+function exampleResolver(request: string) {
+    if (pathsMatcher) {
+        const tryPaths = pathsMatcher(request);
+
+        // Check if paths in `tryPaths` exist
+    }
+}
+```
 
 ## FAQ
 
