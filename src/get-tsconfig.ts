@@ -1,5 +1,5 @@
 import { findUp } from './utils/find-up';
-import { readTsconfig } from './utils/read-tsconfig';
+import { parseTsconfig } from './parse-tsconfig';
 import type { TsConfigResult } from './types';
 
 export function getTsconfig(
@@ -12,7 +12,7 @@ export function getTsconfig(
 		return null;
 	}
 
-	const config = readTsconfig(configFile);
+	const config = parseTsconfig(configFile);
 
 	return {
 		path: configFile,

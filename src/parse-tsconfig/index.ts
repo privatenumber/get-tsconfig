@@ -3,15 +3,15 @@ import path from 'path';
 import { parse } from 'jsonc-parser';
 import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
-import { normalizePath } from './normalize-path';
+import { normalizePath } from '../utils/normalize-path';
 import { resolveExtends } from './resolve-extends';
 
-export function readTsconfig(
-	filePath: string,
+export function parseTsconfig(
+	tsconfigPath: string,
 ): TsConfigJsonResolved {
-	const fileRealPath = fs.realpathSync(filePath);
-	const directoryPath = path.dirname(fileRealPath);
-	const fileContent = fs.readFileSync(filePath, 'utf8').trim();
+	const realTsconfigPath = fs.realpathSync(tsconfigPath);
+	const directoryPath = path.dirname(realTsconfigPath);
+	const fileContent = fs.readFileSync(tsconfigPath, 'utf8').trim();
 
 	let config: TsConfigJson = {};
 
@@ -19,7 +19,7 @@ export function readTsconfig(
 		config = parse(fileContent);
 
 		if (!config || typeof config !== 'object') {
-			throw new SyntaxError(`Failed to parse JSON: ${filePath}`);
+			throw new SyntaxError(`Failed to parse JSON: ${tsconfigPath}`);
 		}
 	}
 
@@ -29,7 +29,7 @@ export function readTsconfig(
 			directoryPath,
 		);
 
-		const extendsConfig = readTsconfig(extendsPath);
+		const extendsConfig = parseTsconfig(extendsPath);
 
 		delete extendsConfig.references;
 

@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { findUp } from './find-up';
+import { findUp } from '../utils/find-up';
 
 const pathExists = (filePath: string) => fs.existsSync(filePath);
 
