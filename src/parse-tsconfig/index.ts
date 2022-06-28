@@ -9,9 +9,14 @@ import { resolveExtends } from './resolve-extends';
 export function parseTsconfig(
 	tsconfigPath: string,
 ): TsConfigJsonResolved {
-	const realTsconfigPath = fs.realpathSync(tsconfigPath);
+	let realTsconfigPath: string;
+	try {
+		realTsconfigPath = fs.realpathSync(tsconfigPath);
+	} catch {
+		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
+	}
 	const directoryPath = path.dirname(realTsconfigPath);
-	const fileContent = fs.readFileSync(tsconfigPath, 'utf8').trim();
+	const fileContent = fs.readFileSync(realTsconfigPath, 'utf8').trim();
 
 	let config: TsConfigJson = {};
 
