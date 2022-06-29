@@ -2,7 +2,7 @@ import path from 'path';
 import { testSuite, expect } from 'manten';
 import { getTscTsconfig } from '../../utils/tsc';
 import { createFixture, tsconfigJson } from '../../utils/create-fixture';
-import { parseTsconfig } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
+import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('parses tsconfig', ({ describe, test }) => {

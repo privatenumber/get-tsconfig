@@ -1,8 +1,9 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
+// @ts-expect-error ESM module
 import slash from 'slash';
 import { createFixture } from '../../utils/create-fixture';
-import { getTsconfig } from '#get-tsconfig'; // eslint-disable-line import/no-unresolved
+import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
 	jsx: 'react',
