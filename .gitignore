@@ -19,6 +19,9 @@ node_modules/
 .env
 .env.test
 
+# IJ
+.idea
+
 # VSCode
 .vscode
 

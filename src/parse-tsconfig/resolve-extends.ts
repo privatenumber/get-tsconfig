@@ -66,6 +66,10 @@ export function resolveExtends(
 			} else if (packagePath.endsWith('.json')) {
 				return packagePath;
 			}
+		} else {
+			try {
+				return require.resolve(currentFilePath);
+			} catch {}
 		}
 
 		if (!currentFilePath.endsWith('.json')) {
