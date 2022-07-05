@@ -1,7 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { tsconfigJson, getTscResolution } from '../utils';
-import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
+import { getTsconfig, createPathsMatcher } from '../../src';
 
 /**
  * Resolution is tested against the TypeScript compiler using:

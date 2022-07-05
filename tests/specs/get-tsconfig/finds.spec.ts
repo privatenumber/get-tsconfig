@@ -1,9 +1,10 @@
 import path from 'path';
+import { createFixture } from '../../utils/create-fixture';
+import { getTsconfig } from '../../../src';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 // @ts-expect-error ESM module
 import slash from 'slash';
-import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
 	jsx: 'react',

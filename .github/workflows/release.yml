@@ -17,13 +17,15 @@ jobs:
       with:
         node-version-file: '.nvmrc'
     - name: Install dependencies
-      run: npx ci
+      run: |
+        yarn --frozen-lockfile
+        npx pnpm i --frozen-lockfile
     - name: Build
-      run: npm run build
+      run: npx pnpm build
     - name: Lint
-      run: npm run lint
+      run: npx pnpm lint
     - name: Test
-      run: npm run test --if-present
+      run: npx pnpm test --if-present
     - name: Release
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}

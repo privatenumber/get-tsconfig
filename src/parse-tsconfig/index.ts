@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { parse } from 'jsonc-parser';
-import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
 import { normalizePath } from '../utils/normalize-path';
 import { resolveExtends } from './resolve-extends';
+import slash from 'slash';
+import { parse } from 'jsonc-parser';
 
 export function parseTsconfig(
 	tsconfigPath: string,

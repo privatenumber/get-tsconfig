@@ -24,9 +24,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
-      run: npx ci
-    - name: Test
-      run: npm run test
+      run: |
+        yarn --frozen-lockfile
+        npx pnpm i --frozen-lockfile
+    - name: Test with PnP
+      run: npx pnpm test
     - name: Lint
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 14 }}
-      run: npm run lint
+      run: yarn lint # `pnpm lint` does not work, no idea
+    - name: Test without PnP
+      run: |
+        npx rimraf .yarn .pnp.* .yarnrc.yml yarn.lock
+        npx pnpm i --frozen-lockfile
+        npx pnpm test

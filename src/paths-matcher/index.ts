@@ -1,5 +1,4 @@
 import path from 'path';
-import slash from 'slash';
 import type { TsConfigResult } from '../types';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern';
 import {
@@ -8,6 +7,7 @@ import {
 	isPatternMatch,
 } from './utils';
 import type { StarPattern, PathEntry } from './types';
+import slash from 'slash';
 
 function parsePaths(
 	paths: Partial<Record<string, string[]>>,

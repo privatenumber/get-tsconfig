@@ -27,13 +27,6 @@
 		"import": "./dist/index.mjs",
 		"types": "./dist/index.d.ts"
 	},
-	"imports": {
-		"#get-tsconfig": {
-			"types": "./src/index.ts",
-			"development": "./src/index.ts",
-			"default": "./dist/index.mjs"
-		}
-	},
 	"scripts": {
 		"lint": "eslint .",
 		"build": "pkgroll --minify --target node12.20",
@@ -78,5 +71,6 @@
 				}
 			}
 		]
-	}
+	},
+	"packageManager": "yarn@3.2.1"
 }

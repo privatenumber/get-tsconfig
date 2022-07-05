@@ -24,3 +24,7 @@ node_modules/
 
 # Distribution
 dist
+
+# yarn
+.yarn
+!.yarn/releases
