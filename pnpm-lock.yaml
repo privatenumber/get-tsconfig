@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@pvtnbr/eslint-config': ^0.26.1
   '@types/node': ^17.0.41
+  clean-pkg-json: ^1.0.0
   eslint: ^8.18.0
   execa: ^6.1.0
   fs-fixture: ^1.0.0
@@ -17,6 +18,7 @@ specifiers:
 devDependencies:
   '@pvtnbr/eslint-config': 0.26.1_7omqkkq7gtkix5mfmoxm235otq
   '@types/node': 17.0.41
+  clean-pkg-json: 1.0.0
   eslint: 8.18.0
   execa: 6.1.0
   fs-fixture: 1.0.0
@@ -628,6 +630,11 @@ packages:
 
   /ci-info/3.3.2:
     resolution: {integrity: sha512-xmDt/QIAdeZ9+nfdPsaBCpMvHNLFiLdjj59qjqn+6iPe6YmHGQ35sBnQ8uslRBXFmXkiZQOJRjvQeoGppoTjjg==}
+    dev: true
+
+  /clean-pkg-json/1.0.0:
+    resolution: {integrity: sha512-J29Lf+6KaLFF28S7REbPgJmrAh89TTAELrtR1zB9PNjW+POHU5QzvZLDEp7m4WBY2Km7rdmD7Hf3dmptAxExBg==}
+    hasBin: true
     dev: true
 
   /clean-regexp/1.0.0:

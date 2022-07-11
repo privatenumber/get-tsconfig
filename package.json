@@ -39,11 +39,13 @@
 		"build": "pkgroll --minify --target node12.20",
 		"pretest": "npm run build",
 		"test": "tsx tests",
-		"dev": "tsx watch --conditions=development tests"
+		"dev": "tsx watch --conditions=development tests",
+		"prepack": "clean-pkg-json"
 	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.26.1",
 		"@types/node": "^17.0.41",
+		"clean-pkg-json": "^1.0.0",
 		"eslint": "^8.18.0",
 		"execa": "^6.1.0",
 		"fs-fixture": "^1.0.0",
