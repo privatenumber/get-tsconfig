@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
-import { getTscTsconfig } from '../../utils/tsc';
-import { createFixture, tsconfigJson } from '../../utils/create-fixture';
+import { createFixture } from 'fs-fixture';
+import { tsconfigJson, getTscTsconfig } from '../../utils';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -37,6 +37,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
 		});
 	});
 });

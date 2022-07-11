@@ -1,6 +1,6 @@
 import { testSuite, expect } from 'manten';
-import { createFixture, tsconfigJson } from '../../utils/create-fixture';
-import { getTscTsconfig } from '../../utils/tsc';
+import { createFixture } from 'fs-fixture';
+import { tsconfigJson, getTscTsconfig } from '../../utils';
 import { getTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -16,7 +16,7 @@ export default testSuite(({ describe }) => {
 
 				expect(() => getTsconfig(fixture.path)).toThrow('File \'./non-existent.json\' not found.');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('invalid json', async () => {
@@ -30,7 +30,7 @@ export default testSuite(({ describe }) => {
 
 				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse tsconfig at:');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -45,7 +45,7 @@ export default testSuite(({ describe }) => {
 
 				expect(() => getTsconfig(fixture.path)).toThrow('File \'missing-package\' not found.');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('no extension', async () => {
@@ -72,7 +72,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('parent directory', async () => {
@@ -102,7 +102,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('shoud not resolve directory', async () => {
@@ -121,7 +121,7 @@ export default testSuite(({ describe }) => {
 					() => getTsconfig(fixture.path),
 				).toThrow('File \'./directory/\' not found.');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package', async () => {
@@ -144,7 +144,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with path', async () => {
@@ -167,7 +167,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package far', async () => {
@@ -193,7 +193,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixturePath);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with index.js', async () => {
@@ -220,7 +220,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with path name w/o .json extension', async () => {
@@ -245,7 +245,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package file should not resolve extensionless file', async () => {
@@ -266,7 +266,7 @@ export default testSuite(({ describe }) => {
 
 				expect(() => getTsconfig(fixture.path)).toThrow('File \'dep/react-native\' not found');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with invalid package.json', async () => {
@@ -297,7 +297,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with package.json#tsconfig', async () => {
@@ -329,7 +329,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency package with path', async () => {
@@ -361,7 +361,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('extends dependency with colliding directory name', async () => {
@@ -384,7 +384,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -403,7 +403,7 @@ export default testSuite(({ describe }) => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-			await fixture.cleanup();
+			await fixture.rm();
 		});
 
 		test('empty json', async () => {
@@ -421,7 +421,7 @@ export default testSuite(({ describe }) => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-			await fixture.cleanup();
+			await fixture.rm();
 		});
 
 		test('references is ignored', async () => {
@@ -450,7 +450,7 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-			await fixture.cleanup();
+			await fixture.rm();
 		});
 
 		describe('files', ({ test }) => {
@@ -477,7 +477,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('gets overwritten', async () => {
@@ -506,7 +506,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -533,7 +533,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('gets overwritten', async () => {
@@ -564,7 +564,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -588,7 +588,7 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('gets inherited with relative path', async () => {
@@ -614,7 +614,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 
 			test('resolves parent baseUrl path', async () => {
@@ -636,7 +636,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -670,7 +670,7 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-			await fixture.cleanup();
+			await fixture.rm();
 		});
 
 		test('watchOptions', async () => {
@@ -697,7 +697,7 @@ export default testSuite(({ describe }) => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
-			await fixture.cleanup();
+			await fixture.rm();
 		});
 	});
 });
