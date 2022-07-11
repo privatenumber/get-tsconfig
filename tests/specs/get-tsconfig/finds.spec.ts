@@ -1,8 +1,8 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
+import { createFixture } from 'fs-fixture';
 // @ts-expect-error ESM module
 import slash from 'slash';
-import { createFixture } from '../../utils/create-fixture';
 import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
@@ -35,7 +35,7 @@ export default testSuite(({ describe }) => {
 
 				expect(() => getTsconfig(fixture.path)).toThrow('Failed to parse tsconfig at:');
 
-				await fixture.cleanup();
+				await fixture.rm();
 			});
 		});
 
@@ -54,6 +54,8 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, 'tsconfig.json')),
 				config: { compilerOptions },
 			});
+
+			await fixture.rm();
 		});
 
 		test('from index.js path', async () => {
@@ -66,6 +68,8 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, 'tsconfig.json')),
 				config: { compilerOptions },
 			});
+
+			await fixture.rm();
 		});
 
 		test('custom name', async () => {
@@ -79,6 +83,8 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, customName)),
 				config: { compilerOptions },
 			});
+
+			await fixture.rm();
 		});
 	});
 });

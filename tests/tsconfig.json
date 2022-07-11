@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.json",
 	"compilerOptions": {
 		"moduleResolution": "Node16",
-		"module": "ESNext",
+		"module": "Node16",
 	},
 	"include": ["."]
 }

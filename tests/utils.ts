@@ -3,6 +3,14 @@ import fs from 'fs/promises';
 import { execa } from 'execa';
 import type { TsConfigJson } from 'type-fest';
 
+export const tsconfigJson = (
+	tsconfig: TsConfigJson,
+) => JSON.stringify(
+	tsconfig,
+	null,
+	'\t',
+);
+
 const randomId = () => Math.random().toString(36).slice(2);
 
 const tscPath = path.resolve('node_modules/.bin/tsc');

@@ -5,6 +5,7 @@ specifiers:
   '@types/node': ^17.0.41
   eslint: ^8.18.0
   execa: ^6.1.0
+  fs-fixture: ^1.0.0
   jsonc-parser: ^3.0.0
   manten: ^0.2.1
   pkgroll: ^1.3.1
@@ -18,6 +19,7 @@ devDependencies:
   '@types/node': 17.0.41
   eslint: 8.18.0
   execa: 6.1.0
+  fs-fixture: 1.0.0
   jsonc-parser: 3.0.0
   manten: 0.2.1
   pkgroll: 1.3.1_typescript@4.7.3
@@ -1747,6 +1749,10 @@ packages:
 
   /flatted/3.2.6:
     resolution: {integrity: sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==}
+    dev: true
+
+  /fs-fixture/1.0.0:
+    resolution: {integrity: sha512-p8/NVxnToe3sHTz8vZUWg2qY4GsVctOoab6FdjRMA9CrM4tGmJiSxEieOrMz+sEFDgz/0sx5qAfMBNCZbtwN1A==}
     dev: true
 
   /fs.realpath/1.0.0:
