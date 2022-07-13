@@ -1,6 +1,6 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJson, getTscTsconfig } from '../../utils';
+import { tsconfigJson, getTscTsconfig } from '../../../utils';
 import { getTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
