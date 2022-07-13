@@ -26,5 +26,5 @@ node_modules/
 dist
 
 # yarn zero-installs
-.yarn/*
-!.yarn/releases
+**/.yarn/*
+!**/.yarn/releases
