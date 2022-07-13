@@ -39,6 +39,7 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 	}
 
 	if (process.versions.pnp) {
+		console.log('PnP detected');
 		const require = createRequire(
 			// @ts-expect-error -- it will be transformed at build time
 			import.meta.url,
