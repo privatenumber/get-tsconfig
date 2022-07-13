@@ -45,6 +45,7 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 		);
 
 		/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
+		// eslint-disable-next-line import/no-unresolved
 		const pnpapi = require('pnpapi');
 		const [first, second] = filePath.split('/');
 		const pkg = first.startsWith('@') ? `${first}/${second}` : first;

@@ -1,5 +1,5 @@
-import { isRelativePathPattern } from './is-relative-path-pattern';
 import slash from 'slash';
+import { isRelativePathPattern } from './is-relative-path-pattern';
 
 export const normalizePath = (filePath: string) => slash(
 	isRelativePathPattern.test(filePath)

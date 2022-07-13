@@ -28,3 +28,5 @@ dist
 # yarn
 .yarn
 !.yarn/releases
+/.pnp.*
+/yarn.lock
