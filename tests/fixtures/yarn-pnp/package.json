@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "get-tsconfig": "link:../../..",
+    "tsconfig-package": "link:../tsconfig-package"
+  }
+}

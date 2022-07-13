@@ -1,0 +1,4 @@
+{
+	"name": "tsconfig-package",
+	"tsconfig": "./some-config.json"
+}
