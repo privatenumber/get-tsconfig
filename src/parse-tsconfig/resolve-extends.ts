@@ -65,23 +65,16 @@ export function resolveExtends(
 	}
 
 	const pnpApi = getPnpApi();
-	console.log({pnpApi});
 	if (pnpApi) {
 		const [first, second] = filePath.split('/');
 		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
 
 		try {
 			if (packageName === filePath) {
-				console.log({
-					filePath,
-					packageName,
-				});
 				const packageJsonPath = pnpApi.resolveRequest(
 					path.join(packageName, 'package.json'),
 					directoryPath,
 				);
-
-				console.log({ packageJsonPath });
 
 				if (packageJsonPath) {
 					const packagePath = resolveFromPackageJsonPath(packageJsonPath);
@@ -104,9 +97,7 @@ export function resolveExtends(
 					);
 				}
 			}
-		} catch (error) {
-			console.log(error);
-		}
+		} catch {}
 	}
 
 	let packagePath = findUp(
