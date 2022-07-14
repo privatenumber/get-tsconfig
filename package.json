@@ -45,6 +45,7 @@
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.26.1",
 		"@types/node": "^17.0.41",
+		"@yarnpkg/pnp": "4.0.0-rc.12",
 		"clean-pkg-json": "^1.0.0",
 		"eslint": "^8.18.0",
 		"execa": "^6.1.0",

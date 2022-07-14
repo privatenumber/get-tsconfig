@@ -14,8 +14,8 @@ const safeJsonParse = (jsonString: string) => {
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
 
-	/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
-	return findPnpApi && Module.findPnpApi(process.cwd());
+	// https://yarnpkg.com/advanced/pnpapi/#requirepnpapi
+	return findPnpApi && findPnpApi(process.cwd());
 };
 
 // eslint-disable-next-line complexity
