@@ -24,3 +24,8 @@ node_modules/
 
 # Distribution
 dist
+
+# yarn zero-installs
+**/.yarn/*
+!**/.yarn/cache
+!**/.yarn/releases

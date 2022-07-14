@@ -1,5 +1,6 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
+import { execaNode } from 'execa';
 import { tsconfigJson, getTscTsconfig } from '../../../utils';
 import { getTsconfig } from '#get-tsconfig';
 
@@ -355,6 +356,20 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
 
 			await fixture.rm();
+		});
+
+		test('yarn pnp', async () => {
+			const { stdout } = await execaNode('./index.js', [], {
+				nodeOptions: ['--require', './.pnp.cjs'],
+				cwd: './tests/fixtures/yarn-pnp',
+			});
+
+			expect(stdout).toBe([
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+			].join('\n'));
 		});
 	});
 });
