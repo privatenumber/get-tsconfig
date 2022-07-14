@@ -3,7 +3,7 @@ import fs from 'fs';
 import Module from 'module';
 import { findUp } from '../utils/find-up';
 
-const pathExists = (filePath: string) => fs.existsSync(filePath);
+const { existsSync } = fs;
 
 const safeJsonParse = (jsonString: string) => {
 	try {
@@ -47,7 +47,7 @@ export function resolveExtends(
 		let tsconfigPath = path.resolve(directoryPath, currentFilePath);
 
 		if (
-			pathExists(tsconfigPath)
+			existsSync(tsconfigPath)
 			&& fs.statSync(tsconfigPath).isFile()
 		) {
 			return tsconfigPath;
@@ -56,7 +56,7 @@ export function resolveExtends(
 		if (!tsconfigPath.endsWith('.json')) {
 			tsconfigPath += '.json';
 
-			if (pathExists(tsconfigPath)) {
+			if (existsSync(tsconfigPath)) {
 				return tsconfigPath;
 			}
 		}
@@ -66,12 +66,13 @@ export function resolveExtends(
 
 	const pnpApi = getPnpApi();
 	if (pnpApi) {
+		const { resolveRequest } = pnpApi;
 		const [first, second] = filePath.split('/');
 		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
 
 		try {
 			if (packageName === filePath) {
-				const packageJsonPath = pnpApi.resolveRequest(
+				const packageJsonPath = resolveRequest(
 					path.join(packageName, 'package.json'),
 					directoryPath,
 				);
@@ -79,19 +80,19 @@ export function resolveExtends(
 				if (packageJsonPath) {
 					const packagePath = resolveFromPackageJsonPath(packageJsonPath);
 
-					if (pathExists(packagePath)) {
+					if (existsSync(packagePath)) {
 						return packagePath;
 					}
 				}
 			} else {
 				try {
-					return pnpApi.resolveRequest(
+					return resolveRequest(
 						filePath,
 						directoryPath,
 						{ extensions: ['.json'] },
 					);
 				} catch {
-					return pnpApi.resolveRequest(
+					return resolveRequest(
 						path.join(filePath, 'tsconfig.json'),
 						directoryPath,
 					);
@@ -109,13 +110,13 @@ export function resolveExtends(
 		if (fs.statSync(packagePath).isDirectory()) {
 			const packageJsonPath = path.join(packagePath, 'package.json');
 
-			if (pathExists(packageJsonPath)) {
+			if (existsSync(packageJsonPath)) {
 				packagePath = resolveFromPackageJsonPath(packageJsonPath);
 			} else {
 				packagePath = path.join(packagePath, 'tsconfig.json');
 			}
 
-			if (pathExists(packagePath)) {
+			if (existsSync(packagePath)) {
 				return packagePath;
 			}
 		} else if (packagePath.endsWith('.json')) {
