@@ -72,6 +72,10 @@ export function resolveExtends(
 
 		try {
 			if (packageName === filePath) {
+				console.log({
+					filePath,
+					packageName,
+				});
 				const packageJsonPath = pnpApi.resolveRequest(
 					path.join(packageName, 'package.json'),
 					directoryPath,
@@ -100,7 +104,9 @@ export function resolveExtends(
 					);
 				}
 			}
-		} catch {}
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	let packagePath = findUp(
