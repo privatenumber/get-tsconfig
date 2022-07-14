@@ -359,10 +359,17 @@ export default testSuite(({ describe }) => {
 		});
 
 		test('yarn pnp', async () => {
-			await execaNode('./index.js', [], {
+			const { stdout } = await execaNode('./index.js', [], {
 				nodeOptions: ['--require', './.pnp.cjs'],
 				cwd: './tests/fixtures/yarn-pnp',
 			});
+
+			expect(stdout).toBe([
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+			].join('\n'));
 		});
 	});
 });

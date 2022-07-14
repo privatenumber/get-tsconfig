@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@pvtnbr/eslint-config': ^0.26.1
   '@types/node': ^17.0.41
+  '@yarnpkg/pnp': 3.2.1
   clean-pkg-json: ^1.0.0
   eslint: ^8.18.0
   execa: ^6.1.0
@@ -18,6 +19,7 @@ specifiers:
 devDependencies:
   '@pvtnbr/eslint-config': 0.26.1_7omqkkq7gtkix5mfmoxm235otq
   '@types/node': 17.0.41
+  '@yarnpkg/pnp': 3.2.1
   clean-pkg-json: 1.0.0
   eslint: 8.18.0
   execa: 6.1.0
@@ -269,6 +271,10 @@ packages:
       picomatch: 2.3.1
     dev: true
 
+  /@types/emscripten/1.39.6:
+    resolution: {integrity: sha512-H90aoynNhhkQP6DRweEjJp5vfUVdIj7tdPLsu7pq89vODD/lcugKfZOsfgwpvM6XUewEp2N5dCg1Uf3Qe55Dcg==}
+    dev: true
+
   /@types/estree/0.0.39:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
     dev: true
@@ -307,6 +313,10 @@ packages:
       '@types/unist': 2.0.6
     dev: true
 
+  /@types/node/13.13.52:
+    resolution: {integrity: sha512-s3nugnZumCC//n4moGGe6tkNMyYEdaDBitVjwPxXmR5lnMG5dHePinH2EdxkG3Rh1ghFHHixAG4NJhpJW1rthQ==}
+    dev: true
+
   /@types/node/17.0.41:
     resolution: {integrity: sha512-xA6drNNeqb5YyV5fO3OAEsnXLfO7uF0whiOfPTz5AeDo8KeZFmODKnvwPymMNO8qE/an8pVY/O50tig2SQCrGw==}
     dev: true
@@ -322,7 +332,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 17.0.41
+      '@types/node': 17.0.45
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -467,6 +477,30 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.30.0
       eslint-visitor-keys: 3.3.0
+    dev: true
+
+  /@yarnpkg/fslib/2.6.2:
+    resolution: {integrity: sha512-cg8RfRD9ZJW+0/ER2TKXJbqvtk1707XeZ1MAWHpRXRqz/SJqmM3ujy1CfnG832lgzzkZK1315cIBwqFloopq6A==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
+    dependencies:
+      '@yarnpkg/libzip': 2.2.4
+      tslib: 1.14.1
+    dev: true
+
+  /@yarnpkg/libzip/2.2.4:
+    resolution: {integrity: sha512-QP0vUP+w0d7Jlo7jqTnlRChSnIB/dOF7nJFLD/gsPvFIHsVWLQQuAiolOcXQUD2hezLD1mQd2qb0yOKqPYRcfQ==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
+    dependencies:
+      '@types/emscripten': 1.39.6
+      tslib: 1.14.1
+    dev: true
+
+  /@yarnpkg/pnp/3.2.1:
+    resolution: {integrity: sha512-e5BUsVt6l8pbo3i62IPpzYLUwWV2nnukOHnLZ1OgMkLdjWWXCnmXr9dze98CfD3IHEZVJCYivuI/rmSQ3TnMsA==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
+    dependencies:
+      '@types/node': 13.13.52
+      '@yarnpkg/fslib': 2.6.2
     dev: true
 
   /acorn-jsx/5.3.2_acorn@8.7.1:
