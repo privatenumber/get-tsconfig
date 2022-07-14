@@ -5,9 +5,9 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@org/tsconfig-package@file:../@org:tsconfig-package::locator=root-workspace-0b6124%40workspace%3A.":
+"@org/tsconfig-package@file:../org-tsconfig-package::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.0.0
-  resolution: "@org/tsconfig-package@file:../@org%3Atsconfig-package#../@org%3Atsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@org/tsconfig-package@file:../org-tsconfig-package#../org-tsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."
   checksum: d33cc7033ac67706c9ef6bdbd6cbbb55d5091d878df867e75dc7da41591e27c9a33e50bf9cbd8adce7caefdf061f55cd8dc89061cf31bf64e8097e8c053b23ee
   languageName: node
   linkType: hard
@@ -22,7 +22,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@org/tsconfig-package": "../@org:tsconfig-package"
+    "@org/tsconfig-package": ../org-tsconfig-package
     get-tsconfig: "link:../../.."
     tsconfig-package: ../tsconfig-package
   languageName: unknown

@@ -33,7 +33,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["@org/tsconfig-package", "file:../@org%3Atsconfig-package#../@org%3Atsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."],\
+            ["@org/tsconfig-package", "file:../org-tsconfig-package#../org-tsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."],\
             ["get-tsconfig", "link:../../..::locator=root-workspace-0b6124%40workspace%3A."],\
             ["tsconfig-package", "file:../tsconfig-package#../tsconfig-package::hash=abb316&locator=root-workspace-0b6124%40workspace%3A."]\
           ],\
@@ -41,10 +41,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@org/tsconfig-package", [\
-        ["file:../@org%3Atsconfig-package#../@org%3Atsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A.", {\
-          "packageLocation": "./.yarn/cache/@org-tsconfig-package-file-0c43baa789-d33cc7033a.zip/node_modules/@org/tsconfig-package/",\
+        ["file:../org-tsconfig-package#../org-tsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A.", {\
+          "packageLocation": "./.yarn/cache/@org-tsconfig-package-file-31d51f5b50-d33cc7033a.zip/node_modules/@org/tsconfig-package/",\
           "packageDependencies": [\
-            ["@org/tsconfig-package", "file:../@org%3Atsconfig-package#../@org%3Atsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."]\
+            ["@org/tsconfig-package", "file:../org-tsconfig-package#../org-tsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -64,7 +64,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["root-workspace-0b6124", "workspace:."],\
-            ["@org/tsconfig-package", "file:../@org%3Atsconfig-package#../@org%3Atsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."],\
+            ["@org/tsconfig-package", "file:../org-tsconfig-package#../org-tsconfig-package::hash=243ad2&locator=root-workspace-0b6124%40workspace%3A."],\
             ["get-tsconfig", "link:../../..::locator=root-workspace-0b6124%40workspace%3A."],\
             ["tsconfig-package", "file:../tsconfig-package#../tsconfig-package::hash=abb316&locator=root-workspace-0b6124%40workspace%3A."]\
           ],\
