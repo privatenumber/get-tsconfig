@@ -18,8 +18,24 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
-// eslint-disable-next-line complexity
-export function resolveExtends(filePath: string, directoryPath: string) {
+function resolveFromPackageJsonPath(packageJsonPath: string) {
+	const packageJson = safeJsonParse(
+		fs.readFileSync(packageJsonPath, 'utf8'),
+	);
+
+	return path.join(
+		packageJsonPath,
+		'..',
+		(packageJson && 'tsconfig' in packageJson)
+			? packageJson.tsconfig
+			: 'tsconfig.json',
+	);
+}
+
+export function resolveExtends(
+	filePath: string,
+	directoryPath: string,
+) {
 	let currentFilePath = filePath;
 
 	if (currentFilePath === '..') {
@@ -30,7 +46,10 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 	if (currentFilePath.startsWith('.')) {
 		let tsconfigPath = path.resolve(directoryPath, currentFilePath);
 
-		if (pathExists(tsconfigPath) && fs.statSync(tsconfigPath).isFile()) {
+		if (
+			pathExists(tsconfigPath)
+			&& fs.statSync(tsconfigPath).isFile()
+		) {
 			return tsconfigPath;
 		}
 
@@ -45,37 +64,40 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 		throw new Error(`File '${filePath}' not found.`);
 	}
 
-	const pnpapi = getPnpApi();
-	if (pnpapi) {
+	const pnpApi = getPnpApi();
+	if (pnpApi) {
 		const [first, second] = filePath.split('/');
-		const pkg = first.startsWith('@') ? `${first}/${second}` : first;
+		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
 
-		if (pkg === filePath) {
-			try {
-				const packageJsonpath = pnpapi.resolveRequest(
-					`${pkg}/package.json`,
+		try {
+			if (packageName === filePath) {
+				const packageJsonPath = pnpApi.resolveRequest(
+					path.join(packageName, 'package.json'),
 					directoryPath,
 				);
-				const packageJson = safeJsonParse(
-					fs.readFileSync(packageJsonpath, 'utf8'),
-				);
-				let packagePath = path.join(packageJsonpath, '..');
-				if (packageJson && 'tsconfig' in packageJson) {
-					packagePath = path.join(packagePath, packageJson.tsconfig);
-				} else {
-					packagePath = path.join(packagePath, 'tsconfig.json');
+
+				if (packageJsonPath) {
+					const packagePath = resolveFromPackageJsonPath(packageJsonPath);
+
+					if (pathExists(packagePath)) {
+						return packagePath;
+					}
 				}
-				if (pathExists(packagePath)) {
-					return packagePath;
+			} else {
+				try {
+					return pnpApi.resolveRequest(
+						filePath,
+						directoryPath,
+						{ extensions: ['.json'] },
+					);
+				} catch {
+					return pnpApi.resolveRequest(
+						path.join(filePath, 'tsconfig.json'),
+						directoryPath,
+					);
 				}
-			} catch {}
-		} else {
-			try {
-				return pnpapi.resolveRequest(filePath, directoryPath, {
-					extensions: ['.json'],
-				});
-			} catch {}
-		}
+			}
+		} catch {}
 	}
 
 	let packagePath = findUp(
@@ -85,18 +107,10 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 
 	if (packagePath) {
 		if (fs.statSync(packagePath).isDirectory()) {
-			const packageJsonpath = path.join(packagePath, 'package.json');
+			const packageJsonPath = path.join(packagePath, 'package.json');
 
-			if (pathExists(packageJsonpath)) {
-				const packageJson = safeJsonParse(
-					fs.readFileSync(packageJsonpath, 'utf8'),
-				);
-
-				if (packageJson && 'tsconfig' in packageJson) {
-					packagePath = path.join(packagePath, packageJson.tsconfig);
-				} else {
-					packagePath = path.join(packagePath, 'tsconfig.json');
-				}
+			if (pathExists(packageJsonPath)) {
+				packagePath = resolveFromPackageJsonPath(packageJsonPath);
 			} else {
 				packagePath = path.join(packagePath, 'tsconfig.json');
 			}
