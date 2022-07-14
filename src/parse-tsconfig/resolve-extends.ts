@@ -65,6 +65,7 @@ export function resolveExtends(
 	}
 
 	const pnpApi = getPnpApi();
+	console.log({pnpApi});
 	if (pnpApi) {
 		const [first, second] = filePath.split('/');
 		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
@@ -75,6 +76,8 @@ export function resolveExtends(
 					path.join(packageName, 'package.json'),
 					directoryPath,
 				);
+
+				console.log({ packageJsonPath });
 
 				if (packageJsonPath) {
 					const packagePath = resolveFromPackageJsonPath(packageJsonPath);
