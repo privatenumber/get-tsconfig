@@ -18,26 +18,15 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npx ci
-    - name: Build
-      run: npm run build
-    - name: Test without PnP
+    - name: Test
       run: npm run test
     - name: Lint
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 14 }}
       run: npm run lint
-    - name: Test with yarn PnP
-      run: |
-        yarn
-        # pnpm with PnP
-        npx pnpm i
-        npx pnpm test
-      env:
-        # https://stackoverflow.com/questions/67062308/getting-yn0028-the-lockfile-would-have-been-modified-by-this-install-which-is-e
-        YARN_ENABLE_IMMUTABLE_INSTALLS: false

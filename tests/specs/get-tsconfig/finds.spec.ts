@@ -3,7 +3,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 // @ts-expect-error ESM module
 import slash from 'slash';
-import { getTsconfig } from '../../../src';
+import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
 	jsx: 'react',

@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { createRequire } from 'module';
+import Module from 'module';
 import { findUp } from '../utils/find-up';
 
 const pathExists = (filePath: string) => fs.existsSync(filePath);
@@ -9,6 +9,13 @@ const safeJsonParse = (jsonString: string) => {
 	try {
 		return JSON.parse(jsonString);
 	} catch {}
+};
+
+const getPnpApi = () => {
+	const { findPnpApi } = Module;
+
+	/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
+	return findPnpApi && Module.findPnpApi(process.cwd());
 };
 
 // eslint-disable-next-line complexity
@@ -38,24 +45,8 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 		throw new Error(`File '${filePath}' not found.`);
 	}
 
-	let pnpapi;
-
-	const { pnp } = process.versions;
-
-	if (pnp) {
-		const require = createRequire(
-			// @ts-expect-error -- it will be transformed at build time
-			import.meta.url,
-		);
-		try {
-			/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
-			// eslint-disable-next-line import/no-unresolved
-			pnpapi = require('pnpapi');
-		} catch {}
-	}
-
+	const pnpapi = getPnpApi();
 	if (pnpapi) {
-		console.log('PnP detected');
 		const [first, second] = filePath.split('/');
 		const pkg = first.startsWith('@') ? `${first}/${second}` : first;
 

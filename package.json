@@ -9,10 +9,6 @@
 		"tsconfig",
 		"tsconfig.json"
 	],
-	"workspaces": [
-		".",
-		"./tests/fixtures/*"
-	],
 	"license": "MIT",
 	"repository": "privatenumber/get-tsconfig",
 	"funding": "https://github.com/privatenumber/get-tsconfig?sponsor=1",
@@ -30,6 +26,13 @@
 		"require": "./dist/index.js",
 		"import": "./dist/index.mjs",
 		"types": "./dist/index.d.ts"
+	},
+	"imports": {
+		"#get-tsconfig": {
+			"types": "./src/index.ts",
+			"development": "./src/index.ts",
+			"default": "./dist/index.mjs"
+		}
 	},
 	"scripts": {
 		"lint": "eslint .",

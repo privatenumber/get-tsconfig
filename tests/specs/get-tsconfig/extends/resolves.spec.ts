@@ -2,7 +2,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
 import { tsconfigJson, getTscTsconfig } from '../../../utils';
-import { getTsconfig } from '../../../../src';
+import { getTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('resolves', ({ test }) => {
