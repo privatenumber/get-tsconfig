@@ -27,4 +27,5 @@ dist
 
 # yarn zero-installs
 **/.yarn/*
+!**/.yarn/cache
 !**/.yarn/releases
