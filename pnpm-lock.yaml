@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@pvtnbr/eslint-config': ^0.26.1
   '@types/node': ^17.0.41
-  '@yarnpkg/pnp': 4.0.0-rc.12
+  '@yarnpkg/pnp': 3.2.1
   clean-pkg-json: ^1.0.0
   eslint: ^8.18.0
   execa: ^6.1.0
@@ -19,7 +19,7 @@ specifiers:
 devDependencies:
   '@pvtnbr/eslint-config': 0.26.1_7omqkkq7gtkix5mfmoxm235otq
   '@types/node': 17.0.41
-  '@yarnpkg/pnp': 4.0.0-rc.12
+  '@yarnpkg/pnp': 3.2.1
   clean-pkg-json: 1.0.0
   eslint: 8.18.0
   execa: 6.1.0
@@ -479,28 +479,28 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
-  /@yarnpkg/fslib/3.0.0-rc.12:
-    resolution: {integrity: sha512-iL5xkRVs8TSyJoI+Awu7RSbzLD2Qr7t0iSbarFcQqvl4X8SCB6vJ4q/z4N7wMNz2vmNI3FcqdOnzMVRb63qI1g==}
-    engines: {node: '>=14.15.0'}
+  /@yarnpkg/fslib/2.6.2:
+    resolution: {integrity: sha512-cg8RfRD9ZJW+0/ER2TKXJbqvtk1707XeZ1MAWHpRXRqz/SJqmM3ujy1CfnG832lgzzkZK1315cIBwqFloopq6A==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
     dependencies:
-      '@yarnpkg/libzip': 3.0.0-rc.12
+      '@yarnpkg/libzip': 2.2.4
       tslib: 1.14.1
     dev: true
 
-  /@yarnpkg/libzip/3.0.0-rc.12:
-    resolution: {integrity: sha512-xc9LU2PTyLkQxZkNEhrYlpsipKp8FgR8YGsfuHg0AXtIM5SizdWRx/D0Ped+BKRydP7Vo9HpliSyZ4qPs0V0aA==}
-    engines: {node: '>=14.15.0'}
+  /@yarnpkg/libzip/2.2.4:
+    resolution: {integrity: sha512-QP0vUP+w0d7Jlo7jqTnlRChSnIB/dOF7nJFLD/gsPvFIHsVWLQQuAiolOcXQUD2hezLD1mQd2qb0yOKqPYRcfQ==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
     dependencies:
       '@types/emscripten': 1.39.6
       tslib: 1.14.1
     dev: true
 
-  /@yarnpkg/pnp/4.0.0-rc.12:
-    resolution: {integrity: sha512-Xl9ptmPq1lbCkqnSiOpbeUqS3TgZUWs6F/dmShBT8XpoXtDQm1vIHHQK7Tl6Ws3BiOfA5UhMbgJHfMo1WNeYCA==}
-    engines: {node: '>=14.15.0'}
+  /@yarnpkg/pnp/3.2.1:
+    resolution: {integrity: sha512-e5BUsVt6l8pbo3i62IPpzYLUwWV2nnukOHnLZ1OgMkLdjWWXCnmXr9dze98CfD3IHEZVJCYivuI/rmSQ3TnMsA==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
     dependencies:
       '@types/node': 13.13.52
-      '@yarnpkg/fslib': 3.0.0-rc.12
+      '@yarnpkg/fslib': 2.6.2
     dev: true
 
   /acorn-jsx/5.3.2_acorn@8.7.1:
