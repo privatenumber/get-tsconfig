@@ -9,6 +9,10 @@
 		"tsconfig",
 		"tsconfig.json"
 	],
+	"workspaces": [
+		".",
+		"./tests/fixtures/*"
+	],
 	"license": "MIT",
 	"repository": "privatenumber/get-tsconfig",
 	"funding": "https://github.com/privatenumber/get-tsconfig?sponsor=1",
