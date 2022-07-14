@@ -24,9 +24,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "enableTopLevelFallback": true,\
     "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
     "fallbackExclusionList": [\
-      ["root-workspace-0b6124", ["workspace:."]]\
     ],\
     "fallbackPool": [\
+      [\
+        "get-tsconfig",\
+        "link:../../..::locator=root-workspace-0b6124%40workspace%3A."\
+      ],\
+      [\
+        "tsconfig-package",\
+        "link:../tsconfig-package::locator=root-workspace-0b6124%40workspace%3A."\
+      ]\
     ],\
     "packageRegistryData": [\
       [null, [\

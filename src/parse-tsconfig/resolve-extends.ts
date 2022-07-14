@@ -38,16 +38,24 @@ export function resolveExtends(filePath: string, directoryPath: string) {
 		throw new Error(`File '${filePath}' not found.`);
 	}
 
-	if (process.versions.pnp) {
-		console.log('PnP detected');
+	let pnpapi;
+
+	const { pnp } = process.versions;
+
+	if (pnp) {
 		const require = createRequire(
 			// @ts-expect-error -- it will be transformed at build time
 			import.meta.url,
 		);
+		try {
+			/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
+			// eslint-disable-next-line import/no-unresolved
+			pnpapi = require('pnpapi');
+		} catch {}
+	}
 
-		/** @see https://yarnpkg.com/advanced/pnpapi/#requirepnpapi */
-		// eslint-disable-next-line import/no-unresolved
-		const pnpapi = require('pnpapi');
+	if (pnpapi) {
+		console.log('PnP detected');
 		const [first, second] = filePath.split('/');
 		const pkg = first.startsWith('@') ? `${first}/${second}` : first;
 
