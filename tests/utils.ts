@@ -27,7 +27,7 @@ export async function getTscTsconfig(
 	return JSON.parse(tscProcess.stdout);
 }
 
-const resolveAttemptPattern = /^(File|Directory) '(.+)'/gm;
+const resolveAttemptPattern = /^(File|Directory) '(.+)' (exist|does not exist).*?(use it as a name resolution result\.)?$/gm;
 
 const divider = '='.repeat(8);
 
@@ -36,14 +36,27 @@ async function parseTscResolve(
 	request: string,
 ) {
 	const resolveLog = stdout.slice(
-		stdout.indexOf(`${divider} Resolving module '${request}'`),
+		stdout.indexOf(
+			'\n',
+			stdout.indexOf(`${divider} Resolving module '${request}'`),
+		) + 1,
 		stdout.indexOf(`${divider} Module name '${request}'`),
 	);
-	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
 
-	return Array.from(resolveAttempts).map((
-		[, type, filePath],
-	) => ({ type, filePath }));
+	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
+	const attempts = Array.from(resolveAttempts).map((
+		[, type, filePath, exists, resolved],
+	) => ({
+		type,
+		filePath,
+		exists: exists === 'exist',
+		resolved: Boolean(resolved),
+	}));
+
+	return {
+		resolved: attempts.find(({ resolved }) => resolved),
+		attempts,
+	};
 }
 
 export async function getTscResolution(

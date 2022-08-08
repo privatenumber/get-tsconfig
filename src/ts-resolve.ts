@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { parse } from 'jsonc-parser';
 import type { PackageJson } from 'type-fest';
 
@@ -7,6 +8,11 @@ const extensionsTs = ['.ts', '.tsx'];
 const jsxExtensionPattern = /\.jsx?$/;
 
 type FsAPI = Pick<typeof fs, 'existsSync' | 'readFileSync' | 'statSync'>;
+
+const safeStat = (
+	api: FsAPI,
+	request: string,
+) => (api.existsSync(request) && api.statSync(request));
 
 function tryExtensions(
 	request: string,
@@ -59,21 +65,27 @@ function resolve(
 		}
 	}
 
-	const stat = api.statSync(request);
-	if (stat.isDirectory()) {
-		// Check if package.json exists
-		// try package.json#main
+	const stat = safeStat(api, request);
+	if (stat && stat.isDirectory()) {
+		// Check if package.json#main exists
 		const hasMain = getPackageEntry(request, api);
 		if (hasMain) {
-			resolved = resolve(hasMain, api, extensions);
+			const mainPath = path.join(request, hasMain);
+			const mainStat = safeStat(api, mainPath);
+			if (mainStat && mainStat.isFile()) {
+				return mainPath;
+			}
+
+			resolved = resolve(mainPath, api, extensions);
+
 			if (resolved) {
-				return	resolved;
+				return resolved;
 			}
 		}
 
 		// Fallback if main path doesnt exist
 		// Try index.ts, index.tsx
-		resolved = tryExtensions(`${request}/index`, api, extensions);
+		resolved = tryExtensions(path.join(request, 'index'), api, extensions);
 
 		if (resolved) {
 			return resolved;
@@ -85,6 +97,10 @@ export function tsResolve(
 	request: string,
 	api: FsAPI = fs,
 ) {
+	// enforce that path is absolute
+	// handle bare specifier (node_modules lookup)
+	// it's handle a package has a main field that needs to be resolved with js -> tsx
+
 	// Try resolving in TypeScript mode
 	let resolved = resolve(request, api, extensionsTs);
 	if (resolved) {
