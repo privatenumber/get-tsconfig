@@ -71,6 +71,9 @@ console.log(getTsconfig('./path/to/directory'))
 
 // Explicitly pass in tsconfig.json path
 console.log(getTsconfig('./path/to/tsconfig.json'))
+
+// Search for jsconfig.json - https://code.visualstudio.com/docs/languages/jsconfig
+console.log(getTsconfig('.', 'jsconfig.json'))
 ```
 
 ---
