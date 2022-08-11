@@ -51,7 +51,7 @@ export default testSuite(({ describe }) => {
 				const resolved = tsResolve(request, fs);
 				const tsResolved = await getTscResolution(request, fixture.path);
 
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -66,7 +66,7 @@ export default testSuite(({ describe }) => {
 				const resolved = tsResolve(request, fs);
 				const tsResolved = await getTscResolution(request, fixture.path);
 
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -83,7 +83,7 @@ export default testSuite(({ describe }) => {
 				const resolved = tsResolve(request, fs);
 				const tsResolved = await getTscResolution(request, fixture.path);
 
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -102,7 +102,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.js.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -118,7 +118,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.js.tsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -136,7 +136,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -152,7 +152,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -168,7 +168,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.tsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -184,7 +184,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.tsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -202,7 +202,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.js')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -218,7 +218,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.jsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -237,7 +237,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.js.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -254,7 +254,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -271,7 +271,147 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/some-file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+			});
+		});
+
+		describe('resolves via .mjs & .cjs', ({ describe }) => {
+			describe('append TS extensions', ({ test }) => {
+				test('resolve .mjs -> .mjs.ts', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.mjs.ts': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.mjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.mjs.ts')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+
+				test('resolve .cjs -> .cjs.tsx', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.cjs.tsx': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.cjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.cjs.tsx')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+			});
+
+			describe('resolves TS counter part', ({ test }) => {
+				test('.mjs -> .mts', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.mts': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.mjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.mts')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+
+				test('.cjs -> .cts', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.cts': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.cjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.cts')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+			});
+
+			describe('resolves as JS', ({ test }) => {
+				test('.mjs', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.mjs': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.mjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.mjs')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+
+				test('.cjs', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.cjs': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.cjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.cjs')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+			});
+
+			describe('combination', ({ test }) => {
+				test('.mts over .mjs', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.mjs': '',
+						'some-file.mts': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.mjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.mts')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
+
+					await fixture.rm();
+				});
+
+				test('.mjs.jsx over .mjs', async () => {
+					const fixture = await createFixture({
+						'tsconfig.json': '',
+						'some-file.mjs.jsx': '',
+						'some-file.mjs': '',
+					});
+
+					const request = path.join(fixture.path, 'some-file.mjs');
+					const resolved = tsResolve(request, fs);
+					const tsResolved = await getTscResolution(request, fixture.path);
+
+					expect(resolved?.endsWith('/some-file.mjs.jsx')).toBeTruthy();
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -290,7 +430,7 @@ export default testSuite(({ describe }) => {
 				const tsResolved = await getTscResolution(request, fixture.path);
 
 				expect(resolved?.endsWith('/index.ts')).toBeTruthy();
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -306,7 +446,7 @@ export default testSuite(({ describe }) => {
 				const tsResolved = await getTscResolution(request, fixture.path);
 
 				expect(resolved?.endsWith('/index.tsx')).toBeTruthy();
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -322,7 +462,7 @@ export default testSuite(({ describe }) => {
 				const tsResolved = await getTscResolution(request, fixture.path);
 
 				expect(resolved?.endsWith('/index.js')).toBeTruthy();
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -338,7 +478,7 @@ export default testSuite(({ describe }) => {
 				const tsResolved = await getTscResolution(request, fixture.path);
 
 				expect(resolved?.endsWith('/index.jsx')).toBeTruthy();
-				expect(resolved).toBe(tsResolved.resolved!.filePath);
+				expect(resolved).toBe(tsResolved.resolved);
 
 				await fixture.rm();
 			});
@@ -362,7 +502,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -383,7 +523,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/main.js')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -404,7 +544,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/main.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -425,7 +565,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/main.tsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -446,7 +586,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/index.tsx')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -467,7 +607,7 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/index.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
@@ -489,13 +629,15 @@ export default testSuite(({ describe }) => {
 					const tsResolved = await getTscResolution(request, fixture.path);
 
 					expect(resolved?.endsWith('/file.ts')).toBeTruthy();
-					expect(resolved).toBe(tsResolved.resolved!.filePath);
+					expect(resolved).toBe(tsResolved.resolved);
 
 					await fixture.rm();
 				});
 			});
 
 			// resolve export map
+			// cts, cjs -> cts
+			// mts, mjs -> mts
 		});
 	});
 });

@@ -3,9 +3,7 @@ import path from 'path';
 import { parse } from 'jsonc-parser';
 import type { PackageJson } from 'type-fest';
 
-const extensionsJs = ['.js', '.jsx'];
-const extensionsTs = ['.ts', '.tsx'];
-const jsxExtensionPattern = /\.jsx?$/;
+const stripExtensionPattern = /\.([mc]js|jsx?)$/;
 
 type FsAPI = Pick<typeof fs, 'existsSync' | 'readFileSync' | 'statSync'>;
 
@@ -50,6 +48,7 @@ function resolve(
 	request: string,
 	api: FsAPI,
 	extensions: string[],
+	nextGenExtensions: Record<string, string[]>,
 ): string | undefined {
 	let resolved = tryExtensions(request, api, extensions);
 	if (resolved) {
@@ -57,8 +56,16 @@ function resolve(
 	}
 
 	// If it has .js, strip it off and try again from start
-	if (jsxExtensionPattern.test(request)) {
-		resolved = tryExtensions(request.replace(jsxExtensionPattern, ''), api, extensions);
+	const hasExtension = request.match(stripExtensionPattern);
+	if (hasExtension) {
+		resolved = tryExtensions(
+			request.slice(0, hasExtension.index),
+			api,
+			(
+				nextGenExtensions[hasExtension[1] as string]
+				|| extensions
+			),
+		);
 
 		if (resolved) {
 			return resolved;
@@ -76,7 +83,7 @@ function resolve(
 				return mainPath;
 			}
 
-			resolved = resolve(mainPath, api, extensions);
+			resolved = resolve(mainPath, api, extensions, nextGenExtensions);
 
 			if (resolved) {
 				return resolved;
@@ -102,13 +109,29 @@ export function tsResolve(
 	// it's handle a package has a main field that needs to be resolved with js -> tsx
 
 	// Try resolving in TypeScript mode
-	let resolved = resolve(request, api, extensionsTs);
+	let resolved = resolve(
+		request,
+		api,
+		['.ts', '.tsx'],
+		{
+			mjs: ['.mts'],
+			cjs: ['.cts'],
+		},
+	);
 	if (resolved) {
 		return resolved;
 	}
 
 	// Try resolving in JavaScript mode
-	resolved = resolve(request, api, extensionsJs);
+	resolved = resolve(
+		request,
+		api,
+		['.js', '.jsx'],
+		{
+			mjs: ['.mjs'],
+			cjs: ['.cjs'],
+		},
+	);
 	if (resolved) {
 		return resolved;
 	}
