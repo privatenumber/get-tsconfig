@@ -1,9 +1,6 @@
 import fs from 'fs';
 import { parse } from 'jsonc-parser';
 
-export function readJsonc(
+export const readJsonc = (
 	jsonPath: string,
-) {
-	const packageJsonString = fs.readFileSync(jsonPath, 'utf8');
-	return parse(packageJsonString);
-}
+) => parse(fs.readFileSync(jsonPath, 'utf8'));
