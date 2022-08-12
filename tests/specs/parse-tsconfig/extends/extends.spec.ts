@@ -424,6 +424,29 @@ export default testSuite(({ describe }) => {
 			await fixture.rm();
 		});
 
+		test('jsonc', async () => {
+			const fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.base.json': `{
+					// comment
+					"compilerOptions": {
+						"jsx": "react", // dangling comma
+					},
+				}`,
+				'tsconfig.json': tsconfigJson({
+					extends: './tsconfig.base.json',
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig!.config).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
+		});
+	
 		test('references is ignored', async () => {
 			const fixture = await createFixture({
 				'tsconfig.base.json': tsconfigJson({

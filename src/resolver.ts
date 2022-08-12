@@ -1,19 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { parse } from 'jsonc-parser';
 import type { PackageJson } from 'type-fest';
 import { resolve as resolveExports } from 'resolve.exports';
 import { findUp } from './utils/find-up';
+import { readJsonc } from './utils/read-jsonc';
 import { createPathsMatcher, type PathsMatcher } from './paths-matcher/index';
 import type { TsConfigResult } from './types';
 
-function readJson(
-	api: Pick<typeof fs, 'readFileSync'>,
-	jsonPath: string,
-) {
-	const packageJsonString = api.readFileSync(jsonPath, 'utf8');
-	return parse(packageJsonString);
-}
 
 const stripExtensionPattern = /\.([mc]js|jsx?)$/;
 
@@ -46,7 +39,7 @@ function getPackageEntry(
 		return undefined;
 	}
 
-	const packageJson = readJson(api, packageJsonPath) as PackageJson;
+	const packageJson = readJsonc(packageJsonPath, api) as PackageJson;
 	if (!packageJson || typeof packageJson !== 'object') {
 		return undefined;
 	}
