@@ -451,7 +451,7 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
-	
+
 		test('references is ignored', async () => {
 			const fixture = await createFixture({
 				'tsconfig.base.json': tsconfigJson({

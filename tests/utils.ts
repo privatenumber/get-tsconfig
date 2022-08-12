@@ -42,7 +42,7 @@ async function parseTscResolve(
 		stdout.indexOf(`${divider} Resolving module '${request}'`),
 	) + 1;
 
-	const logEndIndex = stdout.indexOf(divider + ' Module name ', logStartIndex);
+	const logEndIndex = stdout.indexOf(`${divider} Module name `, logStartIndex);
 	const resolvedToStartIndex = logEndIndex + divider.length;
 	const resolvedToEndIndex = stdout.indexOf(divider, resolvedToStartIndex);
 

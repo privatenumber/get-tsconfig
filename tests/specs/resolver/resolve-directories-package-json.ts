@@ -16,17 +16,17 @@ export default testSuite(({ describe }) => {
 						'file.ts': '',
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/file.ts')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('.js -> .js', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -37,17 +37,17 @@ export default testSuite(({ describe }) => {
 						'main.js': '',
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/main.js')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('.js -> ts', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -58,17 +58,17 @@ export default testSuite(({ describe }) => {
 						'main.ts': '',
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/main.ts')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('.js -> tsx', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -79,17 +79,17 @@ export default testSuite(({ describe }) => {
 						'main.tsx': '',
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/main.tsx')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('nonexistent main fallback to index', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -100,17 +100,17 @@ export default testSuite(({ describe }) => {
 						'index.tsx': '',
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/index.tsx')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('relative path', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -121,17 +121,17 @@ export default testSuite(({ describe }) => {
 						}),
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/index.ts')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('package.json to be parsed as JSONC', async () => {
 				const fixture = await createFixture({
 					'tsconfig.json': '',
@@ -143,20 +143,20 @@ export default testSuite(({ describe }) => {
 						}`,
 					},
 				});
-	
+
 				const request = './directory';
 				const resolved = createResolver()(request, fixture.path);
 				const tsResolved = await getTscResolution(request, fixture.path);
-	
+
 				expect(resolved?.endsWith('/file.ts')).toBeTruthy();
 				expect(resolved).toBe(tsResolved.resolved);
-	
+
 				await fixture.rm();
 			});
 
 			// shouldnt resolve export map
 		});
-	
+
 		// resolve export map
 	});
 });

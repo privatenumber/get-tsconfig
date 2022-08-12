@@ -7,7 +7,6 @@ import { readJsonc } from './utils/read-jsonc';
 import { createPathsMatcher, type PathsMatcher } from './paths-matcher/index';
 import type { TsConfigResult } from './types';
 
-
 const stripExtensionPattern = /\.([mc]js|jsx?)$/;
 
 type FsAPI = Pick<typeof fs, 'existsSync' | 'readFileSync' | 'statSync' | 'realpathSync'>;
@@ -77,7 +76,6 @@ function resolve(
 
 	const stat = safeStat(api, request);
 	if (stat && stat.isDirectory()) {
-
 		// Check if package.json#main exists
 		const hasMain = getPackageEntry(request, api);
 		if (hasMain) {
@@ -149,11 +147,10 @@ function resolveBareSpecifier(
 		const possiblePaths = pathsResolver(request);
 
 		for (const possiblePath of possiblePaths) {
-
 			/**
 			 * If a path resolves to a package,
 			 * would it resolve the export maps?
-			 * 
+			 *
 			 * Also, what if we resolve a package path
 			 * by absolute path? Would it resolve the export map?
 			 * Or does it need to be resolved by bare specifier?
@@ -167,7 +164,7 @@ function resolveBareSpecifier(
 
 	/*
 	1. Find all node_module parent directories
-	2. 
+	2.
 
 	*/
 
@@ -214,12 +211,11 @@ export function createResolver(
 		request: string,
 		context: string,
 	): string | undefined {
-
 		// Resolve relative specifier
 		if (request.startsWith('.')) {
 			request = path.join(context, request);
 		}
-	
+
 		// Absolute specifier
 		if (request.startsWith('/')) {
 			return resolveSymlink(resolveExtensionlessPath(request, api));

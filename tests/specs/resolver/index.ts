@@ -1,8 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-import { testSuite, expect } from 'manten';
-import { createFixture } from 'fs-fixture';
-import { getTscResolution } from '../../utils';
+import { testSuite } from 'manten';
 
 export default testSuite(({ describe }) => {
 	describe('resolver', async ({ test, describe, runTestSuite }) => {

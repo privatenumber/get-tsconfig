@@ -33,7 +33,7 @@ function findUp(
 			const foundPath = slash(configPath);
 
 			if (findAll) {
-				foundPaths.push(foundPath);				
+				foundPaths.push(foundPath);
 			} else {
 				return foundPath;
 			}
