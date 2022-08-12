@@ -20,7 +20,7 @@ const tsconfigJson = `
 `;
 
 export default testSuite(({ describe }) => {
-	describe('find tsconfig', ({ test, describe }) => {
+	describe('find tsconfig', ({ test }) => {
 		test('not found', () => {
 			const tsconfig = getTsconfig('/');
 			expect(tsconfig).toBe(null);
