@@ -6,15 +6,6 @@ import { readJsonc } from '../utils/read-jsonc';
 
 const { existsSync } = fs;
 
-// Test if tsc allows JSONC in parent
-// If it does, we can abstract this out into a comon util
-// also used in ts-resolve
-const safeJsonParse = (jsonString: string) => {
-	try {
-		return JSON.parse(jsonString);
-	} catch {}
-};
-
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
 
