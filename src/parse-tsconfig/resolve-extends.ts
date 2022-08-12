@@ -2,14 +2,9 @@ import path from 'path';
 import fs from 'fs';
 import Module from 'module';
 import { findUp } from '../utils/find-up';
+import { readJsonc } from '../utils/read-jsonc';
 
 const { existsSync } = fs;
-
-const safeJsonParse = (jsonString: string) => {
-	try {
-		return JSON.parse(jsonString);
-	} catch {}
-};
 
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
@@ -19,9 +14,7 @@ const getPnpApi = () => {
 };
 
 function resolveFromPackageJsonPath(packageJsonPath: string) {
-	const packageJson = safeJsonParse(
-		fs.readFileSync(packageJsonPath, 'utf8'),
-	);
+	const packageJson = readJsonc(packageJsonPath);
 
 	return path.join(
 		packageJsonPath,
