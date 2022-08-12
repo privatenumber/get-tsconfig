@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { parse } from 'jsonc-parser';
 import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types';
 import { normalizePath } from '../utils/normalize-path';
+import { readJsonc } from '../utils/read-jsonc';
 import { resolveExtends } from './resolve-extends';
 
 export function parseTsconfig(
@@ -16,16 +16,10 @@ export function parseTsconfig(
 		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
 	}
 	const directoryPath = path.dirname(realTsconfigPath);
-	const fileContent = fs.readFileSync(realTsconfigPath, 'utf8').trim();
+	let config: TsConfigJson = readJsonc(realTsconfigPath) || {};
 
-	let config: TsConfigJson = {};
-
-	if (fileContent) {
-		config = parse(fileContent);
-
-		if (!config || typeof config !== 'object') {
-			throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
-		}
+	if (typeof config !== 'object') {
+		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
 	}
 
 	if (config.extends) {
@@ -102,6 +96,8 @@ export function parseTsconfig(
 			config.exclude.push(compilerOptions.outDir);
 			compilerOptions.outDir = normalizePath(compilerOptions.outDir);
 		}
+	} else {
+		config.compilerOptions = {};
 	}
 
 	if (config.files) {
