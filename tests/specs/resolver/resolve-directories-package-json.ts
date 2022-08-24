@@ -153,10 +153,28 @@ export default testSuite(({ describe }) => {
 
 				await fixture.rm();
 			});
-
-			// shouldnt resolve export map
 		});
 
-		// resolve export map
+		test('export maps to not work', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': '',
+				directory: {
+					'file.ts': '',
+					'package.json': JSON.stringify({
+						name: 'package',
+						exports: './file.ts',
+					}),
+				},
+			});
+
+			const request = './directory';
+			const resolved = createResolver()(request, fixture.path);
+			const tsResolved = await getTscResolution(request, fixture.path);
+
+			expect(resolved).toBe(undefined);
+			expect(resolved).toBe(tsResolved.resolved);
+
+			await fixture.rm();
+		});
 	});
 });

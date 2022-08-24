@@ -3,6 +3,7 @@ import fs from 'fs';
 import Module from 'module';
 import { findUp } from '../utils/find-up';
 import { readJsonc } from '../utils/read-jsonc';
+import { parsePackageName } from '../utils/parse-package-name';
 
 const { existsSync } = fs;
 
@@ -60,8 +61,7 @@ export function resolveExtends(
 	const pnpApi = getPnpApi();
 	if (pnpApi) {
 		const { resolveRequest } = pnpApi;
-		const [first, second] = filePath.split('/');
-		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
+		const { packageName } = parsePackageName(filePath);
 
 		try {
 			if (packageName === filePath) {
