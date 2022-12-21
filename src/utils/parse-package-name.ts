@@ -1,14 +1,16 @@
+const SLASH = '/';
+
 export function parsePackageName(
 	request: string,
 ) {
-	const segments = request.split('/');
+	const segments = request.split(SLASH);
 	let packageName = segments.shift()!;
 	if (packageName[0] === '@' && segments[0]) {
-		packageName += `/${segments.shift()}`;
+		packageName += SLASH + segments.shift();
 	}
 
 	return {
 		packageName,
-		packageSubpath: segments.join('/'),
+		packageSubpath: segments.join(SLASH),
 	};
 }
