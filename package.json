@@ -39,6 +39,7 @@
 		"build": "pkgroll --minify --target node12.20",
 		"test": "pnpm build && tsx tests",
 		"dev": "tsx watch --conditions=development tests",
+		"type-check": "tsc --noEmit",
 		"prepack": "clean-pkg-json"
 	},
 	"devDependencies": {
