@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs';
 import Module from 'module';
-import { findUp } from '../utils/find-up';
-import { readJsonc } from '../utils/read-jsonc';
+import { findUp } from '../utils/find-up.js';
+import { readJsonc } from '../utils/read-jsonc.js';
 
 const { existsSync } = fs;
 

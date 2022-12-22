@@ -1,4 +1,4 @@
-import type { StarPattern } from './types';
+import type { StarPattern } from './types.js';
 
 const starPattern = /\*/g;
 
