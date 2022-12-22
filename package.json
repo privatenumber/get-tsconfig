@@ -37,8 +37,7 @@
 	"scripts": {
 		"lint": "eslint .",
 		"build": "pkgroll --minify --target node12.20",
-		"pretest": "npm run build",
-		"test": "tsx tests",
+		"test": "pnpm build && tsx tests",
 		"dev": "tsx watch --conditions=development tests",
 		"prepack": "clean-pkg-json"
 	},
