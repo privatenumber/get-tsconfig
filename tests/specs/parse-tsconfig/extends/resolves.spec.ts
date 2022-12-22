@@ -364,6 +364,7 @@ export default testSuite(({ describe }) => {
 			const { stdout } = await execaNode('./index.js', [], {
 				nodeOptions: ['--require', './.pnp.cjs'],
 				cwd: './tests/fixtures/yarn-pnp',
+				reject: false,
 			});
 
 			expect(stdout).toBe([
@@ -371,6 +372,8 @@ export default testSuite(({ describe }) => {
 				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
 				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
 				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
+				'Error: File \'non-existent-package\' not found.',
+				'Error: File \'fs/promises\' not found.',
 			].join('\n'));
 		});
 	});
