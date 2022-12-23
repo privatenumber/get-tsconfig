@@ -1,6 +1,6 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJson, getTscResolution } from '../utils';
+import { tsconfigJson, getTscResolution } from '../utils.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 
 /**

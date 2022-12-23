@@ -1,7 +1,6 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-// @ts-expect-error ESM module
 import slash from 'slash';
 import { getTsconfig } from '#get-tsconfig';
 

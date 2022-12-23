@@ -1,10 +1,8 @@
 {
 	"compilerOptions": {
-		"moduleResolution": "node",
+		"module": "Node16",
 		"isolatedModules": true,
 		"esModuleInterop": true,
 		"strict": true,
-		"target": "esnext",
 	},
-	"include": ["src"]
 }

@@ -1,6 +1,6 @@
-import { findUp } from './utils/find-up';
-import { parseTsconfig } from './parse-tsconfig';
-import type { TsConfigResult } from './types';
+import { findUp } from './utils/find-up.js';
+import { parseTsconfig } from './parse-tsconfig/index.js';
+import type { TsConfigResult } from './types.js';
 
 export function getTsconfig(
 	searchPath = process.cwd(),

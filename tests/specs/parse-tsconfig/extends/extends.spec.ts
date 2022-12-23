@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJson, getTscTsconfig } from '../../../utils';
+import { tsconfigJson, getTscTsconfig } from '../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {

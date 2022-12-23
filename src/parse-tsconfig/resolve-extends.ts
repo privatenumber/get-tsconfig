@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import Module from 'module';
-import { findUp } from '../utils/find-up';
-import { readJsonc } from '../utils/read-jsonc';
-import { parsePackageName } from '../utils/parse-package-name';
+import { findUp } from '../utils/find-up.js';
+import { readJsonc } from '../utils/read-jsonc.js';
+import { parsePackageName } from '../utils/parse-package-name.js';
 
 const { existsSync } = fs;
 
@@ -60,12 +60,12 @@ export function resolveExtends(
 
 	const pnpApi = getPnpApi();
 	if (pnpApi) {
-		const { resolveRequest } = pnpApi;
+		const { resolveRequest: resolveWithPnp } = pnpApi;
 		const { packageName } = parsePackageName(filePath);
 
 		try {
 			if (packageName === filePath) {
-				const packageJsonPath = resolveRequest(
+				const packageJsonPath = resolveWithPnp(
 					path.join(packageName, 'package.json'),
 					directoryPath,
 				);
@@ -78,17 +78,22 @@ export function resolveExtends(
 					}
 				}
 			} else {
+				let resolved: string | null;
 				try {
-					return resolveRequest(
+					resolved = resolveWithPnp(
 						filePath,
 						directoryPath,
 						{ extensions: ['.json'] },
 					);
 				} catch {
-					return resolveRequest(
+					resolved = resolveWithPnp(
 						path.join(filePath, 'tsconfig.json'),
 						directoryPath,
 					);
+				}
+
+				if (resolved) {
+					return resolved;
 				}
 			}
 		} catch {}

@@ -1,0 +1,3 @@
+{
+	"extends": "fs/promises"
+}
