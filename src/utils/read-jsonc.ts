@@ -1,6 +1,12 @@
 import fs from 'fs';
 import { parse } from 'jsonc-parser';
 
-export const readJsonc = (
+export const readJsonc = <T>(
 	jsonPath: string,
-) => parse(fs.readFileSync(jsonPath, 'utf8'));
+	api: Pick<typeof fs, 'readFileSync'> = fs,
+): T | undefined => {
+	const parsed = parse(api.readFileSync(jsonPath, 'utf8'));
+	if (parsed && typeof parsed === 'object') {
+		return parsed;
+	}
+};

@@ -16,7 +16,7 @@ export function parseTsconfig(
 		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
 	}
 	const directoryPath = path.dirname(realTsconfigPath);
-	let config: TsConfigJson = readJsonc(realTsconfigPath) || {};
+	let config = readJsonc<TsConfigJson>(realTsconfigPath) || {};
 
 	if (typeof config !== 'object') {
 		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);

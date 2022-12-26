@@ -117,9 +117,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+			const resolved = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -152,9 +152,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('$lib', fixture.path);
+			const resolved = await getTscResolution('$lib', fixture.path);
 			expect(matcher('$lib')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -177,9 +177,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+			const resolved = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -203,9 +203,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(matcher).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+			const resolved = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -229,9 +229,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+			const resolved = await getTscResolution('exactMatch', fixture.path);
 			expect(matcher('exactMatch')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -255,9 +255,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('prefix-specifier', fixture.path);
+			const resolved = await getTscResolution('prefix-specifier', fixture.path);
 			expect(matcher('prefix-specifier')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -281,9 +281,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('specifier-suffix', fixture.path);
+			const resolved = await getTscResolution('specifier-suffix', fixture.path);
 			expect(matcher('specifier-suffix')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -372,9 +372,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('/absolute', fixture.path);
+			const resolved = await getTscResolution('/absolute', fixture.path);
 			expect(matcher('/absolute')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();
@@ -397,9 +397,9 @@ export default testSuite(({ describe }) => {
 			const matcher = createPathsMatcher(tsconfig!)!;
 			expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('.src', fixture.path);
+			const resolved = await getTscResolution('.src', fixture.path);
 			expect(matcher('.src')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
+				resolved.attempts[0].filePath.slice(0, -3),
 			]);
 
 			await fixture.rm();

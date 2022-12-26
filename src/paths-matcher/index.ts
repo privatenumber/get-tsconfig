@@ -35,13 +35,15 @@ function parsePaths(
 	});
 }
 
+export type PathsMatcher = (specifier: string) => string[];
+
 /**
  * Reference:
  * https://github.com/microsoft/TypeScript/blob/3ccbe804f850f40d228d3c875be952d94d39aa1d/src/compiler/moduleNameResolver.ts#L2465
  */
 export function createPathsMatcher(
 	tsconfig: TsConfigResult,
-) {
+): PathsMatcher | null {
 	if (!tsconfig.config.compilerOptions) {
 		return null;
 	}

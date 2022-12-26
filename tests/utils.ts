@@ -27,7 +27,9 @@ export async function getTscTsconfig(
 	return JSON.parse(tscProcess.stdout);
 }
 
-const resolveAttemptPattern = /^(File|Directory) '(.+)'/gm;
+const resolveAttemptPattern = /^(File|Directory) '(.+)' (exist|does not exist).*?(use it as a name resolution result\.)?$/gm;
+
+const resolvedPattern = /successfully resolved to '(.+)'/;
 
 const divider = '='.repeat(8);
 
@@ -35,15 +37,36 @@ async function parseTscResolve(
 	stdout: string,
 	request: string,
 ) {
-	const resolveLog = stdout.slice(
+	const logStartIndex = stdout.indexOf(
+		'\n',
 		stdout.indexOf(`${divider} Resolving module '${request}'`),
-		stdout.indexOf(`${divider} Module name '${request}'`),
-	);
-	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
+	) + 1;
 
-	return Array.from(resolveAttempts).map((
-		[, type, filePath],
-	) => ({ type, filePath }));
+	const logEndIndex = stdout.indexOf(`${divider} Module name `, logStartIndex);
+	const resolvedToStartIndex = logEndIndex + divider.length;
+	const resolvedToEndIndex = stdout.indexOf(divider, resolvedToStartIndex);
+
+	const resolveLog = stdout.slice(
+		logStartIndex,
+		logEndIndex,
+	);
+	const resolvedToMessage = stdout.slice(resolvedToStartIndex, resolvedToEndIndex);
+	const resolvedResult = resolvedToMessage.match(resolvedPattern);
+	const resolved = resolvedResult?.[1];
+	const resolveAttempts = resolveLog.matchAll(resolveAttemptPattern);
+	const attempts = Array.from(resolveAttempts).map((
+		[, type, filePath, exists, resolved],
+	) => ({
+		type,
+		filePath,
+		exists: exists === 'exist',
+		resolved: Boolean(resolved),
+	}));
+
+	return {
+		resolved,
+		attempts,
+	};
 }
 
 export async function getTscResolution(
