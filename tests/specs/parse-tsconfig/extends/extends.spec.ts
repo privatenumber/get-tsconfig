@@ -85,7 +85,7 @@ export default testSuite(({ describe }) => {
 
 			test('absolute path', async () => {
 				const tmpPath = fs.realpathSync(os.tmpdir());
-				const absolutePath = path.join(tmpPath, 'dep/tscfig.json');
+				const absolutePath = path.join(tmpPath, 'dep/tsconfig.json');
 				const fixture = await createFixture({
 					[absolutePath]: tsconfigJson({
 						compilerOptions: {
