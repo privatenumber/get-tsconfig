@@ -1,6 +1,4 @@
 import path from 'path';
-import fs from 'fs';
-import os from 'os';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { tsconfigJson, getTscTsconfig } from '../../../utils.js';
