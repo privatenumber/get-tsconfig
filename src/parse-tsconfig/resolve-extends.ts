@@ -35,6 +35,14 @@ export function resolveExtends(
 		currentFilePath += '/tsconfig.json';
 	}
 
+	if (
+		path.isAbsolute(filePath)
+		&& existsSync(filePath)
+		&& fs.statSync(filePath).isFile()
+	) {
+		return filePath;
+	}
+
 	// Relative path
 	if (currentFilePath.startsWith('.')) {
 		let tsconfigPath = path.resolve(directoryPath, currentFilePath);

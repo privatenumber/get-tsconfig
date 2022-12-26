@@ -84,20 +84,18 @@ export default testSuite(({ describe }) => {
 			});
 
 			test('absolute path', async () => {
-				const tmpPath = fs.realpathSync(os.tmpdir());
-				const absolutePath = path.join(tmpPath, 'dep/tsconfig.json');
 				const fixture = await createFixture({
-					[absolutePath]: tsconfigJson({
+					'dep/tsconfig.json': tsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react',
 						},
 					}),
-					'tsconfig.json': tsconfigJson({
-						extends: absolutePath,
-					}),
 					'file.ts': '',
 				});
+				await fixture.writeFile('tsconfig.json', tsconfigJson({
+					extends: path.join(fixture.path, 'dep/tsconfig.json'),
+				}))
 
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
