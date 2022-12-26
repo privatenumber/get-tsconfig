@@ -1,4 +1,6 @@
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { tsconfigJson, getTscTsconfig } from '../../../utils.js';
@@ -68,6 +70,31 @@ export default testSuite(({ describe }) => {
 						compilerOptions: {
 							strict: true,
 						},
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
+
+			test('absolute path', async () => {
+				const tmpPath = fs.realpathSync(os.tmpdir());
+				const absolutePath = path.join(tmpPath, 'dep/tscfig.json');
+				const fixture = await createFixture({
+					[absolutePath]: tsconfigJson({
+						compilerOptions: {
+							strict: true,
+							jsx: 'react',
+						},
+					}),
+					'tsconfig.json': tsconfigJson({
+						extends: absolutePath,
 					}),
 					'file.ts': '',
 				});
