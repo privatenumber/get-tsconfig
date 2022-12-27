@@ -56,23 +56,22 @@ const getSupportedExtensions = (
 	return extensions;
 };
 
-
 const escapeForRegexp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * 
+ *
  * File matchers
  * replace *, ?, and ** / with regex
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8088
 */
 function replaceWildcardCharacter(match: string, singleAsteriskRegexFragment: string) {
-    return (
-		match === "*"
+	return (
+		match === '*'
 			? singleAsteriskRegexFragment
 			: (
-				match === "?"
-					? "[^/]"
-					: "\\" + match
+				match === '?'
+					? '[^/]'
+					: `\\${match}`
 			)
 	);
 }
@@ -81,67 +80,64 @@ function replaceWildcardCharacter(match: string, singleAsteriskRegexFragment: st
  * Test
  * - node_modules, bower_components, jspm_packages are excluded
  * .min.js files are excluded
- * 
+ *
  */
 
-const commonPackageFolders = ["node_modules", "bower_components", "jspm_packages"] as const;
+const commonPackageFolders = ['node_modules', 'bower_components', 'jspm_packages'] as const;
 
-const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join("|")})(/|$))`;
+const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join('|')})(/|$))`;
 
 const filesMatcher = {
-    singleAsteriskRegexFragment: "([^./]|(\\.(?!min\\.js$))?)*",
-    doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
-    replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, filesMatcher.singleAsteriskRegexFragment)
+	singleAsteriskRegexFragment: '([^./]|(\\.(?!min\\.js$))?)*',
+	doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
+	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, filesMatcher.singleAsteriskRegexFragment),
 };
 
 const directoriesMatcher = {
-    singleAsteriskRegexFragment: "[^/]*",
-    /**
+	singleAsteriskRegexFragment: '[^/]*',
+	/**
      * Regex for the ** wildcard. Matches any number of subdirectories. When used for including
      * files or directories, does not match subdirectories that start with a . character
      */
-    doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
-    replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, directoriesMatcher.singleAsteriskRegexFragment)
+	doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
+	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, directoriesMatcher.singleAsteriskRegexFragment),
 };
 
 const excludeMatcher = {
-    singleAsteriskRegexFragment: "[^/]*",
-    doubleAsteriskRegexFragment: "(/.+?)?",
-    replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, excludeMatcher.singleAsteriskRegexFragment)
+	singleAsteriskRegexFragment: '[^/]*',
+	doubleAsteriskRegexFragment: '(/.+?)?',
+	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, excludeMatcher.singleAsteriskRegexFragment),
 };
 
 const wildcardMatchers = {
-    files: filesMatcher,
-    directories: directoriesMatcher,
-    exclude: excludeMatcher
+	files: filesMatcher,
+	directories: directoriesMatcher,
+	exclude: excludeMatcher,
 };
-
 
 /**
  * Convert pattern to regex
- * 
+ *
  * getSubPatternFromSpec
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8165
  */
 
-
 /**
  * matchFiles
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8291
- * 
- * 
+ *
+ *
  * inside, it seems to call `getFileMatcherPatterns` to apply
  * 	- getRegularExpressionForWildcard(includes, absolutePath, "files"),
  *  - getRegularExpressionForWildcard(includes, absolutePath, "directories")
  *  - getRegularExpressionForWildcard(excludes, absolutePath, "exclude")
- * 
- * 
+ *
+ *
  * getFileMatcherPatterns
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8267
  */
 
-
- const isImplicitGlobPattern = /\/[^.*?]+$/;
+const isImplicitGlobPattern = /\/[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 
@@ -149,7 +145,9 @@ export const createFilesMatcher = (
 	{ config, path: tsconfigPath }: TsConfigResult,
 ) => {
 	const projectDirectory = path.dirname(tsconfigPath);
-	const { files, include, exclude, compilerOptions } = config;
+	const {
+		files, include, exclude, compilerOptions,
+	} = config;
 
 	// TODO: Support "references"
 	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#L2984
@@ -160,16 +158,14 @@ export const createFilesMatcher = (
 	// TODO: handle "files"
 	const includeSpec = !(files || include) ? [matchAllGlob] : include;
 
-
 	const extensions = getSupportedExtensions(compilerOptions);
-
 
 	/**
 	 * Match entire directory for `exclude`
 	 * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8135
 	 */
 	const excludePatterns = excludeSpec
-		.map(filePath => {
+		.map((filePath) => {
 			const projectFilePath = path.join(projectDirectory, filePath);
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
@@ -184,12 +180,11 @@ export const createFilesMatcher = (
 
 			// console.log(21212, projectFilePathPattern);
 
-			return new RegExp('^' + projectFilePathPattern + '($|\/)');
+			return new RegExp(`^${projectFilePathPattern}($|\/)`);
 		});
 
-
 	const includePatterns = includeSpec ? includeSpec
-		.map(filePath => {
+		.map((filePath) => {
 			let projectFilePath = path.join(
 				projectDirectory,
 				filePath,
@@ -197,7 +192,7 @@ export const createFilesMatcher = (
 
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
-				projectFilePath += '/' + matchAllGlob;
+				projectFilePath += `/${matchAllGlob}`;
 			}
 
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
@@ -211,7 +206,7 @@ export const createFilesMatcher = (
 				// Replace ?
 				.replace(/\\\?/, '[^/]');
 
-			const pattern = new RegExp('^' + projectFilePathPattern + '$');
+			const pattern = new RegExp(`^${projectFilePathPattern}$`);
 
 			// console.log({
 			// 	filePath,
@@ -269,4 +264,4 @@ export const createFilesMatcher = (
 
 		return false;
 	};
-}
+};
