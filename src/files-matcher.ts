@@ -214,29 +214,42 @@ export const createFilesMatcher = (
 				projectFilePath += `/${matchAllGlob}`;
 			}
 
+			const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join('|')})(/|$))`;
 
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
-				// Directory
-				.replace(/\\\*\\\*\//g, '([^/.][^/]*/(?!node_modules))*?')
+				// Replace /**
+				.replace(/(^|\/)\\\*\\\*/g, '(/' + implicitExcludePathRegexPattern + '[^/.][^/]*)*?')
 
-				// Wild card star
-				.replace(/\\\*/g, '[^./]([^./]|(\\.(?!min\\.js$))?)*') // '[^/]*')
+				// Replace *
+				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
+					const pattern = '[^./]([^./]|(\\.(?!min\\.js$))?)*';
+
+					if (hasSlash) {
+						return '\/' + implicitExcludePathRegexPattern + pattern;
+					}
+
+					return pattern;
+				})
 
 				// Replace ?
-				.replace(/\\\?/, '[^/]');
+				.replace(/(\/)?\\\?/g, function (_, hasSlash) {
+					const pattern = '[^./]';
+					if (hasSlash) {
+						return '\/' + implicitExcludePathRegexPattern + pattern;
+					}
+
+					return pattern;
+				});
+
+			const addSlash = /^[?*]/.test(projectFilePath)
 
 			const pattern = new RegExp(
-				`^${escapeForRegexp(projectDirectory)}\/(?!node_modules)${projectFilePathPattern}$`,
+				`^${escapeForRegexp(projectDirectory)}${addSlash ? '': '\/'}${projectFilePathPattern}$`,
 				regexpFlags,
 			);
 
-			// console.log({
-			// 	filePath,
-			// 	projectFilePath,
-			// 	projectFilePathPattern,
-			// 	pattern,
-			// });
+			// console.log('Got:\n' + pattern);
 
 			return pattern;
 		}) : undefined;
@@ -263,9 +276,9 @@ export const createFilesMatcher = (
 		}
 		// console.log({
 		// 	filePath,
-		// 	filesList,
+		// 	// filesList,
 		// 	includePatterns,
-		// 	excludePatterns,
+		// 	// excludePatterns,
 		// });
 
 		const matchesExtension = extensions.find(extension => filePath.endsWith(extension));
