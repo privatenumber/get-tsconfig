@@ -161,7 +161,6 @@ export const createFilesMatcher = (
 
 	const extensions = getSupportedExtensions(compilerOptions);
 
-
 	const regexpFlags = useCaseSensitiveFileNames ? '' : 'i';
 	/**
 	 * Match entire directory for `exclude`

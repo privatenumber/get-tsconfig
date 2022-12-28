@@ -16,6 +16,10 @@ const fileNames = Object.freeze([
 	'dcts.d.cts',
 ]);
 
+const testFiles = Object.fromEntries(
+	fileNames.map(fileName => [fileName, '']),
+);
+
 const {
 	sys: tsSys,
 	readConfigFile,
@@ -44,19 +48,7 @@ const getTscMatchingFiles = (
 	const { fileNames } = parsedTsconfig;
 
 	return fileNames.sort();
-	// .map(
-	// 	fileName => fileName.replace(tsconfigDirectoryPath, ''),
-	// );
 };
-
-/*
-
-Using parseJsonConfigFileContentWorker as reference
-1. Create spec for include/exclude
-2. Get tsconfig.json directory path, or use baseUrl
-3. includeSpecs defaults to ['** /*']
-4.
-*/
 
 export default testSuite(({ describe }) => {
 	describe('match file', ({ test, describe }) => {
@@ -195,9 +187,7 @@ export default testSuite(({ describe }) => {
 
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'some-directory': Object.fromEntries(
-						fileNames.map(fileName => [fileName, '']),
-					),
+					'some-directory': testFiles,
 				});
 
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
@@ -221,14 +211,10 @@ export default testSuite(({ describe }) => {
 					],
 				};
 
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
-				);
-
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'dir-a': files,
-					'dir-b': files,
+					'dir-a': testFiles,
+					'dir-b': testFiles,
 				});
 
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
@@ -251,13 +237,9 @@ export default testSuite(({ describe }) => {
 					include: ['dir-a'],
 				};
 
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
-				);
-
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'dir-a/dir-b/dir-c': files,
+					'dir-a/dir-b/dir-c': testFiles,
 				});
 
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
@@ -279,17 +261,12 @@ export default testSuite(({ describe }) => {
 					include: ['dir-a'],
 				};
 
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
-				);
-
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'dir-abc': files,
+					'dir-abc': testFiles,
 				});
 
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
-
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
@@ -307,57 +284,39 @@ export default testSuite(({ describe }) => {
 					include: ['SOME-DIR'],
 				};
 
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
-				);
-
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'some-dir': files,
+					'some-dir/index.ts': '',
 				});
 
+				const filePath = path.join(fixture.path, 'some-dir/index.ts');
+
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
-				expect(tsFiles.length).toBe(7);
+				expect(tsFiles).toStrictEqual([filePath]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
 					path: path.join(fixture.path, 'tsconfig.json'),
 				});
-
-				for (const file of tsFiles) {
-					expect(matches(file)).toBe(true);
-				}
+				expect(matches(filePath)).toBe(true);
 
 				await fixture.rm();
 			});
 
 			test('case sensitive', async () => {
-				const tsconfig: TsConfigJsonResolved = {
-					include: ['SOME-DIR'],
-				};
-
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
+				const projectDirectory = '/project-root';
+				const matches = createFilesMatcher(
+					{
+						config: {
+							include: ['SOME-DIR'],
+						},
+						path: path.join(projectDirectory, 'tsconfig.json'),
+					},
+					true,
 				);
 
-				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
-					'some-dir': files,
-				});
-
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
-				expect(tsFiles.length).toBe(7);
-
-				const matches = createFilesMatcher({
-					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
-				}, true);
-
-				for (const file of tsFiles) {
-					expect(matches(file)).toBe(false);
-				}
-
-				await fixture.rm();
+				expect(matches(path.join(projectDirectory, 'SOME-DIR/file.ts'))).toBe(true);
+				expect(matches(path.join(projectDirectory, 'some-dir/file.ts'))).toBe(false);
 			});
 
 			describe('globs', ({ test }) => {
@@ -579,10 +538,7 @@ export default testSuite(({ describe }) => {
 
 				const directories = Object.freeze(
 					Object.fromEntries(directoryFileNames.map(
-						filePath => [
-							filePath,
-							'',
-						],
+						filePath => [filePath, ''],
 					)),
 				);
 
@@ -678,13 +634,9 @@ export default testSuite(({ describe }) => {
 					exclude: ['dir-prefix'],
 				};
 
-				const files = Object.fromEntries(
-					fileNames.map(fileName => [fileName, '']),
-				);
-
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJson(tsconfig),
-					'dir-prefixabc': files,
+					'dir-prefixabc': testFiles,
 				});
 
 				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
