@@ -48,7 +48,6 @@ const getTscMatchingFiles = (
 };
 
 export default testSuite(({ describe, test }) => {
-
 	// test('default include matches all TS files', async () => {
 	// 	const tsconfig: TsConfigJsonResolved = {
 	// 		include: ['**/*'],
@@ -73,7 +72,6 @@ export default testSuite(({ describe, test }) => {
 
 	// 	await fixture.rm();
 	// });
-
 
 	describe('match file', ({ test, describe }) => {
 		test('should throw on relative path', async () => {

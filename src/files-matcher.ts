@@ -219,33 +219,33 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace /**
-				.replace(/(^|\/)\\\*\\\*/g, '(/' + implicitExcludePathRegexPattern + '[^/.][^/]*)*?')
+				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
 
 				// Replace *
 				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
 					const pattern = '[^./]([^./]|(\\.(?!min\\.js$))?)*';
 
 					if (hasSlash) {
-						return '\/' + implicitExcludePathRegexPattern + pattern;
+						return `\/${implicitExcludePathRegexPattern}${pattern}`;
 					}
 
 					return pattern;
 				})
 
 				// Replace ?
-				.replace(/(\/)?\\\?/g, function (_, hasSlash) {
+				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
 					const pattern = '[^./]';
 					if (hasSlash) {
-						return '\/' + implicitExcludePathRegexPattern + pattern;
+						return `\/${implicitExcludePathRegexPattern}${pattern}`;
 					}
 
 					return pattern;
 				});
 
-			const addSlash = /^[?*]/.test(projectFilePath)
+			const addSlash = /^[?*]/.test(projectFilePath);
 
 			const pattern = new RegExp(
-				`^${escapeForRegexp(projectDirectory)}${addSlash ? '': '\/'}${projectFilePathPattern}$`,
+				`^${escapeForRegexp(projectDirectory)}${addSlash ? '' : '\/'}${projectFilePathPattern}$`,
 				regexpFlags,
 			);
 
