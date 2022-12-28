@@ -302,6 +302,64 @@ export default testSuite(({ describe }) => {
 				await fixture.rm();
 			});
 
+			test('case insensitive', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					include: ['SOME-DIR'],
+				};
+
+				const files = Object.fromEntries(
+					fileNames.map(fileName => [fileName, '']),
+				);
+
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJson(tsconfig),
+					'some-dir': files,
+				});
+
+				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsFiles.length).toBe(7);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: path.join(fixture.path, 'tsconfig.json'),
+				});
+
+				for (const file of tsFiles) {
+					expect(matches(file)).toBe(true);
+				}
+
+				await fixture.rm();
+			});
+
+			test('case sensitive', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					include: ['SOME-DIR'],
+				};
+
+				const files = Object.fromEntries(
+					fileNames.map(fileName => [fileName, '']),
+				);
+
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJson(tsconfig),
+					'some-dir': files,
+				});
+
+				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsFiles.length).toBe(7);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: path.join(fixture.path, 'tsconfig.json'),
+				}, true);
+
+				for (const file of tsFiles) {
+					expect(matches(file)).toBe(false);
+				}
+
+				await fixture.rm();
+			});
+
 			describe('globs', ({ test }) => {
 				test('?', async () => {
 					const tsconfig: TsConfigJsonResolved = {

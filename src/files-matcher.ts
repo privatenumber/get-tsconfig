@@ -143,6 +143,7 @@ const matchAllGlob = '**/*';
 
 export const createFilesMatcher = (
 	{ config, path: tsconfigPath }: TsConfigResult,
+	useCaseSensitiveFileNames = false,
 ) => {
 	const projectDirectory = path.dirname(tsconfigPath);
 	const {
@@ -160,6 +161,8 @@ export const createFilesMatcher = (
 
 	const extensions = getSupportedExtensions(compilerOptions);
 
+
+	const regexpFlags = useCaseSensitiveFileNames ? '' : 'i';
 	/**
 	 * Match entire directory for `exclude`
 	 * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8135
@@ -180,7 +183,10 @@ export const createFilesMatcher = (
 
 			// console.log(21212, projectFilePathPattern);
 
-			return new RegExp(`^${projectFilePathPattern}($|\/)`);
+			return new RegExp(
+				`^${projectFilePathPattern}($|/)`,
+				regexpFlags,
+			);
 		});
 
 	const includePatterns = includeSpec ? includeSpec
@@ -206,7 +212,10 @@ export const createFilesMatcher = (
 				// Replace ?
 				.replace(/\\\?/, '[^/]');
 
-			const pattern = new RegExp(`^${projectFilePathPattern}$`);
+			const pattern = new RegExp(
+				`^${projectFilePathPattern}$`,
+				regexpFlags,
+			);
 
 			// console.log({
 			// 	filePath,
