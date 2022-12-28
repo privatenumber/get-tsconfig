@@ -2,7 +2,7 @@ import path from 'path';
 import { expect, testSuite } from 'manten';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
-import { tsconfigJson } from '../utils.js';
+import { tsconfigJsonString } from '../utils.js';
 import { createFilesMatcher, type TsConfigJsonResolved } from '#get-tsconfig';
 
 const fileNames = Object.freeze([
@@ -47,12 +47,17 @@ const getTscMatchingFiles = (
 	return parsedTsconfig.fileNames.sort();
 };
 
+
 export default testSuite(({ describe, test }) => {
+
+	// TODO: add test for entire project being in node_modules
+
+
 	describe('match file', ({ test, describe }) => {
 		test('should throw on relative path', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJson(tsconfig),
+				'tsconfig.json': tsconfigJsonString(tsconfig),
 				'index.ts': '',
 			});
 
@@ -69,20 +74,19 @@ export default testSuite(({ describe, test }) => {
 		test('should not match path outside of directory', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 
-			const tsconfigPath = 'some-dir/tsconfig.json';
+			const tsconfigSubpath = 'some-dir/tsconfig.json';
 			const fixture = await createFixture({
-				[tsconfigPath]: tsconfigJson(tsconfig),
+				[tsconfigSubpath]: tsconfigJsonString(tsconfig),
 				'index.ts': '',
 			});
 
-			const absoluteTsconfigPath = path.join(fixture.path, tsconfigPath);
-
-			const tsFiles = getTscMatchingFiles(absoluteTsconfigPath);
+			const tsconfigPath = path.join(fixture.path, tsconfigSubpath);
+			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
 			const matches = createFilesMatcher({
 				config: tsconfig,
-				path: absoluteTsconfigPath,
+				path: tsconfigPath,
 			});
 
 			expect(matches('/index.ts')).toBe(false);
@@ -97,20 +101,19 @@ export default testSuite(({ describe, test }) => {
 					include: [filePath],
 				};
 
-				const tsconfigPath = 'tsconfigonon';
 				const fixture = await createFixture({
-					[tsconfigPath]: tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
-				const absoluteTsconfigPath = path.join(fixture.path, tsconfigPath);
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 
-				const tsFiles = getTscMatchingFiles(absoluteTsconfigPath);
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: absoluteTsconfigPath,
+					path: tsconfigPath,
 				});
 				expect(matches(path.join(fixture.path, filePath))).toBe(false);
 
@@ -126,22 +129,21 @@ export default testSuite(({ describe, test }) => {
 					include: [filePath],
 				};
 
-				const tsconfigPath = 'tsconfig.json';
 				const fixture = await createFixture({
-					[tsconfigPath]: tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'index.ts': 'import json from "./json.json"',
 					[filePath]: '',
 				});
 
-				const absoluteTsconfigPath = path.join(fixture.path, tsconfigPath);
-				const tsFiles = getTscMatchingFiles(absoluteTsconfigPath);
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 				const absoluteFilePath = path.join(fixture.path, filePath);
 				expect(tsFiles).toStrictEqual([absoluteFilePath]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: absoluteTsconfigPath,
+					path: tsconfigPath,
 				});
 				expect(matches(absoluteFilePath)).toBe(true);
 
@@ -156,19 +158,20 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'index.ts': '',
 					'no-match.ts': '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 				const indexFile = path.join(fixture.path, 'index.ts');
 				expect(tsFiles).toStrictEqual([indexFile]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(indexFile)).toBe(true);
@@ -183,14 +186,15 @@ export default testSuite(({ describe, test }) => {
 				const tsconfig: TsConfigJsonResolved = {};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'some-directory': testFiles,
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				for (const file of tsFiles) {
@@ -209,17 +213,18 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'dir-a': testFiles,
 					'dir-b': testFiles,
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).not.toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				for (const file of tsFiles) {
@@ -235,15 +240,16 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'dir-a/dir-b/dir-c': testFiles,
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				for (const file of tsFiles) {
@@ -259,16 +265,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'dir-abc': testFiles,
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(path.join(fixture.path, 'dir-abc/ts.ts'))).toBe(false);
@@ -282,18 +289,19 @@ export default testSuite(({ describe, test }) => {
 					const tsconfig: TsConfigJsonResolved = {};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
 						),
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 					expect(matches(path.join(fixture.path, directoryName, '.index.ts'))).toBe(false);
 
@@ -305,16 +313,17 @@ export default testSuite(({ describe, test }) => {
 					const tsconfig: TsConfigJsonResolved = {};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: testFiles,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
 
@@ -329,16 +338,17 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: testFiles,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
 
@@ -353,16 +363,17 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: testFiles,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(7);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					for (const file of tsFiles) {
@@ -380,16 +391,17 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: testFiles,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(7);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					for (const file of tsFiles) {
@@ -407,18 +419,19 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
 						),
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(7);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					for (const file of tsFiles) {
@@ -429,24 +442,76 @@ export default testSuite(({ describe, test }) => {
 				});
 			});
 
+			describe('exclude node_modules', ({ test }) => {
+				test('node_modules', async () => {
+					const directoryName = 'node_modules/some-pkg';
+					const tsconfig: TsConfigJsonResolved = {};
+
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJsonString(tsconfig),
+						[directoryName]: testFiles,
+					});
+
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
+					expect(tsFiles.length).toBe(0);
+
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: tsconfigPath,
+					});
+					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+
+					await fixture.rm();
+				});
+
+				test('nested node_modules', async () => {
+					const directoryName = 'nested/some-pkg';
+					const tsconfig: TsConfigJsonResolved = {};
+			
+					const fixture = await createFixture({
+						'node_modules' : {
+							'tsconfig.json': tsconfigJsonString(tsconfig),
+							[directoryName]: testFiles,
+						},
+					});
+			
+					const tsconfigPath = path.join(fixture.path, 'node_modules/tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
+					expect(tsFiles.length).toBe(7);
+			
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: tsconfigPath,
+					});
+			
+					for (const file of tsFiles) {
+						expect(matches(file)).toBe(true);
+					}
+			
+					await fixture.rm();
+				});
+			});
+
 			test('case insensitive', async () => {
 				const tsconfig: TsConfigJsonResolved = {
 					include: ['SOME-DIR'],
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'some-dir/index.ts': '',
 				});
 
 				const filePath = path.join(fixture.path, 'some-dir/index.ts');
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles).toStrictEqual([filePath]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 				expect(matches(filePath)).toBe(true);
 
@@ -476,7 +541,7 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'bc.ts': '',
@@ -486,12 +551,13 @@ export default testSuite(({ describe, test }) => {
 						},
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(1);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, 'some-dir/a.ts'))).toBe(true);
@@ -507,7 +573,7 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'bc.ts': '',
@@ -517,12 +583,13 @@ export default testSuite(({ describe, test }) => {
 						},
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(2);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, 'some-dir/a.ts'))).toBe(true);
@@ -538,7 +605,7 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'bc.ts': '',
@@ -548,12 +615,13 @@ export default testSuite(({ describe, test }) => {
 						},
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(3);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, 'some-dir/a.ts'))).toBe(true);
@@ -577,18 +645,19 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
 				const filePathAbsolute = path.join(fixture.path, filePath);
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles).toStrictEqual([filePathAbsolute]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(filePathAbsolute)).toBe(true);
@@ -605,18 +674,19 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
 				const filePathAbsolute = path.join(fixture.path, filePath);
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles).toStrictEqual([filePathAbsolute]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(filePathAbsolute)).toBe(true);
@@ -633,16 +703,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(path.join(fixture.path, filePath))).toBe(false);
@@ -660,16 +731,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(path.join(fixture.path, filePath))).toBe(false);
@@ -701,16 +773,17 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						...directories,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					for (const filePath of directoryFileNames) {
@@ -731,11 +804,12 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						...directories,
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 					expect(tsFiles).toStrictEqual(
 						directoryFileNames.map(filePath => path.join(fixture.path, filePath)).sort(),
@@ -743,7 +817,7 @@ export default testSuite(({ describe, test }) => {
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					for (const filePath of directoryFileNames) {
@@ -762,16 +836,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'some-dir/index.ts': '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(path.join(fixture.path, 'some-dir/index.ts'))).toBe(false);
@@ -785,16 +860,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					'dir-prefixabc': testFiles,
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(7);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 
 				expect(matches(path.join(fixture.path, 'dir-prefixabc/ts.ts'))).toBe(true);
@@ -809,7 +885,7 @@ export default testSuite(({ describe, test }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'bc.ts': '',
@@ -819,7 +895,8 @@ export default testSuite(({ describe, test }) => {
 						},
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles).toStrictEqual([
 						path.join(fixture.path, 'some-dir/bc.ts'),
 						path.join(fixture.path, 'some-dir/nested-dir/d.ts'),
@@ -827,7 +904,7 @@ export default testSuite(({ describe, test }) => {
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, 'some-dir/a.ts'))).toBe(false);
@@ -848,20 +925,21 @@ export default testSuite(({ describe, test }) => {
 						'some-dir/nested-dir/c.ts',
 					];
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						...Object.fromEntries(
 							files.map(fileName => [fileName, '']),
 						),
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles).toStrictEqual([
 						path.join(fixture.path, files[0]),
 					]);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, files[0]))).toBe(true);
@@ -883,20 +961,21 @@ export default testSuite(({ describe, test }) => {
 					];
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJson(tsconfig),
+						'tsconfig.json': tsconfigJsonString(tsconfig),
 						...Object.fromEntries(
 							files.map(fileName => [fileName, '']),
 						),
 					});
 
-					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles).toStrictEqual([
 						path.join(fixture.path, files[0]),
 					]);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
-						path: path.join(fixture.path, 'tsconfig.json'),
+						path: tsconfigPath,
 					});
 
 					expect(matches(path.join(fixture.path, files[0]))).toBe(true);
@@ -915,7 +994,7 @@ export default testSuite(({ describe, test }) => {
 				const tsconfigPath = 'tsconfig.json';
 				const jsFilePath = 'index.js';
 				const fixture = await createFixture({
-					[tsconfigPath]: tsconfigJson(tsconfig),
+					[tsconfigPath]: tsconfigJsonString(tsconfig),
 					[jsFilePath]: '',
 				});
 
@@ -943,7 +1022,7 @@ export default testSuite(({ describe, test }) => {
 				const tsconfigPath = 'tsconfig.json';
 				const jsFilePath = 'index.js';
 				const fixture = await createFixture({
-					[tsconfigPath]: tsconfigJson(tsconfig),
+					[tsconfigPath]: tsconfigJsonString(tsconfig),
 					[jsFilePath]: '',
 				});
 
@@ -969,16 +1048,17 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 				expect(matches(path.join(fixture.path, filePath))).toBe(false);
 
@@ -992,18 +1072,19 @@ export default testSuite(({ describe, test }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJson(tsconfig),
+					'tsconfig.json': tsconfigJsonString(tsconfig),
 					[filePath]: '',
 				});
 
-				const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 				// Matches but errors: Did you mean to enable the 'allowJs' option?
 				expect(tsFiles.length).toBe(1);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
-					path: path.join(fixture.path, 'tsconfig.json'),
+					path: tsconfigPath,
 				});
 				expect(matches(path.join(fixture.path, filePath))).toBe(false);
 

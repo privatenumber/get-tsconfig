@@ -137,7 +137,11 @@ const wildcardMatchers = {
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8267
  */
 
-const isImplicitGlobPattern = /\/[^.*?]+$/;
+/**
+ * An "includes" path "foo" is implicitly a glob "foo/** /*" (without the space) if its last component has no extension,
+ * and does not contain any glob characters itself.
+ */
+const isImplicitGlobPattern = /^[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 
@@ -190,20 +194,31 @@ export const createFilesMatcher = (
 
 	const includePatterns = includeSpec ? includeSpec
 		.map((filePath) => {
-			let projectFilePath = path.join(
-				projectDirectory,
-				filePath,
-			);
+			let projectFilePath = filePath;
+			// path.join(
+			// 	projectDirectory,
+			// 	filePath,
+			// );
+			// console.log({
+			// 	projectFilePath,
+			// 	projectDirectory,
+			// 	filePath,
+			// });
 
+			// console.log({
+			// 	projectFilePath,
+			// 	asdf: isImplicitGlobPattern.test(projectFilePath)
+			// });
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
 				projectFilePath += `/${matchAllGlob}`;
 			}
 
+
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Directory
-				.replace(/\\\*\\\*\//g, '([^/.][^/]*/)*?')
+				.replace(/\\\*\\\*\//g, '([^/.][^/]*/(?!node_modules))*?')
 
 				// Wild card star
 				.replace(/\\\*/g, '[^./]([^./]|(\\.(?!min\\.js$))?)*') // '[^/]*')
@@ -212,7 +227,7 @@ export const createFilesMatcher = (
 				.replace(/\\\?/, '[^/]');
 
 			const pattern = new RegExp(
-				`^${projectFilePathPattern}$`,
+				`^${escapeForRegexp(projectDirectory)}\/(?!node_modules)${projectFilePathPattern}$`,
 				regexpFlags,
 			);
 
