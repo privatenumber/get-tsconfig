@@ -203,10 +203,10 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Directory
-				.replace(/\\\*\\\*\//g, '(.+/)?')
+				.replace(/\\\*\\\*\//g, '([^/.][^/]*/)*?')
 
 				// Wild card star
-				.replace(/\\\*/g, '([^./]|(\\.(?!min\\.js$))?)*') // '[^/]*')
+				.replace(/\\\*/g, '[^./]([^./]|(\\.(?!min\\.js$))?)*') // '[^/]*')
 
 				// Replace ?
 				.replace(/\\\?/, '[^/]');

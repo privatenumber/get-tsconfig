@@ -1,4 +1,3 @@
-import { inspect } from 'util';
 import path from 'path';
 import { expect, testSuite } from 'manten';
 import { createFixture } from 'fs-fixture';
@@ -45,12 +44,10 @@ const getTscMatchingFiles = (
 		tsconfigDirectoryPath,
 	);
 
-	const { fileNames } = parsedTsconfig;
-
-	return fileNames.sort();
+	return parsedTsconfig.fileNames.sort();
 };
 
-export default testSuite(({ describe }) => {
+export default testSuite(({ describe, test }) => {
 	describe('match file', ({ test, describe }) => {
 		test('should throw on relative path', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
@@ -277,6 +274,159 @@ export default testSuite(({ describe }) => {
 				expect(matches(path.join(fixture.path, 'dir-abc/ts.ts'))).toBe(false);
 
 				await fixture.rm();
+			});
+
+			describe('hidden files', ({ test }) => {
+				test('should not match hidden files by default', async () => {
+					const directoryName = 'some-dir';
+					const tsconfig: TsConfigJsonResolved = {};
+	
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: Object.fromEntries(
+							fileNames.map(fileName => ['.' + fileName, '']),
+						),
+					});
+	
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(0);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+					expect(matches(path.join(fixture.path, directoryName, '.index.ts'))).toBe(false);
+	
+					await fixture.rm();
+				});
+
+				test('should not match hidden directory by default', async () => {
+					const directoryName = '.hidden-dir';
+					const tsconfig: TsConfigJsonResolved = {};
+	
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: testFiles,
+					});
+	
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(0);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+	
+					await fixture.rm();
+				});
+
+				test('explicit directory name without star should not match', async () => {
+					const directoryName = '.hidden-dir';
+	
+					const tsconfig: TsConfigJsonResolved = {
+						include: [directoryName],
+					};
+	
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: testFiles,
+					});
+	
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(0);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+	
+					await fixture.rm();
+				});
+
+				test('explicit directory name with star should match', async () => {
+					const directoryName = '.hidden-dir';
+	
+					const tsconfig: TsConfigJsonResolved = {
+						include: [directoryName + '/*'],
+					};
+	
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: testFiles,
+					});
+	
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(7);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+
+					for (const file of tsFiles) {
+						expect(matches(file)).toBe(true);						
+					}
+
+					await fixture.rm();
+				});
+
+				test('explicit hidden glob should match hidden directory', async () => {
+					const directoryName = '.hidden-dir';
+	
+					const tsconfig: TsConfigJsonResolved = {
+						include: ['.*/*'],
+					};
+
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: testFiles,
+					});
+
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(7);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+
+					for (const file of tsFiles) {
+						expect(matches(file)).toBe(true);						
+					}
+
+					await fixture.rm();
+				});
+
+				test('explicit hidden glob should match hidden files', async () => {
+					const directoryName = 'some-dir';
+	
+					const tsconfig: TsConfigJsonResolved = {
+						include: ['**/.*'],
+					};
+
+					const fixture = await createFixture({
+						'tsconfig.json': tsconfigJson(tsconfig),
+						[directoryName]: Object.fromEntries(
+							fileNames.map(fileName => ['.' + fileName, '']),
+						),
+					});
+
+					const tsFiles = getTscMatchingFiles(path.join(fixture.path, 'tsconfig.json'));
+					expect(tsFiles.length).toBe(7);
+	
+					const matches = createFilesMatcher({
+						config: tsconfig,
+						path: path.join(fixture.path, 'tsconfig.json'),
+					});
+
+					for (const file of tsFiles) {
+						expect(matches(file)).toBe(true);						
+					}
+
+					await fixture.rm();
+				});
 			});
 
 			test('case insensitive', async () => {
