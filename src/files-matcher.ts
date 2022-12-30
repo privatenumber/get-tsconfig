@@ -79,6 +79,10 @@ const isImplicitGlobPattern = /^[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 
+const anyCharacter = '[^/]';
+
+const noPeriodOrSlash = '[^./]';
+
 export const createFilesMatcher = (
 	{ config, path: tsconfigPath }: TsConfigResult,
 	useCaseSensitiveFileNames = false,
@@ -108,10 +112,10 @@ export const createFilesMatcher = (
 				.replace(/\\\*\\\*\//g, '(.+/)?')
 
 				// Replace *
-				.replace(/\\\*/g, '[^/]*')
+				.replace(/\\\*/g, `${anyCharacter}*`)
 
 				// Replace ?
-				.replace(/\\\?/g, '[^/]');
+				.replace(/\\\?/g, anyCharacter);
 
 			return new RegExp(
 				`^${projectFilePathPattern}($|/)`,
@@ -133,14 +137,14 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace /**
-				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
+				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
 
 				// Replace *
 				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
-					const pattern = '([^./]|(\\.(?!min\\.js$))?)*';
+					const pattern = `(${noPeriodOrSlash}|(\\.(?!min\\.js$))?)*`;
 
 					if (hasSlash) {
-						return `/${implicitExcludePathRegexPattern}[^./]${pattern}`;
+						return `/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${pattern}`;
 					}
 
 					return pattern;
@@ -148,7 +152,7 @@ export const createFilesMatcher = (
 
 				// Replace ?
 				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
-					const pattern = '[^/]';
+					const pattern = anyCharacter;
 					if (hasSlash) {
 						return `/${implicitExcludePathRegexPattern}${pattern}`;
 					}
@@ -177,11 +181,6 @@ export const createFilesMatcher = (
 		if (filesList?.includes(filePath)) {
 			return true;
 		}
-
-		// console.log({
-		// 	filePath,
-		// 	includePatterns,
-		// });
 
 		if (
 			// Outside of project
