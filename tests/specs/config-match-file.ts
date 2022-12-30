@@ -520,27 +520,27 @@ export default testSuite(({ describe, test }) => {
 					const tsconfig: TsConfigJsonResolved = {
 						include: ['SOME-DIR'],
 					};
-	
+
 					const fixture = await createFixture({
 						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir/index.ts': '',
 					});
-	
+
 					const filePath = path.join(fixture.path, 'some-dir/index.ts');
-	
+
 					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles).toStrictEqual([filePath]);
-	
+
 					const matches = createFilesMatcher({
 						config: tsconfig,
 						path: tsconfigPath,
 					});
 					expect(matches(filePath)).toBe(true);
-	
+
 					await fixture.rm();
 				});
-	
+
 				test('case sensitive', async () => {
 					const projectDirectory = '/project-root';
 					const matches = createFilesMatcher(
@@ -552,7 +552,7 @@ export default testSuite(({ describe, test }) => {
 						},
 						true,
 					);
-	
+
 					expect(matches(path.join(projectDirectory, 'SOME-DIR/file.ts'))).toBe(true);
 					expect(matches(path.join(projectDirectory, 'some-dir/file.ts'))).toBe(false);
 				});
@@ -920,19 +920,19 @@ export default testSuite(({ describe, test }) => {
 						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir/index.ts': '',
 					});
-	
+
 					const filePath = path.join(fixture.path, 'some-dir/index.ts');
-	
+
 					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
-	
+
 					const matches = createFilesMatcher({
 						config: tsconfig,
 						path: tsconfigPath,
 					});
 					expect(matches(filePath)).toBe(false);
-	
+
 					await fixture.rm();
 				});
 
@@ -947,7 +947,7 @@ export default testSuite(({ describe, test }) => {
 						},
 						true,
 					);
-	
+
 					expect(matches(path.join(projectDirectory, 'SOME-DIR/file.ts'))).toBe(false);
 					expect(matches(path.join(projectDirectory, 'some-dir/file.ts'))).toBe(true);
 				});
@@ -995,7 +995,7 @@ export default testSuite(({ describe, test }) => {
 				test('*', async () => {
 					const tsconfig: TsConfigJsonResolved = {
 						exclude: [
-							'some-dir/*b*',							
+							'some-dir/*b*',
 							'some-dir/q*eee*t*',
 						],
 					};
