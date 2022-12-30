@@ -132,10 +132,10 @@ export const createFilesMatcher = (
 
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
-			// Replace /**
+				// Replace /**
 				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
 
-			// Replace *
+				// Replace *
 				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
 					const pattern = '([^./]|(\\.(?!min\\.js$))?)*';
 
@@ -146,7 +146,7 @@ export const createFilesMatcher = (
 					return pattern;
 				})
 
-			// Replace ?
+				// Replace ?
 				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
 					const pattern = '[^/]';
 					if (hasSlash) {
