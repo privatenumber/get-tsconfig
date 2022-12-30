@@ -109,12 +109,6 @@ const excludeMatcher = {
 	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, excludeMatcher.singleAsteriskRegexFragment),
 };
 
-const wildcardMatchers = {
-	files: filesMatcher,
-	directories: directoriesMatcher,
-	exclude: excludeMatcher,
-};
-
 /**
  * Convert pattern to regex
  *
@@ -175,14 +169,14 @@ export const createFilesMatcher = (
 			const projectFilePath = path.join(projectDirectory, filePath);
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
-				// Directory
+				// Replace **/
 				.replace(/\\\*\\\*\//g, '(.+/)?')
 
-				// Wild card star
+				// Replace *
 				.replace(/\\\*/g, '[^/]*') // '[^/]*')
 
 				// Replace ?
-				.replace(/\\\?/, '[^/]');
+				.replace(/\\\?/g, '[^/]');
 
 			// console.log(21212, projectFilePathPattern);
 
@@ -195,20 +189,7 @@ export const createFilesMatcher = (
 	const includePatterns = includeSpec ? includeSpec
 		.map((filePath) => {
 			let projectFilePath = filePath;
-			// path.join(
-			// 	projectDirectory,
-			// 	filePath,
-			// );
-			// console.log({
-			// 	projectFilePath,
-			// 	projectDirectory,
-			// 	filePath,
-			// });
 
-			// console.log({
-			// 	projectFilePath,
-			// 	asdf: isImplicitGlobPattern.test(projectFilePath)
-			// });
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
 				projectFilePath += `/${matchAllGlob}`;
@@ -249,20 +230,10 @@ export const createFilesMatcher = (
 				regexpFlags,
 			);
 
-			// console.log('Got:\n' + pattern);
-
 			return pattern;
 		}) : undefined;
 
 	const filesList = files?.map(file => path.join(projectDirectory, file));
-
-	// console.log(1231231, 'get-tsconfig', {
-	// 	files,
-	// 	excludeSpec,
-	// 	excludePatterns,
-	// 	includeSpec,
-	// 	supportedExtensions: getSupportedExtensions(compilerOptions),
-	// });
 
 	return function isMatch(
 		filePath: string,
@@ -274,12 +245,6 @@ export const createFilesMatcher = (
 		if (!filePath.startsWith(projectDirectory)) {
 			return false;
 		}
-		// console.log({
-		// 	filePath,
-		// 	// filesList,
-		// 	includePatterns,
-		// 	// excludePatterns,
-		// });
 
 		const matchesExtension = extensions.find(extension => filePath.endsWith(extension));
 		if (!matchesExtension) {
