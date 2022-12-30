@@ -2,6 +2,32 @@ import path from 'path';
 import type { TsConfigJson } from 'type-fest';
 import type { TsConfigResult } from './types.js';
 
+const baseExtensions = {
+	ts: ['.ts', '.tsx', '.d.ts'],
+	cts: ['.cts', '.d.cts'],
+	mts: ['.mts', '.d.mts'],
+};
+
+const getSupportedExtensions = (
+	compilerOptions: TsConfigJson['compilerOptions'],
+) => {
+	const ts = [...baseExtensions.ts];
+	const cts = [...baseExtensions.cts];
+	const mts = [...baseExtensions.mts];
+
+	if (compilerOptions?.allowJs) {
+		ts.push('.js', '.jsx');
+		cts.push('.cjs');
+		mts.push('.mjs');
+	}
+
+	return [
+		...ts,
+		...cts,
+		...mts,
+	];
+};
+
 // https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#L3014-L3016
 const getDefaultExcludeSpec = (
 	compilerOptions: TsConfigJson['compilerOptions'],
@@ -24,71 +50,22 @@ const getDefaultExcludeSpec = (
 	return excludesSpec;
 };
 
-const baseExtensions = {
-	ts: ['.ts', '.tsx', '.d.ts'],
-	cts: ['.cts', '.d.cts'],
-	mts: ['.mts', '.d.mts'],
-} as const;
-
-const getSupportedExtensions = (
-	compilerOptions: TsConfigJson['compilerOptions'],
-) => {
-	const ts: string[] = [...baseExtensions.ts];
-	const cts: string[] = [...baseExtensions.cts];
-	const mts: string[] = [...baseExtensions.mts];
-
-	if (compilerOptions?.allowJs) {
-		ts.push('.js', '.jsx');
-		cts.push('.cjs');
-		mts.push('.mjs');
-	}
-
-	const extensions = [
-		...ts,
-		...cts,
-		...mts,
-	];
-
-	return extensions;
-};
-
 const escapeForRegexp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+const dependencyDirectories = ['node_modules', 'bower_components', 'jspm_packages'] as const;
+const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})(/|$))`;
+
 /**
- *
+ * 
  * File matchers
  * replace *, ?, and ** / with regex
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8088
-*/
-
-
-/**
- * Test
- * - node_modules, bower_components, jspm_packages are excluded
- * .min.js files are excluded
- *
- */
-
-const commonPackageFolders = ['node_modules', 'bower_components', 'jspm_packages'] as const;
-const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join('|')})(/|$))`;
-
-/**
- * Convert pattern to regex
- *
+ * 
  * getSubPatternFromSpec
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8165
- */
-
-/**
+ * 
  * matchFiles
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8291
- *
- *
- * inside, it seems to call `getFileMatcherPatterns` to apply
- * 	- getRegularExpressionForWildcard(includes, absolutePath, "files"),
- *  - getRegularExpressionForWildcard(includes, absolutePath, "directories")
- *  - getRegularExpressionForWildcard(excludes, absolutePath, "exclude")
- *
  *
  * getFileMatcherPatterns
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8267
@@ -111,18 +88,17 @@ export const createFilesMatcher = (
 		files, include, exclude, compilerOptions,
 	} = config;
 
-	const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
-
-	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#LL3020C29-L3020C47
-	const includeSpec = !(files || include) ? [matchAllGlob] : include;
+	const filesList = files?.map(file => path.join(projectDirectory, file));
 
 	const extensions = getSupportedExtensions(compilerOptions);
 
 	const regexpFlags = useCaseSensitiveFileNames ? '' : 'i';
+
 	/**
 	 * Match entire directory for `exclude`
 	 * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8135
 	 */
+	const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
 	const excludePatterns = excludeSpec
 		.map((filePath) => {
 			const projectFilePath = path.join(projectDirectory, filePath);
@@ -143,56 +119,57 @@ export const createFilesMatcher = (
 			);
 		});
 
-	const includePatterns = includeSpec ? includeSpec
-		.map((filePath) => {
-			let projectFilePath = filePath;
+	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#LL3020C29-L3020C47
+	const includeSpec = !(files || include) ? [matchAllGlob] : include;
+	const includePatterns = includeSpec
+		? includeSpec.map((filePath) => {
+				let projectFilePath = filePath;
 
-			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
-			if (isImplicitGlobPattern.test(projectFilePath)) {
-				projectFilePath += `/${matchAllGlob}`;
-			}
+				// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
+				if (isImplicitGlobPattern.test(projectFilePath)) {
+					projectFilePath += `/${matchAllGlob}`;
+				}
 
-			const projectFilePathPattern = escapeForRegexp(projectFilePath)
+				const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
-				// Replace /**
-				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
+					// Replace /**
+					.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
 
-				// Replace *
-				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
-					const pattern = '[^./]([^./]|(\\.(?!min\\.js$))?)*';
+					// Replace *
+					.replace(/(\/)?\\\*/g, (_, hasSlash) => {
+						const pattern = '([^./]|(\\.(?!min\\.js$))?)*';
 
-					if (hasSlash) {
-						return `\/${implicitExcludePathRegexPattern}${pattern}`;
-					}
+						if (hasSlash) {
+							return `/${implicitExcludePathRegexPattern}[^./]${pattern}`;
+						}
 
-					return pattern;
-				})
+						return pattern;
+					})
 
-				// Replace ?
-				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
-					const pattern = '[^./]';
-					if (hasSlash) {
-						return `\/${implicitExcludePathRegexPattern}${pattern}`;
-					}
+					// Replace ?
+					.replace(/(\/)?\\\?/g, (_, hasSlash) => {
+						const pattern = '[^/]';
+						if (hasSlash) {
+							return `/${implicitExcludePathRegexPattern}${pattern}`;
+						}
 
-					return pattern;
-				});
+						return pattern;
+					});
 
-			const addSlash = /^[?*]/.test(projectFilePath);
+				const startsWithGlob = /^[?*]/.test(projectFilePath);
 
-			const pattern = new RegExp(
-				`^${escapeForRegexp(projectDirectory)}${addSlash ? '' : '\/'}${projectFilePathPattern}$`,
-				regexpFlags,
-			);
+				const pattern = new RegExp(
+					`^${escapeForRegexp(projectDirectory)}${startsWithGlob ? '' : '/'}${projectFilePathPattern}$`,
+					regexpFlags,
+				);
 
-			return pattern;
-		}) : undefined;
+				return pattern;
+			})
+		: undefined;
 
-	const filesList = files?.map(file => path.join(projectDirectory, file));
-
-	return function isMatch(
+	return (
 		filePath: string,
-	): boolean {
+	): boolean => {
 		if (!filePath.startsWith('/')) {
 			throw new Error('filePath must be absolute');
 		}
@@ -200,6 +177,11 @@ export const createFilesMatcher = (
 		if (filesList?.includes(filePath)) {
 			return true;
 		}
+
+		// console.log({
+		// 	filePath,
+		// 	includePatterns,
+		// });
 
 		if (
 			// Outside of project

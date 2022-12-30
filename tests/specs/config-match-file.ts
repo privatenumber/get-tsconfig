@@ -47,7 +47,7 @@ const getTscMatchingFiles = (
 	return parsedTsconfig.fileNames.sort();
 };
 
-export default testSuite(({ describe, test }) => {
+export default testSuite(({ describe }) => {
 	describe('match file', ({ test, describe }) => {
 		test('should throw on relative path', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
@@ -591,7 +591,7 @@ export default testSuite(({ describe, test }) => {
 					const tsconfig: TsConfigJsonResolved = {
 						include: [
 							'some-dir/?.ts',
-							'some-dir/?b?.ts',
+							'some-dir/?b??ts',
 						],
 					};
 
@@ -626,8 +626,8 @@ export default testSuite(({ describe, test }) => {
 				test('*', async () => {
 					const tsconfig: TsConfigJsonResolved = {
 						include: [
-							'some-dir/*',
 							'some-dir/*b*',
+							'some-dir/dot*ts',
 						],
 					};
 
@@ -635,7 +635,8 @@ export default testSuite(({ describe, test }) => {
 						'tsconfig.json': tsconfigJsonString(tsconfig),
 						'some-dir': {
 							'a.ts': '',
-							'abc.ts': '',
+							'aaabccc.ts': '',
+							'dot.ts': '',
 							'nested-dir': {
 								'd.ts': '',
 							},
@@ -644,7 +645,10 @@ export default testSuite(({ describe, test }) => {
 
 					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
-					expect(tsFiles.length).toBe(2);
+					expect(tsFiles).toStrictEqual([
+						path.join(fixture.path, 'some-dir/aaabccc.ts'),
+						path.join(fixture.path, 'some-dir/dot.ts'),
+					]);
 
 					const matches = createFilesMatcher({
 						config: tsconfig,
@@ -986,7 +990,7 @@ export default testSuite(({ describe, test }) => {
 					const tsconfig: TsConfigJsonResolved = {
 						exclude: [
 							'some-dir/?.ts',
-							'some-dir/?b?.ts',
+							'some-dir/?b??ts',
 						],
 					};
 
