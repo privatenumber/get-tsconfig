@@ -49,10 +49,6 @@ const getSupportedExtensions = (
 		...mts,
 	];
 
-	if (compilerOptions?.resolveJsonModule) {
-		extensions.push('.json');
-	}
-
 	return extensions;
 };
 
@@ -64,17 +60,7 @@ const escapeForRegexp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g
  * replace *, ?, and ** / with regex
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8088
 */
-function replaceWildcardCharacter(match: string, singleAsteriskRegexFragment: string) {
-	return (
-		match === '*'
-			? singleAsteriskRegexFragment
-			: (
-				match === '?'
-					? '[^/]'
-					: `\\${match}`
-			)
-	);
-}
+
 
 /**
  * Test
@@ -84,30 +70,7 @@ function replaceWildcardCharacter(match: string, singleAsteriskRegexFragment: st
  */
 
 const commonPackageFolders = ['node_modules', 'bower_components', 'jspm_packages'] as const;
-
 const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join('|')})(/|$))`;
-
-const filesMatcher = {
-	singleAsteriskRegexFragment: '([^./]|(\\.(?!min\\.js$))?)*',
-	doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
-	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, filesMatcher.singleAsteriskRegexFragment),
-};
-
-const directoriesMatcher = {
-	singleAsteriskRegexFragment: '[^/]*',
-	/**
-     * Regex for the ** wildcard. Matches any number of subdirectories. When used for including
-     * files or directories, does not match subdirectories that start with a . character
-     */
-	doubleAsteriskRegexFragment: `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`,
-	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, directoriesMatcher.singleAsteriskRegexFragment),
-};
-
-const excludeMatcher = {
-	singleAsteriskRegexFragment: '[^/]*',
-	doubleAsteriskRegexFragment: '(/.+?)?',
-	replaceWildcardCharacter: (match: string) => replaceWildcardCharacter(match, excludeMatcher.singleAsteriskRegexFragment),
-};
 
 /**
  * Convert pattern to regex
@@ -148,13 +111,9 @@ export const createFilesMatcher = (
 		files, include, exclude, compilerOptions,
 	} = config;
 
-	// TODO: Support "references"
-	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#L2984
-
 	const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
 
 	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#LL3020C29-L3020C47
-	// TODO: handle "files"
 	const includeSpec = !(files || include) ? [matchAllGlob] : include;
 
 	const extensions = getSupportedExtensions(compilerOptions);
@@ -173,12 +132,10 @@ export const createFilesMatcher = (
 				.replace(/\\\*\\\*\//g, '(.+/)?')
 
 				// Replace *
-				.replace(/\\\*/g, '[^/]*') // '[^/]*')
+				.replace(/\\\*/g, '[^/]*')
 
 				// Replace ?
 				.replace(/\\\?/g, '[^/]');
-
-			// console.log(21212, projectFilePathPattern);
 
 			return new RegExp(
 				`^${projectFilePathPattern}($|/)`,
@@ -194,8 +151,6 @@ export const createFilesMatcher = (
 			if (isImplicitGlobPattern.test(projectFilePath)) {
 				projectFilePath += `/${matchAllGlob}`;
 			}
-
-			const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join('|')})(/|$))`;
 
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
@@ -242,21 +197,21 @@ export const createFilesMatcher = (
 			throw new Error('filePath must be absolute');
 		}
 
-		if (!filePath.startsWith(projectDirectory)) {
-			return false;
-		}
-
-		const matchesExtension = extensions.find(extension => filePath.endsWith(extension));
-		if (!matchesExtension) {
-			return false;
-		}
-
-		if (excludePatterns.some(pattern => pattern.test(filePath))) {
-			return false;
-		}
-
 		if (filesList?.includes(filePath)) {
 			return true;
+		}
+
+		if (
+			// Outside of project
+			!filePath.startsWith(projectDirectory)
+
+			// Invalid extension
+			|| !extensions.some(extension => filePath.endsWith(extension))
+
+			// Matches exclude
+			|| excludePatterns.some(pattern => pattern.test(filePath))
+		) {
+			return false;
 		}
 
 		if (includePatterns) {

@@ -89,63 +89,6 @@ export default testSuite(({ describe, test }) => {
 			await fixture.rm();
 		});
 
-		describe('.json', () => {
-			test('should not match .json', async () => {
-				const filePath = 'json.json';
-				const tsconfig: TsConfigJsonResolved = {
-					include: [filePath],
-				};
-
-				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
-					[filePath]: '',
-				});
-
-				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
-
-				const tsFiles = getTscMatchingFiles(tsconfigPath);
-				expect(tsFiles.length).toBe(0);
-
-				const matches = createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				});
-				expect(matches(path.join(fixture.path, filePath))).toBe(false);
-
-				await fixture.rm();
-			});
-
-			test('should match .json', async () => {
-				const filePath = 'json.json';
-				const tsconfig: TsConfigJsonResolved = {
-					compilerOptions: {
-						resolveJsonModule: true,
-					},
-					include: [filePath],
-				};
-
-				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
-					'index.ts': 'import json from "./json.json"',
-					[filePath]: '',
-				});
-
-				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
-				const tsFiles = getTscMatchingFiles(tsconfigPath);
-
-				const absoluteFilePath = path.join(fixture.path, filePath);
-				expect(tsFiles).toStrictEqual([absoluteFilePath]);
-
-				const matches = createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				});
-				expect(matches(absoluteFilePath)).toBe(true);
-
-				await fixture.rm();
-			});
-		});
-
 		describe('files', ({ test }) => {
 			test('disables default include', async () => {
 				const tsconfig: TsConfigJsonResolved = {
@@ -171,6 +114,91 @@ export default testSuite(({ describe, test }) => {
 
 				expect(matches(indexFile)).toBe(true);
 				expect(matches(path.join(fixture.path, 'no-match.ts'))).toBe(false);
+
+				await fixture.rm();
+			});
+
+			test('files outside of project', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					files: ['../index.ts'],
+				};
+
+				const fixture = await createFixture({
+					'project/tsconfig.json': tsconfigJsonString(tsconfig),
+					'index.ts': '',
+				});
+
+				const tsconfigPath = path.join(fixture.path, 'project/tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles).toStrictEqual([
+					path.join(fixture.path, 'index.ts'),
+				]);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				});
+
+				for (const filePath of tsFiles) {
+					expect(matches(filePath)).toBe(true);
+				}
+
+				await fixture.rm();
+			});
+
+			test('files takes precedence over extensions', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					files: ['some-dir/index.js'],
+				};
+
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'some-dir/index.js': '',
+				});
+
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles).toStrictEqual([
+					path.join(fixture.path, 'some-dir/index.js'),
+				]);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				});
+
+				for (const filePath of tsFiles) {
+					expect(matches(filePath)).toBe(true);
+				}
+
+				await fixture.rm();
+			});
+
+			test('files takes precedence over exclude', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					files: ['some-dir/index.ts'],
+					exclude: ['some-dir/index.ts'],
+				};
+
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'some-dir/index.ts': '',
+				});
+
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles).toStrictEqual([
+					path.join(fixture.path, 'some-dir/index.ts'),
+				]);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				});
+
+				for (const filePath of tsFiles) {
+					expect(matches(filePath)).toBe(true);
+				}
 
 				await fixture.rm();
 			});
@@ -1150,7 +1178,7 @@ export default testSuite(({ describe, test }) => {
 				await fixture.rm();
 			});
 
-			test('shouldnt match .js even if explicitly in "files"', async () => {
+			test('matches .js if explicitly in "files"', async () => {
 				const filePath = 'file.js';
 				const tsconfig: TsConfigJsonResolved = {
 					files: [filePath],
@@ -1171,7 +1199,7 @@ export default testSuite(({ describe, test }) => {
 					config: tsconfig,
 					path: tsconfigPath,
 				});
-				expect(matches(path.join(fixture.path, filePath))).toBe(false);
+				expect(matches(path.join(fixture.path, filePath))).toBe(true);
 
 				await fixture.rm();
 			});
