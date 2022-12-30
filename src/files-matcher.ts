@@ -56,14 +56,14 @@ const dependencyDirectories = ['node_modules', 'bower_components', 'jspm_package
 const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})(/|$))`;
 
 /**
- * 
+ *
  * File matchers
  * replace *, ?, and ** / with regex
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8088
- * 
+ *
  * getSubPatternFromSpec
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8165
- * 
+ *
  * matchFiles
  * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8291
  *
@@ -72,8 +72,8 @@ const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})
  */
 
 /**
- * An "includes" path "foo" is implicitly a glob "foo/** /*" (without the space) if its last component has no extension,
- * and does not contain any glob characters itself.
+ * An "includes" path "foo" is implicitly a glob "foo/** /*" (without the space)
+ * if its last component has no extension, and does not contain any glob characters itself.
  */
 const isImplicitGlobPattern = /^[^.*?]+$/;
 
@@ -123,48 +123,48 @@ export const createFilesMatcher = (
 	const includeSpec = !(files || include) ? [matchAllGlob] : include;
 	const includePatterns = includeSpec
 		? includeSpec.map((filePath) => {
-				let projectFilePath = filePath;
+			let projectFilePath = filePath;
 
-				// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
-				if (isImplicitGlobPattern.test(projectFilePath)) {
-					projectFilePath += `/${matchAllGlob}`;
-				}
+			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
+			if (isImplicitGlobPattern.test(projectFilePath)) {
+				projectFilePath += `/${matchAllGlob}`;
+			}
 
-				const projectFilePathPattern = escapeForRegexp(projectFilePath)
+			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
-					// Replace /**
-					.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
+			// Replace /**
+				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}[^/.][^/]*)*?`)
 
-					// Replace *
-					.replace(/(\/)?\\\*/g, (_, hasSlash) => {
-						const pattern = '([^./]|(\\.(?!min\\.js$))?)*';
+			// Replace *
+				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
+					const pattern = '([^./]|(\\.(?!min\\.js$))?)*';
 
-						if (hasSlash) {
-							return `/${implicitExcludePathRegexPattern}[^./]${pattern}`;
-						}
+					if (hasSlash) {
+						return `/${implicitExcludePathRegexPattern}[^./]${pattern}`;
+					}
 
-						return pattern;
-					})
+					return pattern;
+				})
 
-					// Replace ?
-					.replace(/(\/)?\\\?/g, (_, hasSlash) => {
-						const pattern = '[^/]';
-						if (hasSlash) {
-							return `/${implicitExcludePathRegexPattern}${pattern}`;
-						}
+			// Replace ?
+				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
+					const pattern = '[^/]';
+					if (hasSlash) {
+						return `/${implicitExcludePathRegexPattern}${pattern}`;
+					}
 
-						return pattern;
-					});
+					return pattern;
+				});
 
-				const startsWithGlob = /^[?*]/.test(projectFilePath);
+			const startsWithGlob = /^[?*]/.test(projectFilePath);
 
-				const pattern = new RegExp(
+			const pattern = new RegExp(
 					`^${escapeForRegexp(projectDirectory)}${startsWithGlob ? '' : '/'}${projectFilePathPattern}$`,
 					regexpFlags,
-				);
+			);
 
-				return pattern;
-			})
+			return pattern;
+		})
 		: undefined;
 
 	return (
