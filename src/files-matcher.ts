@@ -174,7 +174,7 @@ export const createFilesMatcher = (
 	return (
 		filePath: string,
 	): boolean => {
-		if (!filePath.startsWith('/')) {
+		if (!path.isAbsolute(filePath)) {
 			throw new Error('filePath must be absolute');
 		}
 
