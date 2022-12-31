@@ -183,7 +183,7 @@ export const createFilesMatcher = (
 		}
 
 		if (
-			// Invalid extension
+			// Invalid extension (case sensitive)
 			!extensions.some(extension => filePath.endsWith(extension))
 
 			// Matches exclude
