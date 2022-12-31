@@ -183,11 +183,8 @@ export const createFilesMatcher = (
 		}
 
 		if (
-			// Outside of project
-			!filePath.startsWith(projectDirectory)
-
 			// Invalid extension
-			|| !extensions.some(extension => filePath.endsWith(extension))
+			!extensions.some(extension => filePath.endsWith(extension))
 
 			// Matches exclude
 			|| excludePatterns.some(pattern => pattern.test(filePath))

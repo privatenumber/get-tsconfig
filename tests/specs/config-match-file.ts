@@ -545,28 +545,15 @@ export default testSuite(({ describe }) => {
 
 			describe('case sensitivity', ({ test }) => {
 				test('case insensitive', async () => {
-					const tsconfig: TsConfigJsonResolved = {
-						include: ['SOME-DIR'],
-					};
-
-					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
-						'some-dir/index.ts': '',
-					});
-
-					const filePath = path.join(fixture.path, 'some-dir/index.ts');
-
-					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
-					const tsFiles = getTscMatchingFiles(tsconfigPath);
-					expect(tsFiles).toStrictEqual([filePath]);
-
+					const projectDirectory = '/project-root';
 					const matches = createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
+						config: {
+							include: ['SOME-DIR'],
+						},
+						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
-					expect(matches(filePath)).toBe(true);
-
-					await fixture.rm();
+					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
+					expect(matches(path.join(projectDirectory, 'SOME-DIR/INDEX.ts'))).toBe(true);
 				});
 
 				test('case sensitive', async () => {
@@ -581,8 +568,8 @@ export default testSuite(({ describe }) => {
 						true,
 					);
 
-					expect(matches(path.join(projectDirectory, 'SOME-DIR/file.ts'))).toBe(true);
-					expect(matches(path.join(projectDirectory, 'some-dir/file.ts'))).toBe(false);
+					expect(matches(path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(true);
+					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
 				});
 			});
 
@@ -944,28 +931,15 @@ export default testSuite(({ describe }) => {
 
 			describe('case sensitivity', ({ test }) => {
 				test('case insensitive', async () => {
-					const tsconfig: TsConfigJsonResolved = {
-						exclude: ['SOME-DIR'],
-					};
-
-					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
-						'some-dir/index.ts': '',
-					});
-
-					const filePath = path.join(fixture.path, 'some-dir/index.ts');
-
-					const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
-					const tsFiles = getTscMatchingFiles(tsconfigPath);
-					expect(tsFiles.length).toBe(0);
-
+					const projectDirectory = '/project-root';
 					const matches = createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
+						config: {
+							exclude: ['SOME-DIR'],
+						},
+						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
-					expect(matches(filePath)).toBe(false);
-
-					await fixture.rm();
+					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
+					expect(matches(path.join(projectDirectory, 'SOME-DIR/INDEX.ts'))).toBe(false);
 				});
 
 				test('case sensitive', async () => {
@@ -980,8 +954,8 @@ export default testSuite(({ describe }) => {
 						true,
 					);
 
-					expect(matches(path.join(projectDirectory, 'SOME-DIR/file.ts'))).toBe(false);
-					expect(matches(path.join(projectDirectory, 'some-dir/file.ts'))).toBe(true);
+					expect(matches(path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(false);
+					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
 				});
 			});
 
