@@ -178,6 +178,11 @@ export const createFilesMatcher = (
 			throw new Error('filePath must be absolute');
 		}
 
+		console.log({
+			filePath,
+			includePatterns,
+		});
+
 		if (filesList?.includes(filePath)) {
 			return true;
 		}

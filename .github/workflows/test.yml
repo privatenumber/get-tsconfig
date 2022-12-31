@@ -31,15 +31,15 @@ jobs:
         version: 7
         run_install: true
 
-    - name: Type check
-      run: pnpm type-check
+    # - name: Type check
+    #   run: pnpm type-check
 
     - name: Test
       run: pnpm test
 
-    - name: Test Node.js v14
-      run: pnpm --use-node-version=14.21.2 test
+    # - name: Test Node.js v14
+    #   run: pnpm --use-node-version=14.21.2 test
 
-    - name: Lint
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 14 }}
-      run: pnpm lint
+    # - name: Lint
+    #   if: ${{ matrix.os == 'ubuntu-latest' && matrix.node-version == 14 }}
+    #   run: pnpm lint

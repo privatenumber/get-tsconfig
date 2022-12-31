@@ -85,5 +85,10 @@
 				}
 			}
 		]
+	},
+	"pnpm": {
+		"patchedDependencies": {
+			"typescript@4.9.4": "patches/typescript@4.9.4.patch"
+		}
 	}
 }
