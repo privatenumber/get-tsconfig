@@ -93,7 +93,7 @@ export default testSuite(({ describe }) => {
 				});
 				await fixture.writeFile('tsconfig.json', tsconfigJson({
 					extends: path.join(fixture.path, 'dep/tsconfig.json'),
-				}))
+				}));
 
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
