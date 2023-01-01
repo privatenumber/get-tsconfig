@@ -26,45 +26,52 @@ function resolveFromPackageJsonPath(packageJsonPath: string) {
 }
 
 export function resolveExtends(
-	filePath: string,
+	requestedPath: string,
 	directoryPath: string,
 ) {
-	let currentFilePath = filePath;
+	let attemptingPath = requestedPath;
 
-	if (currentFilePath === '..') {
-		currentFilePath += '/tsconfig.json';
-	}
+	const isRelative = requestedPath[0] === '.';
 
-	// Relative path
-	if (currentFilePath.startsWith('.')) {
-		let tsconfigPath = path.resolve(directoryPath, currentFilePath);
+	// Is file path
+	if (
+		isRelative
+		|| path.isAbsolute(requestedPath)
+	) {
+		if (isRelative) {
+			if (attemptingPath === '..') {
+				attemptingPath += '/tsconfig.json';
+			}
 
-		if (
-			existsSync(tsconfigPath)
-			&& fs.statSync(tsconfigPath).isFile()
-		) {
-			return tsconfigPath;
+			attemptingPath = path.resolve(directoryPath, attemptingPath);
 		}
 
-		if (!tsconfigPath.endsWith('.json')) {
-			tsconfigPath += '.json';
+		if (
+			existsSync(attemptingPath)
+			&& fs.statSync(attemptingPath).isFile()
+		) {
+			return attemptingPath;
+		}
 
-			if (existsSync(tsconfigPath)) {
-				return tsconfigPath;
+		if (!attemptingPath.endsWith('.json')) {
+			attemptingPath += '.json';
+
+			if (existsSync(attemptingPath)) {
+				return attemptingPath;
 			}
 		}
 
-		throw new Error(`File '${filePath}' not found.`);
+		throw new Error(`File '${requestedPath}' not found.`);
 	}
 
 	const pnpApi = getPnpApi();
 	if (pnpApi) {
 		const { resolveRequest: resolveWithPnp } = pnpApi;
-		const [first, second] = filePath.split('/');
+		const [first, second] = requestedPath.split('/');
 		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
 
 		try {
-			if (packageName === filePath) {
+			if (packageName === requestedPath) {
 				const packageJsonPath = resolveWithPnp(
 					path.join(packageName, 'package.json'),
 					directoryPath,
@@ -81,13 +88,13 @@ export function resolveExtends(
 				let resolved: string | null;
 				try {
 					resolved = resolveWithPnp(
-						filePath,
+						requestedPath,
 						directoryPath,
 						{ extensions: ['.json'] },
 					);
 				} catch {
 					resolved = resolveWithPnp(
-						path.join(filePath, 'tsconfig.json'),
+						path.join(requestedPath, 'tsconfig.json'),
 						directoryPath,
 					);
 				}
@@ -101,7 +108,7 @@ export function resolveExtends(
 
 	let packagePath = findUp(
 		directoryPath,
-		path.join('node_modules', currentFilePath),
+		path.join('node_modules', attemptingPath),
 	);
 
 	if (packagePath) {
@@ -122,12 +129,12 @@ export function resolveExtends(
 		}
 	}
 
-	if (!currentFilePath.endsWith('.json')) {
-		currentFilePath += '.json';
+	if (!attemptingPath.endsWith('.json')) {
+		attemptingPath += '.json';
 
 		packagePath = findUp(
 			directoryPath,
-			path.join('node_modules', currentFilePath),
+			path.join('node_modules', attemptingPath),
 		);
 
 		if (packagePath) {
@@ -135,5 +142,5 @@ export function resolveExtends(
 		}
 	}
 
-	throw new Error(`File '${filePath}' not found.`);
+	throw new Error(`File '${requestedPath}' not found.`);
 }
