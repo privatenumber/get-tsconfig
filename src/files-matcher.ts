@@ -88,6 +88,10 @@ export const createFilesMatcher = (
 	useCaseSensitiveFileNames = false,
 ) => {
 	const projectDirectory = path.dirname(tsconfigPath);
+	console.log({
+		tsconfigPath,
+		projectDirectory,
+	});
 	const {
 		files, include, exclude, compilerOptions,
 	} = config;
