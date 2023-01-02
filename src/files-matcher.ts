@@ -1,7 +1,9 @@
-import { posix as path } from 'path';
+import path from 'path';
 import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
 import type { TsConfigResult } from './types.js';
+
+const { join: pathJoin } = path.posix;
 
 const baseExtensions = {
 	ts: ['.ts', '.tsx', '.d.ts'],
@@ -99,7 +101,7 @@ export const createFilesMatcher = (
 		files, include, exclude, compilerOptions,
 	} = config;
 
-	const filesList = files?.map(file => path.join(projectDirectory, file));
+	const filesList = files?.map(file => pathJoin(projectDirectory, file));
 
 	const extensions = getSupportedExtensions(compilerOptions);
 
@@ -112,7 +114,7 @@ export const createFilesMatcher = (
 	const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
 	const excludePatterns = excludeSpec
 		.map((filePath) => {
-			const projectFilePath = path.join(projectDirectory, filePath);
+			const projectFilePath = pathJoin(projectDirectory, filePath);
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace **/
