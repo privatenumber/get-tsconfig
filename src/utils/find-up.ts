@@ -1,15 +1,14 @@
 import path from 'path';
 import fs from 'fs';
-import slash from 'slash';
 
 export function findUp(
 	searchPath: string,
 	fileName: string,
 ) {
 	while (true) {
-		const configPath = path.join(searchPath, fileName);
+		const configPath = path.posix.join(searchPath, fileName);
 		if (fs.existsSync(configPath)) {
-			return slash(configPath);
+			return configPath;
 		}
 
 		const parentPath = path.dirname(searchPath);
