@@ -6,7 +6,7 @@ export function findUp(
 	fileName: string,
 ) {
 	while (true) {
-		const configPath = path.posix.join(searchPath, fileName);
+		const configPath = path.join(searchPath, fileName);
 		if (fs.existsSync(configPath)) {
 			return configPath;
 		}
