@@ -1,7 +1,6 @@
 import path from 'path';
 import { expect, testSuite } from 'manten';
 import { createFixture } from 'fs-fixture';
-import slash from 'slash';
 import typescript from 'typescript';
 import { tsconfigJsonString } from '../utils.js';
 import { createFilesMatcher, type TsConfigJsonResolved } from '#get-tsconfig';
@@ -59,7 +58,7 @@ export default testSuite(({ describe, test }) => {
 			'dir-a/index.ts': '',
 		});
 
-		const tsconfigPath = slash(path.join(fixture.path, 'tsconfig.json'));
+		const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 		const tsFiles = getTscMatchingFiles(tsconfigPath);
 
 		const matches = createFilesMatcher({

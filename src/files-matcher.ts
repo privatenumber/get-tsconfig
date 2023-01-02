@@ -1,4 +1,5 @@
-import path from 'path';
+import { posix as path } from 'path';
+import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
 import type { TsConfigResult } from './types.js';
 
@@ -87,6 +88,8 @@ export const createFilesMatcher = (
 	{ config, path: tsconfigPath }: TsConfigResult,
 	useCaseSensitiveFileNames = false,
 ) => {
+	tsconfigPath = slash(tsconfigPath);
+
 	const projectDirectory = path.dirname(tsconfigPath);
 	console.log({
 		tsconfigPath,
