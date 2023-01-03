@@ -729,11 +729,11 @@ export default testSuite(({ describe, test }) => {
 					[filePath]: '',
 				});
 
-				const filePathAbsolute = path.join(fixture.path, filePath);
+				const filePathAbsolute = slash(path.join(fixture.path, filePath));
 
 				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
-				expect(tsFiles).toStrictEqual([slash(filePathAbsolute)]);
+				expect(tsFiles).toStrictEqual([filePathAbsolute]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
@@ -758,11 +758,11 @@ export default testSuite(({ describe, test }) => {
 					[filePath]: '',
 				});
 
-				const filePathAbsolute = path.join(fixture.path, filePath);
+				const filePathAbsolute = slash(path.join(fixture.path, filePath));
 
 				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
-				expect(tsFiles).toStrictEqual([slash(filePathAbsolute)]);
+				expect(tsFiles).toStrictEqual([filePathAbsolute]);
 
 				const matches = createFilesMatcher({
 					config: tsconfig,
