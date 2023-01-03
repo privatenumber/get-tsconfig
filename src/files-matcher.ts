@@ -3,6 +3,8 @@ import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
 import type { TsConfigResult } from './types.js';
 
+export type FileMatcher = (filePath: string) => boolean;
+
 const { join: pathJoin } = path.posix;
 
 const baseExtensions = {
@@ -89,7 +91,7 @@ const noPeriodOrSlash = '[^./]';
 export const createFilesMatcher = (
 	{ config, path: tsconfigPath }: TsConfigResult,
 	useCaseSensitiveFileNames = false,
-) => {
+): FileMatcher => {
 	tsconfigPath = slash(tsconfigPath);
 
 	const projectDirectory = path.dirname(tsconfigPath);
