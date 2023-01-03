@@ -93,10 +93,6 @@ export const createFilesMatcher = (
 	tsconfigPath = slash(tsconfigPath);
 
 	const projectDirectory = path.dirname(tsconfigPath);
-	console.log({
-		tsconfigPath,
-		projectDirectory,
-	});
 	const {
 		files, include, exclude, compilerOptions,
 	} = config;
@@ -186,11 +182,6 @@ export const createFilesMatcher = (
 		if (!path.isAbsolute(filePath)) {
 			throw new Error('filePath must be absolute');
 		}
-
-		console.log({
-			filePath,
-			includePatterns,
-		});
 
 		if (filesList?.includes(filePath)) {
 			return true;
