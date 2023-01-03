@@ -302,7 +302,9 @@ export default testSuite(({ describe, test }) => {
 					path: tsconfigPath,
 				});
 
-				expect(matches(path.join(fixture.path, 'dir-abc/ts.ts'))).toBe(false);
+				expect(matches(
+					slash(path.join(fixture.path, 'dir-abc/ts.ts')),
+				)).toBe(false);
 
 				await fixture.rm();
 			});
@@ -327,7 +329,9 @@ export default testSuite(({ describe, test }) => {
 						config: tsconfig,
 						path: tsconfigPath,
 					});
-					expect(matches(path.join(fixture.path, directoryName, '.index.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(fixture.path, directoryName, '.index.ts')),
+					)).toBe(false);
 
 					await fixture.rm();
 				});
@@ -349,7 +353,9 @@ export default testSuite(({ describe, test }) => {
 						config: tsconfig,
 						path: tsconfigPath,
 					});
-					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(fixture.path, directoryName, 'index.ts')),
+					)).toBe(false);
 
 					await fixture.rm();
 				});
@@ -374,7 +380,9 @@ export default testSuite(({ describe, test }) => {
 						config: tsconfig,
 						path: tsconfigPath,
 					});
-					expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(fixture.path, directoryName, 'index.ts')),
+					)).toBe(false);
 
 					await fixture.rm();
 				});
@@ -485,7 +493,9 @@ export default testSuite(({ describe, test }) => {
 							config: tsconfig,
 							path: tsconfigPath,
 						});
-						expect(matches(path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
+						expect(matches(
+							slash(path.join(fixture.path, directoryName, 'index.ts')),
+						)).toBe(false);
 
 						await fixture.rm();
 					});
@@ -553,8 +563,12 @@ export default testSuite(({ describe, test }) => {
 						},
 						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
-					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
-					expect(matches(path.join(projectDirectory, 'SOME-DIR/INDEX.ts'))).toBe(true);
+					expect(matches(
+						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+					)).toBe(true);
+					expect(matches(
+						slash(path.join(projectDirectory, 'SOME-DIR/INDEX.ts')),
+					)).toBe(true);
 				});
 
 				test('case sensitive', async () => {
@@ -569,8 +583,12 @@ export default testSuite(({ describe, test }) => {
 						true,
 					);
 
-					expect(matches(path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(true);
-					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(projectDirectory, 'SOME-DIR/index.ts')),
+					)).toBe(true);
+					expect(matches(
+						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+					)).toBe(false);
 				});
 			});
 
@@ -606,7 +624,9 @@ export default testSuite(({ describe, test }) => {
 					for (const file of tsFiles) {
 						expect(matches(file)).toBe(true);
 					}
-					expect(matches(path.join(fixture.path, 'some-dir/nested-dir/d.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(fixture.path, 'some-dir/nested-dir/d.ts')),
+					)).toBe(false);
 
 					await fixture.rm();
 				});
@@ -646,7 +666,9 @@ export default testSuite(({ describe, test }) => {
 					for (const file of tsFiles) {
 						expect(matches(file)).toBe(true);
 					}
-					expect(matches(path.join(fixture.path, 'some-dir/nested-dir/d.ts'))).toBe(false);
+					expect(matches(
+						slash(path.join(fixture.path, 'some-dir/nested-dir/d.ts')),
+					)).toBe(false);
 
 					await fixture.rm();
 				});
@@ -768,7 +790,9 @@ export default testSuite(({ describe, test }) => {
 					path: tsconfigPath,
 				});
 
-				expect(matches(path.join(fixture.path, filePath))).toBe(false);
+				expect(matches(
+					slash(path.join(fixture.path, filePath)),
+				)).toBe(false);
 
 				await fixture.rm();
 			});
@@ -796,7 +820,9 @@ export default testSuite(({ describe, test }) => {
 					path: tsconfigPath,
 				});
 
-				expect(matches(path.join(fixture.path, filePath))).toBe(false);
+				expect(matches(
+					slash(path.join(fixture.path, filePath)),
+				)).toBe(false);
 
 				await fixture.rm();
 			});
@@ -925,7 +951,9 @@ export default testSuite(({ describe, test }) => {
 					path: tsconfigPath,
 				});
 
-				expect(matches(path.join(fixture.path, 'dir-prefixabc/ts.ts'))).toBe(true);
+				expect(matches(
+					slash(path.join(fixture.path, 'dir-prefixabc/ts.ts')),
+				)).toBe(true);
 
 				await fixture.rm();
 			});
@@ -955,8 +983,12 @@ export default testSuite(({ describe, test }) => {
 						true,
 					);
 
-					expect(matches(path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(false);
-					expect(matches(path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
+					expect(matches(
+						slash(path.join(projectDirectory, 'SOME-DIR/index.ts')),
+					)).toBe(false);
+					expect(matches(
+						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+					)).toBe(true);
 				});
 			});
 
