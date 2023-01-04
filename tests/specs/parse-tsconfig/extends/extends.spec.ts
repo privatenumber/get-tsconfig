@@ -83,7 +83,7 @@ export default testSuite(({ describe }) => {
 
 			test('absolute path', async () => {
 				const fixture = await createFixture({
-					'dep/tsconfig.json': tsconfigJson({
+					'dep/tsconfig.json': tsconfigJsonString({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react',
@@ -91,7 +91,7 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-				await fixture.writeFile('tsconfig.json', tsconfigJson({
+				await fixture.writeFile('tsconfig.json', tsconfigJsonString({
 					extends: path.join(fixture.path, 'dep/tsconfig.json'),
 				}));
 
@@ -106,7 +106,7 @@ export default testSuite(({ describe }) => {
 
 			test('absolute path without extension', async () => {
 				const fixture = await createFixture({
-					'dep/tsconfig.json': tsconfigJson({
+					'dep/tsconfig.json': tsconfigJsonString({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react',
@@ -114,7 +114,7 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-				await fixture.writeFile('tsconfig.json', tsconfigJson({
+				await fixture.writeFile('tsconfig.json', tsconfigJsonString({
 					extends: path.join(fixture.path, 'dep/tsconfig'),
 				}));
 
