@@ -89,7 +89,10 @@ const anyCharacter = '[^/]';
 const noPeriodOrSlash = '[^./]';
 
 export const createFilesMatcher = (
-	{ config, path: tsconfigPath }: TsConfigResult,
+	{
+		config,
+		path: tsconfigPath,
+	}: TsConfigResult,
 	useCaseSensitiveFileNames = false,
 ): FileMatcher => {
 	tsconfigPath = slash(tsconfigPath);
@@ -169,18 +172,16 @@ export const createFilesMatcher = (
 
 			const startsWithGlob = /^[?*]/.test(projectFilePath);
 
-			const pattern = new RegExp(
-					`^${escapeForRegexp(projectDirectory)}${startsWithGlob ? '' : '/'}${projectFilePathPattern}$`,
-					regexpFlags,
+			return new RegExp(
+				`^${escapeForRegexp(projectDirectory)}${startsWithGlob ? '' : '/'}${projectFilePathPattern}$`,
+				regexpFlags,
 			);
-
-			return pattern;
 		})
 		: undefined;
 
 	return (
 		filePath: string,
-	): boolean => {
+	) => {
 		if (!path.isAbsolute(filePath)) {
 			throw new Error('filePath must be absolute');
 		}
