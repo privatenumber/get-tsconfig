@@ -97,6 +97,10 @@ export const createFilesMatcher = (
 ): FileMatcher => {
 	tsconfigPath = slash(tsconfigPath);
 
+	if ('extends' in config) {
+		throw new Error('"extends" must be pre-resolved. Use getTsconfig or parseTsconfig to resolve it.');
+	}
+
 	const projectDirectory = path.dirname(tsconfigPath);
 	const {
 		files, include, exclude, compilerOptions,

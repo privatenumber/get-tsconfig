@@ -6,6 +6,7 @@ import typescript from 'typescript';
 import { tsconfigJsonString } from '../utils.js';
 import {
 	createFilesMatcher,
+	parseTsconfig,
 	type TsConfigJsonResolved,
 	type FileMatcher,
 } from '#get-tsconfig';
@@ -1228,6 +1229,56 @@ export default testSuite(({ describe }) => {
 				expect(tsFiles).toStrictEqual([
 					slash(path.join(fixture.path, filePath)),
 				]);
+
+				assertFilesMatch(
+					createFilesMatcher({
+						config: tsconfig,
+						path: tsconfigPath,
+					}),
+					tsFiles,
+				);
+
+				await fixture.rm();
+			});
+		});
+
+		describe('extends', ({ test }) => {
+			test('must be resolved', async () => {
+				expect(
+					() => createFilesMatcher({
+						config: {
+							// @ts-expect-error extends must be pre-resolved
+							extends: '../tsconfig.json',
+						},
+						path: '',
+					}),
+				).toThrow('"extends" must be pre-resolved. Use getTsconfig or parseTsconfig to resolve it.');
+			});
+
+			test('should match', async () => {
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJsonString({
+						compilerOptions: {
+							allowJs: true,
+						},
+					}),
+					'a.js': '',
+					project: {
+						'tsconfig.json': tsconfigJsonString({
+							extends: '../tsconfig.json',
+						}),
+						'b.js': '',
+					},
+				});
+
+				const tsconfigPath = path.join(fixture.path, 'project/tsconfig.json');
+
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles).toStrictEqual([
+					slash(path.join(fixture.path, 'project/b.js')),
+				]);
+
+				const tsconfig = parseTsconfig(tsconfigPath);
 
 				assertFilesMatch(
 					createFilesMatcher({
