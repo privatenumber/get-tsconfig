@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { execa } from 'execa';
 import type { TsConfigJson } from 'type-fest';
 
-export const tsconfigJson = (
+export const tsconfigJsonString = (
 	tsconfig: TsConfigJson,
 ) => JSON.stringify(
 	tsconfig,
