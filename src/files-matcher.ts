@@ -141,7 +141,7 @@ export const createFilesMatcher = (
 	const includeSpec = !(files || include) ? [matchAllGlob] : include;
 	const includePatterns = includeSpec
 		? includeSpec.map((filePath) => {
-			let projectFilePath = filePath;
+			let projectFilePath = pathJoin(projectDirectory, filePath);
 
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
@@ -151,12 +151,11 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace /**
-				.replace(/(^|\/)\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
+				.replace(/\/\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
 
 				// Replace *
 				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
 					const pattern = `(${noPeriodOrSlash}|(\\.(?!min\\.js$))?)*`;
-
 					if (hasSlash) {
 						return `/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${pattern}`;
 					}
@@ -174,10 +173,8 @@ export const createFilesMatcher = (
 					return pattern;
 				});
 
-			const startsWithGlob = /^[?*]/.test(projectFilePath);
-
 			return new RegExp(
-				`^${escapeForRegexp(projectDirectory)}${startsWithGlob ? '' : '/'}${projectFilePathPattern}$`,
+				`^${projectFilePathPattern}$`,
 				regexpFlags,
 			);
 		})
