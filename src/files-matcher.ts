@@ -95,11 +95,15 @@ export const createFilesMatcher = (
 	}: TsConfigResult,
 	useCaseSensitiveFileNames = false,
 ): FileMatcher => {
-	tsconfigPath = slash(tsconfigPath);
-
 	if ('extends' in config) {
-		throw new Error('"extends" must be pre-resolved. Use getTsconfig or parseTsconfig to resolve it.');
+		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
 	}
+
+	if (!path.isAbsolute(tsconfigPath)) {
+		throw new Error('The tsconfig path must be absolute');
+	}
+
+	tsconfigPath = slash(tsconfigPath);
 
 	const projectDirectory = path.dirname(tsconfigPath);
 	const {

@@ -1310,7 +1310,7 @@ export default testSuite(({ describe }) => {
 						},
 						path: '',
 					}),
-				).toThrow('"extends" must be pre-resolved. Use getTsconfig or parseTsconfig to resolve it.');
+				).toThrow('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
 			});
 
 			test('should match', async () => {
