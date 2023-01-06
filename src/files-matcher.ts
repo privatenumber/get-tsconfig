@@ -1,9 +1,9 @@
 import path from 'path';
 import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
-import type { TsConfigResult } from './types.js';
+import type { TsConfigResult, TsConfigJsonResolved } from './types.js';
 
-export type FileMatcher = (filePath: string) => boolean;
+export type FileMatcher = (filePath: string) => (TsConfigJsonResolved | undefined);
 
 const { join: pathJoin } = path.posix;
 
@@ -188,7 +188,7 @@ export const createFilesMatcher = (
 		}
 
 		if (filesList?.includes(filePath)) {
-			return true;
+			return config;
 		}
 
 		if (
@@ -198,13 +198,14 @@ export const createFilesMatcher = (
 			// Matches exclude
 			|| excludePatterns.some(pattern => pattern.test(filePath))
 		) {
-			return false;
+			return;
 		}
 
-		if (includePatterns) {
-			return includePatterns.some(pattern => pattern.test(filePath));
+		if (
+			includePatterns
+			&& includePatterns.some(pattern => pattern.test(filePath))
+		) {
+			return config;
 		}
-
-		return false;
 	};
 };
