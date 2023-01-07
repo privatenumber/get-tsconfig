@@ -11,12 +11,18 @@ import {
 	type FileMatcher,
 } from '#get-tsconfig';
 
+const isWindows = process.platform === 'win32';
+
 function assertFilesMatch(
 	matcher: FileMatcher,
 	files: string[],
 ) {
 	for (const file of files) {
 		expect(matcher(file)).toBeTruthy();
+
+		if (isWindows) {
+			expect(matcher(file.replace(/\//g, '\\'))).toBeTruthy();
+		}
 	}
 }
 

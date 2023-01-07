@@ -88,6 +88,8 @@ const anyCharacter = '[^/]';
 
 const noPeriodOrSlash = '[^./]';
 
+const isWindows = process.platform === 'win32';
+
 export const createFilesMatcher = (
 	{
 		config,
@@ -103,7 +105,9 @@ export const createFilesMatcher = (
 		throw new Error('The tsconfig path must be absolute');
 	}
 
-	tsconfigPath = slash(tsconfigPath);
+	if (isWindows) {
+		tsconfigPath = slash(tsconfigPath);
+	}
 
 	const projectDirectory = path.dirname(tsconfigPath);
 	const {
@@ -189,6 +193,10 @@ export const createFilesMatcher = (
 	) => {
 		if (!path.isAbsolute(filePath)) {
 			throw new Error('filePath must be absolute');
+		}
+
+		if (isWindows) {
+			filePath = slash(filePath);
 		}
 
 		if (filesList?.includes(filePath)) {
