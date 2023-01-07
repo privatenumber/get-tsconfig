@@ -80,7 +80,7 @@ const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})
  * An "includes" path "foo" is implicitly a glob "foo/** /*" (without the space)
  * if its last component has no extension, and does not contain any glob characters itself.
  */
-const isImplicitGlobPattern = /^[^.*?]+$/;
+const isImplicitGlobPattern = /(?:^|\/)[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 

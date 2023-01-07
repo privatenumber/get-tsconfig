@@ -247,24 +247,27 @@ export default testSuite(({ describe }) => {
 			});
 
 			test('specific directories', async () => {
+				const periodInPath = 'period.in.path/directory';
 				const tsconfig: TsConfigJsonResolved = {
 					include: [
 						'directory',
 						'ends-with-slash/',
+						periodInPath,
 						'non-existent',
 					],
 				};
 
 				const fixture = await createFixture({
 					'tsconfig.json': tsconfigJsonString(tsconfig),
-					'directory': testFiles,
+					directory: testFiles,
 					'ends-with-slash': testFiles,
+					[periodInPath]: testFiles,
 					'no-match': testFiles,
 				});
 
 				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
-				expect(tsFiles.length).toBe(14);
+				expect(tsFiles.length).toBe(21);
 
 				assertFilesMatch(
 					createFilesMatcher({
