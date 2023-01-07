@@ -275,6 +275,33 @@ export default testSuite(({ describe }) => {
 				await fixture.rm();
 			});
 
+			test('directory ending in slash', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					include: [
+						'dir-a/',
+					],
+				};
+
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'dir-a': testFiles,
+				});
+
+				const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles.length).not.toBe(0);
+
+				assertFilesMatch(
+					createFilesMatcher({
+						config: tsconfig,
+						path: tsconfigPath,
+					}),
+					tsFiles,
+				);
+
+				await fixture.rm();
+			});
+
 			test('include matches nested directories', async () => {
 				const tsconfig: TsConfigJsonResolved = {
 					include: ['dir-a'],

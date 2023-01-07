@@ -153,7 +153,7 @@ export const createFilesMatcher = (
 
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
-				projectFilePath += `/${matchAllGlob}`;
+				projectFilePath = pathJoin(projectFilePath, matchAllGlob);
 			}
 
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
