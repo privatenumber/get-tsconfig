@@ -69,7 +69,7 @@ const getTscMatchingFiles = (
 };
 
 export default testSuite(({ describe }) => {
-	describe('match file', ({ test, describe }) => {
+	describe('createFilesMatcher', ({ test, describe }) => {
 		test('should throw on relative path', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 			const fixture = await createFixture({
