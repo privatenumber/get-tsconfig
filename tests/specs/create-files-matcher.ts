@@ -430,7 +430,7 @@ export default testSuite(({ describe }) => {
 						path: tsconfigPath,
 					});
 					expect(matches(
-						slash(path.join(fixture.path, directoryName, 'index.ts')),
+						path.join(fixture.path, directoryName, 'index.ts'),
 					)).toBe(undefined);
 
 					await fixture.rm();
