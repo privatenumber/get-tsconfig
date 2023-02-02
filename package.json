@@ -41,7 +41,7 @@
 		}
 	},
 	"scripts": {
-		"lint": "eslint .",
+		"lint": "eslint --cache .",
 		"build": "pkgroll --minify --target node12.20",
 		"test": "pnpm build && tsx tests",
 		"dev": "tsx watch --conditions=development tests",
