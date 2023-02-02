@@ -135,7 +135,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				assertFilesMatch(matches, tsFiles);
-				expect(matches(slash(path.join(fixture.path, 'no-match.ts')))).toBe(undefined);
+				expect(matches(path.join(fixture.path, 'no-match.ts'))).toBe(undefined);
 
 				await fixture.rm();
 			});
@@ -324,7 +324,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(matches(
-					slash(path.join(fixture.path, 'dir-abc/ts.ts')),
+					path.join(fixture.path, 'dir-abc/ts.ts'),
 				)).toBe(undefined);
 
 				await fixture.rm();
@@ -379,7 +379,7 @@ export default testSuite(({ describe }) => {
 						path: tsconfigPath,
 					});
 					expect(matches(
-						slash(path.join(fixture.path, directoryName, '.index.ts')),
+						path.join(fixture.path, directoryName, '.index.ts'),
 					)).toBe(undefined);
 
 					await fixture.rm();
@@ -403,7 +403,7 @@ export default testSuite(({ describe }) => {
 						path: tsconfigPath,
 					});
 					expect(matches(
-						slash(path.join(fixture.path, directoryName, 'index.ts')),
+						path.join(fixture.path, directoryName, 'index.ts'),
 					)).toBe(undefined);
 
 					await fixture.rm();
@@ -537,7 +537,7 @@ export default testSuite(({ describe }) => {
 							path: tsconfigPath,
 						});
 						expect(matches(
-							slash(path.join(fixture.path, directoryName, 'index.ts')),
+							path.join(fixture.path, directoryName, 'index.ts'),
 						)).toBe(undefined);
 
 						await fixture.rm();
@@ -603,10 +603,10 @@ export default testSuite(({ describe }) => {
 						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
 					expect(matches(
-						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBeTruthy();
 					expect(matches(
-						slash(path.join(projectDirectory, 'SOME-DIR/INDEX.ts')),
+						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
 					)).toBeTruthy();
 				});
 
@@ -623,10 +623,10 @@ export default testSuite(({ describe }) => {
 					);
 
 					expect(matches(
-						slash(path.join(projectDirectory, 'SOME-DIR/index.ts')),
+						path.join(projectDirectory, 'SOME-DIR/index.ts'),
 					)).toBeTruthy();
 					expect(matches(
-						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBe(undefined);
 				});
 			});
@@ -662,7 +662,7 @@ export default testSuite(({ describe }) => {
 
 					assertFilesMatch(matches, tsFiles);
 					expect(matches(
-						slash(path.join(fixture.path, 'some-dir/nested-dir/d.ts')),
+						path.join(fixture.path, 'some-dir/nested-dir/d.ts'),
 					)).toBe(undefined);
 
 					await fixture.rm();
@@ -731,7 +731,7 @@ export default testSuite(({ describe }) => {
 
 						assertFilesMatch(matches, tsFiles);
 						expect(matches(
-							slash(path.join(fixture.path, 'some-dir/nested-dir/d.ts')),
+							path.join(fixture.path, 'some-dir/nested-dir/d.ts'),
 						)).toBe(undefined);
 
 						await fixture.rm();
@@ -860,7 +860,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(matches(
-					slash(path.join(fixture.path, filePath)),
+					path.join(fixture.path, filePath),
 				)).toBe(undefined);
 
 				await fixture.rm();
@@ -890,7 +890,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(matches(
-					slash(path.join(fixture.path, filePath)),
+					path.join(fixture.path, filePath),
 				)).toBe(undefined);
 
 				await fixture.rm();
@@ -968,7 +968,7 @@ export default testSuite(({ describe }) => {
 					});
 
 					for (const filePath of directoryFileNames) {
-						const absoluteFilePath = slash(path.join(fixture.path, filePath));
+						const absoluteFilePath = path.join(fixture.path, filePath);
 						expect(matches(absoluteFilePath)).toBeTruthy();
 					}
 
@@ -997,7 +997,7 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(matches(
-					slash(path.join(fixture.path, 'some-dir/index.ts')),
+					path.join(fixture.path, 'some-dir/index.ts'),
 				)).toBe(undefined);
 
 				await fixture.rm();
@@ -1038,10 +1038,10 @@ export default testSuite(({ describe }) => {
 						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
 					expect(matches(
-						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBe(undefined);
 					expect(matches(
-						slash(path.join(projectDirectory, 'SOME-DIR/INDEX.ts')),
+						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
 					)).toBe(undefined);
 				});
 
@@ -1058,10 +1058,10 @@ export default testSuite(({ describe }) => {
 					);
 
 					expect(matches(
-						slash(path.join(projectDirectory, 'SOME-DIR/index.ts')),
+						path.join(projectDirectory, 'SOME-DIR/index.ts'),
 					)).toBe(undefined);
 					expect(matches(
-						slash(path.join(projectDirectory, 'some-dir/index.ts')),
+						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBeTruthy();
 				});
 			});
@@ -1099,10 +1099,10 @@ export default testSuite(({ describe }) => {
 					});
 
 					expect(matches(
-						slash(path.join(fixture.path, 'some-dir/a.ts')),
+						path.join(fixture.path, 'some-dir/a.ts'),
 					)).toBe(undefined);
 					expect(matches(
-						slash(path.join(fixture.path, 'some-dir/abc.ts')),
+						path.join(fixture.path, 'some-dir/abc.ts'),
 					)).toBe(undefined);
 
 					assertFilesMatch(matches, tsFiles);
@@ -1144,10 +1144,10 @@ export default testSuite(({ describe }) => {
 
 					assertFilesMatch(matches, tsFiles);
 					expect(matches(
-						slash(path.join(fixture.path, 'some-dir/abc.ts')),
+						path.join(fixture.path, 'some-dir/abc.ts'),
 					)).toBe(undefined);
 					expect(matches(
-						slash(path.join(fixture.path, 'some-dir/qwwweeerrrt.ts')),
+						path.join(fixture.path, 'some-dir/qwwweeerrrt.ts'),
 					)).toBe(undefined);
 
 					await fixture.rm();
@@ -1183,13 +1183,13 @@ export default testSuite(({ describe }) => {
 					});
 
 					expect(matches(
-						slash(path.join(fixture.path, files[0])),
+						path.join(fixture.path, files[0]),
 					)).toBeTruthy();
 					expect(matches(
-						slash(path.join(fixture.path, files[1])),
+						path.join(fixture.path, files[1]),
 					)).toBe(undefined);
 					expect(matches(
-						slash(path.join(fixture.path, files[2])),
+						path.join(fixture.path, files[2]),
 					)).toBe(undefined);
 
 					await fixture.rm();
@@ -1217,7 +1217,7 @@ export default testSuite(({ describe }) => {
 					path: tsconfigPath,
 				});
 				expect(matches(
-					slash(path.join(fixture.path, jsFilePath)),
+					path.join(fixture.path, jsFilePath),
 				)).toBe(undefined);
 
 				await fixture.rm();
@@ -1274,7 +1274,7 @@ export default testSuite(({ describe }) => {
 					path: tsconfigPath,
 				});
 				expect(matches(
-					slash(path.join(fixture.path, filePath)),
+					path.join(fixture.path, filePath),
 				)).toBe(undefined);
 
 				await fixture.rm();
