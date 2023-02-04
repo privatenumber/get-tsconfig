@@ -97,6 +97,39 @@ console.log(parseTsconfig('./path/to/tsconfig.custom.json'))
 
 ---
 
+### createFileMatcher(tsconfig: TsconfigResult, caseSensitivePaths?: boolean)
+
+Given a `tsconfig.json` file, it returns a file-matcher function that determines whether it should apply to a file path.
+
+For example, if it's called with a `tsconfig.json` file that has `include`/`exclude`/`files` defined, the file-matcher will return the config for files that match `include`/`files`, and return `undefined` for files that don't match or match `exclude`.
+
+By default, the file-matcher is case-insensitive. Pass in `true` to `caseSensitivePaths` to make it case-sensitive.
+
+Returns:
+```ts
+type FileMatcher = (filePath: string) => TsconfigResult['config'] | undefined
+```
+
+#### Example
+
+```ts
+const tsconfig = getTsconfig()
+const fileMatcher = tsconfig && createFileMatcher(tsconfig)
+
+/*
+ * Returns tsconfig.json if it matches the file,
+ * undefined if not
+ */
+const configForFile = fileMatcher?.('/path/to/file.ts')
+const distCode = compileTypescript({
+    code: sourceCode,
+    tsconfig: configForFile
+})
+```
+
+
+---
+
 ### createPathsMatcher(tsconfig: TsconfigResult)
 
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.

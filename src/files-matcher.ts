@@ -95,7 +95,7 @@ export const createFilesMatcher = (
 		config,
 		path: tsconfigPath,
 	}: TsConfigResult,
-	useCaseSensitiveFileNames = false,
+	caseSensitivePaths = false,
 ): FileMatcher => {
 	if ('extends' in config) {
 		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
@@ -113,12 +113,9 @@ export const createFilesMatcher = (
 	const {
 		files, include, exclude, compilerOptions,
 	} = config;
-
 	const filesList = files?.map(file => pathJoin(projectDirectory, file));
-
 	const extensions = getSupportedExtensions(compilerOptions);
-
-	const regexpFlags = useCaseSensitiveFileNames ? '' : 'i';
+	const regexpFlags = caseSensitivePaths ? '' : 'i';
 
 	/**
 	 * Match entire directory for `exclude`
