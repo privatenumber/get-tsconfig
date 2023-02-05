@@ -8,6 +8,7 @@ specifiers:
   eslint: ^8.30.0
   execa: ^6.1.0
   fs-fixture: ^1.2.0
+  is-fs-case-sensitive: github:privatenumber/is-fs-case-sensitive#npm/develop
   jsonc-parser: ^3.2.0
   manten: ^0.6.0
   pkgroll: ^1.8.0
@@ -24,6 +25,7 @@ devDependencies:
   eslint: 8.30.0
   execa: 6.1.0
   fs-fixture: 1.2.0
+  is-fs-case-sensitive: github.com/privatenumber/is-fs-case-sensitive/f2d483d9106c3c0b8bacc710e72f19260789356c
   jsonc-parser: 3.2.0
   manten: 0.6.0
   pkgroll: 1.8.0_typescript@4.9.4
@@ -3146,4 +3148,10 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: true
+
+  github.com/privatenumber/is-fs-case-sensitive/f2d483d9106c3c0b8bacc710e72f19260789356c:
+    resolution: {commit: f2d483d9106c3c0b8bacc710e72f19260789356c, repo: git+ssh://git@github.com/privatenumber/is-fs-case-sensitive.git, type: git}
+    name: is-fs-case-sensitive
+    version: 0.0.0-semantic-release
     dev: true

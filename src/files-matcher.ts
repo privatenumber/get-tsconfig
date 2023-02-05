@@ -1,6 +1,7 @@
 import path from 'path';
 import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
+import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import type { TsConfigResult, TsConfigJsonResolved } from './types.js';
 
 export type FileMatcher = (filePath: string) => (TsConfigJsonResolved | undefined);
@@ -95,7 +96,7 @@ export const createFilesMatcher = (
 		config,
 		path: tsconfigPath,
 	}: TsConfigResult,
-	caseSensitivePaths = false,
+	caseSensitivePaths = isFsCaseSensitive(),
 ): FileMatcher => {
 	if ('extends' in config) {
 		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
