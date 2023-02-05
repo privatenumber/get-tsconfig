@@ -3,6 +3,7 @@ import { expect, testSuite } from 'manten';
 import slash from 'slash';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
+import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import { tsconfigJsonString } from '../utils.js';
 import {
 	createFilesMatcher,
@@ -10,6 +11,8 @@ import {
 	type TsConfigJsonResolved,
 	type FileMatcher,
 } from '#get-tsconfig';
+
+const fsCaseSensitive = isFsCaseSensitive();
 
 const isWindows = process.platform === 'win32';
 
@@ -594,7 +597,7 @@ export default testSuite(({ describe }) => {
 			}
 
 			describe('case sensitivity', ({ test }) => {
-				test('case insensitive', async () => {
+				test('default', async () => {
 					const projectDirectory = '/project-root';
 					const matches = createFilesMatcher({
 						config: {
@@ -602,12 +605,20 @@ export default testSuite(({ describe }) => {
 						},
 						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
+
 					expect(matches(
 						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBeTruthy();
-					expect(matches(
-						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
-					)).toBeTruthy();
+
+					if (fsCaseSensitive) {
+						expect(matches(
+							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+						)).toBe(undefined);
+					} else {
+						expect(matches(
+							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+						)).toBeTruthy();
+					}
 				});
 
 				test('case sensitive', async () => {
@@ -1029,7 +1040,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			describe('case sensitivity', ({ test }) => {
-				test('case insensitive', async () => {
+				test('default', async () => {
 					const projectDirectory = '/project-root';
 					const matches = createFilesMatcher({
 						config: {
@@ -1040,9 +1051,16 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(projectDirectory, 'some-dir/index.ts'),
 					)).toBe(undefined);
-					expect(matches(
-						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
-					)).toBe(undefined);
+
+					if (fsCaseSensitive) {
+						expect(matches(
+							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+						)).toBeTruthy();
+					} else {
+						expect(matches(
+							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+						)).toBe(undefined);
+					}
 				});
 
 				test('case sensitive', async () => {
