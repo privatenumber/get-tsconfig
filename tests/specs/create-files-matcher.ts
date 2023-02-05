@@ -607,16 +607,16 @@ export default testSuite(({ describe }) => {
 					});
 
 					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
+						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
 					)).toBeTruthy();
 
 					if (fsCaseSensitive) {
 						expect(matches(
-							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+							path.join(projectDirectory, 'some-dir/index.ts'),
 						)).toBe(undefined);
 					} else {
 						expect(matches(
-							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+							path.join(projectDirectory, 'some-dir/index.ts'),
 						)).toBeTruthy();
 					}
 				});
@@ -1048,17 +1048,18 @@ export default testSuite(({ describe }) => {
 						},
 						path: path.join(projectDirectory, 'tsconfig.json'),
 					});
+
 					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
+						path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
 					)).toBe(undefined);
 
 					if (fsCaseSensitive) {
 						expect(matches(
-							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+							path.join(projectDirectory, 'some-dir/index.ts'),
 						)).toBeTruthy();
 					} else {
 						expect(matches(
-							path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
+							path.join(projectDirectory, 'some-dir/index.ts'),
 						)).toBe(undefined);
 					}
 				});
