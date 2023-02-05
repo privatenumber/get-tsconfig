@@ -56,7 +56,7 @@
 		"eslint": "^8.30.0",
 		"execa": "^6.1.0",
 		"fs-fixture": "^1.2.0",
-		"is-fs-case-sensitive": "github:privatenumber/is-fs-case-sensitive#npm/develop",
+		"is-fs-case-sensitive": "^1.0.0",
 		"jsonc-parser": "^3.2.0",
 		"manten": "^0.6.0",
 		"pkgroll": "^1.8.0",
