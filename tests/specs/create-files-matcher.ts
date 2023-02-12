@@ -72,45 +72,47 @@ const getTscMatchingFiles = (
 };
 
 export default testSuite(({ describe }) => {
-	describe('createFilesMatcher', ({ test, describe }) => {
-		test('should throw on relative path', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
-			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJsonString(tsconfig),
-				'index.ts': '',
+	describe('createFilesMatcher', ({ describe }) => {
+		describe('error handling', ({ test }) => {
+			test('should throw on relative path', async () => {
+				const tsconfig: TsConfigJsonResolved = {};
+				const fixture = await createFixture({
+					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'index.ts': '',
+				});
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: path.join(fixture.path, 'tsconfig.json'),
+				});
+
+				expect(() => matches('index.ts')).toThrow('Path must be absolute');
+
+				await fixture.rm();
 			});
 
-			const matches = createFilesMatcher({
-				config: tsconfig,
-				path: path.join(fixture.path, 'tsconfig.json'),
+			test('should not match path outside of directory', async () => {
+				const tsconfig: TsConfigJsonResolved = {};
+
+				const tsconfigSubpath = 'some-dir/tsconfig.json';
+				const fixture = await createFixture({
+					[tsconfigSubpath]: tsconfigJsonString(tsconfig),
+					'index.ts': '',
+				});
+
+				const tsconfigPath = path.join(fixture.path, tsconfigSubpath);
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles.length).toBe(0);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				});
+
+				expect(matches('/index.ts')).toBe(undefined);
+
+				await fixture.rm();
 			});
-
-			expect(() => matches('index.ts')).toThrow('Path must be absolute');
-
-			await fixture.rm();
-		});
-
-		test('should not match path outside of directory', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
-
-			const tsconfigSubpath = 'some-dir/tsconfig.json';
-			const fixture = await createFixture({
-				[tsconfigSubpath]: tsconfigJsonString(tsconfig),
-				'index.ts': '',
-			});
-
-			const tsconfigPath = path.join(fixture.path, tsconfigSubpath);
-			const tsFiles = getTscMatchingFiles(tsconfigPath);
-			expect(tsFiles.length).toBe(0);
-
-			const matches = createFilesMatcher({
-				config: tsconfig,
-				path: tsconfigPath,
-			});
-
-			expect(matches('/index.ts')).toBe(undefined);
-
-			await fixture.rm();
 		});
 
 		describe('files', ({ test }) => {
