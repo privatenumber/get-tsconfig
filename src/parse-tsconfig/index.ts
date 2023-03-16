@@ -4,7 +4,7 @@ import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { resolveExtends } from './resolve-extends.js';
+import { resolveExtendsPath } from './resolve-extends.js';
 
 export function parseTsconfig(
 	tsconfigPath: string,
@@ -23,62 +23,32 @@ export function parseTsconfig(
 	}
 
 	if (config.extends) {
-		const extendsPath = resolveExtends(
-			config.extends,
-			directoryPath,
+		const extendsPathList = Array.isArray(config.extends) ? config.extends : [config.extends];
+		const extendsConfigList = extendsPathList.map(
+			extendsPath => resolveExtends(extendsPath, directoryPath),
 		);
-
-		const extendsConfig = parseTsconfig(extendsPath);
-
-		delete extendsConfig.references;
-
-		if (extendsConfig.compilerOptions?.baseUrl) {
-			const { compilerOptions } = extendsConfig;
-
-			compilerOptions.baseUrl = path.relative(
-				directoryPath,
-				path.join(path.dirname(extendsPath), compilerOptions.baseUrl!),
-			) || './';
-		}
-
-		if (extendsConfig.files) {
-			extendsConfig.files = extendsConfig.files.map(
-				file => path.relative(
-					directoryPath,
-					path.join(path.dirname(extendsPath), file),
-				),
-			);
-		}
-
-		if (extendsConfig.include) {
-			extendsConfig.include = extendsConfig.include.map(
-				file => path.relative(
-					directoryPath,
-					path.join(path.dirname(extendsPath), file),
-				),
-			);
-		}
 
 		delete config.extends;
 
-		const merged = {
-			...extendsConfig,
-			...config,
+		for (const extendsConfig of extendsConfigList) {
+			const merged = {
+				...extendsConfig,
+				...config,
 
-			compilerOptions: {
-				...extendsConfig.compilerOptions,
-				...config.compilerOptions,
-			},
-		};
-
-		if (extendsConfig.watchOptions) {
-			merged.watchOptions = {
-				...extendsConfig.watchOptions,
-				...config.watchOptions,
+				compilerOptions: {
+					...extendsConfig.compilerOptions,
+					...config.compilerOptions,
+				},
 			};
-		}
 
-		config = merged;
+			if (extendsConfig.watchOptions) {
+				merged.watchOptions = {
+					...extendsConfig.watchOptions,
+					...config.watchOptions,
+				};
+			}
+			config = merged;
+		}
 	}
 
 	if (config.compilerOptions) {
@@ -119,4 +89,46 @@ export function parseTsconfig(
 	}
 
 	return config;
+}
+
+function resolveExtends(
+	extendsPath: string,
+	directoryPath: string,
+) {
+	const resolvedExtendsPath = resolveExtendsPath(
+		extendsPath,
+		directoryPath,
+	);
+
+	const extendsConfig = parseTsconfig(resolvedExtendsPath);
+
+	delete extendsConfig.references;
+
+	if (extendsConfig.compilerOptions?.baseUrl) {
+		const { compilerOptions } = extendsConfig;
+
+		compilerOptions.baseUrl = path.relative(
+			directoryPath,
+			path.join(path.dirname(resolvedExtendsPath), compilerOptions.baseUrl!),
+		) || './';
+	}
+
+	if (extendsConfig.files) {
+		extendsConfig.files = extendsConfig.files.map(
+			file => path.relative(
+				directoryPath,
+				path.join(path.dirname(resolvedExtendsPath), file),
+			),
+		);
+	}
+
+	if (extendsConfig.include) {
+		extendsConfig.include = extendsConfig.include.map(
+			file => path.relative(
+				directoryPath,
+				path.join(path.dirname(resolvedExtendsPath), file),
+			),
+		);
+	}
+	return extendsConfig;
 }
