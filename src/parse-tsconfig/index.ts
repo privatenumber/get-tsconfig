@@ -30,7 +30,7 @@ export function parseTsconfig(
 
 		delete config.extends;
 
-		for (const extendsConfig of extendsConfigList) {
+		for (const extendsConfig of extendsConfigList.reverse()) {
 			const merged = {
 				...extendsConfig,
 				...config,
