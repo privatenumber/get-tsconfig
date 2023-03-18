@@ -774,7 +774,7 @@ export default testSuite(({ describe }) => {
 			await fixture.rm();
 		});
 
-		test('multiple files', async () => {
+		test('extends array', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.a.json': tsconfigJsonString({
