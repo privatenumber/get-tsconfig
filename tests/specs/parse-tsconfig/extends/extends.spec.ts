@@ -773,5 +773,35 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
+
+		test('multiple files', async () => {
+			const fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.a.json': tsconfigJsonString({
+					compilerOptions: {
+						allowJs: true,
+						strict: true,
+						jsx: 'react',
+					},
+				}),
+				'tsconfig.b.json': tsconfigJsonString({
+					compilerOptions: {
+						jsx: 'react-jsx',
+					},
+				}),
+				'tsconfig.json': tsconfigJsonString({
+					extends: ['./tsconfig.a.json', './tsconfig.b.json'],
+					compilerOptions: {
+						allowJs: false,
+					},
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
 	});
 });
