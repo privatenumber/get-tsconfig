@@ -14,7 +14,7 @@ specifiers:
   pkgroll: ^1.8.0
   slash: ^5.0.0
   tsx: ^3.12.1
-  type-fest: ^3.7.0
+  type-fest: ^3.7.1
   typescript: ^5.0.2
 
 devDependencies:
@@ -31,7 +31,7 @@ devDependencies:
   pkgroll: 1.8.0_typescript@5.0.2
   slash: 5.0.0
   tsx: 3.12.1
-  type-fest: 3.7.0
+  type-fest: 3.7.1
   typescript: 5.0.2
 
 packages:
@@ -3052,8 +3052,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /type-fest/3.7.0:
-    resolution: {integrity: sha512-A2qUJ/j8vkKIT+UorxayZjFJoEdNkIPZkjOJSWezoAbRQd7QEhnz2iJlfVy4Or0GuEnCXts5cNorQNUvdLkaSQ==}
+  /type-fest/3.7.1:
+    resolution: {integrity: sha512-8LZNdvuztgxCF4eYpEmPYUPS0lbbByM2qHcp2oMxHZhWLIQB9QE36EeQ1PKwsUIDZXEP8HCBEmkBbT1//kLU4Q==}
     engines: {node: '>=14.16'}
     dev: true
 
