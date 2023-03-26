@@ -4,11 +4,53 @@ import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { resolveExtendsPath } from './resolve-extends.js';
+import { resolveExtendsPath } from './resolve-extends-path.js';
 
-export function parseTsconfig(
+const resolveExtends = (
+	extendsPath: string,
+	directoryPath: string,
+) => {
+	const resolvedExtendsPath = resolveExtendsPath(
+		extendsPath,
+		directoryPath,
+	);
+
+	const extendsConfig = parseTsconfig(resolvedExtendsPath);
+
+	delete extendsConfig.references;
+
+	if (extendsConfig.compilerOptions?.baseUrl) {
+		const { compilerOptions } = extendsConfig;
+
+		compilerOptions.baseUrl = path.relative(
+			directoryPath,
+			path.join(path.dirname(resolvedExtendsPath), compilerOptions.baseUrl!),
+		) || './';
+	}
+
+	if (extendsConfig.files) {
+		extendsConfig.files = extendsConfig.files.map(
+			file => path.relative(
+				directoryPath,
+				path.join(path.dirname(resolvedExtendsPath), file),
+			),
+		);
+	}
+
+	if (extendsConfig.include) {
+		extendsConfig.include = extendsConfig.include.map(
+			file => path.relative(
+				directoryPath,
+				path.join(path.dirname(resolvedExtendsPath), file),
+			),
+		);
+	}
+	return extendsConfig;
+};
+
+export const parseTsconfig = (
 	tsconfigPath: string,
-): TsConfigJsonResolved {
+): TsConfigJsonResolved => {
 	let realTsconfigPath: string;
 	try {
 		realTsconfigPath = fs.realpathSync(tsconfigPath);
@@ -23,14 +65,16 @@ export function parseTsconfig(
 	}
 
 	if (config.extends) {
-		const extendsPathList = Array.isArray(config.extends) ? config.extends : [config.extends];
-		const extendsConfigList = extendsPathList.map(
-			extendsPath => resolveExtends(extendsPath, directoryPath),
+		const extendsPathList = (
+			Array.isArray(config.extends)
+				? config.extends
+				: [config.extends]
 		);
 
 		delete config.extends;
 
-		for (const extendsConfig of extendsConfigList.reverse()) {
+		for (const extendsPath of extendsPathList.reverse()) {
+			const extendsConfig = resolveExtends(extendsPath, directoryPath);
 			const merged = {
 				...extendsConfig,
 				...config,
@@ -89,46 +133,4 @@ export function parseTsconfig(
 	}
 
 	return config;
-}
-
-function resolveExtends(
-	extendsPath: string,
-	directoryPath: string,
-) {
-	const resolvedExtendsPath = resolveExtendsPath(
-		extendsPath,
-		directoryPath,
-	);
-
-	const extendsConfig = parseTsconfig(resolvedExtendsPath);
-
-	delete extendsConfig.references;
-
-	if (extendsConfig.compilerOptions?.baseUrl) {
-		const { compilerOptions } = extendsConfig;
-
-		compilerOptions.baseUrl = path.relative(
-			directoryPath,
-			path.join(path.dirname(resolvedExtendsPath), compilerOptions.baseUrl!),
-		) || './';
-	}
-
-	if (extendsConfig.files) {
-		extendsConfig.files = extendsConfig.files.map(
-			file => path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
-			),
-		);
-	}
-
-	if (extendsConfig.include) {
-		extendsConfig.include = extendsConfig.include.map(
-			file => path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
-			),
-		);
-	}
-	return extendsConfig;
-}
+};

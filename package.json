@@ -62,7 +62,7 @@
 		"pkgroll": "^1.8.0",
 		"slash": "^5.0.0",
 		"tsx": "^3.12.1",
-		"type-fest": "^3.4.0",
+		"type-fest": "^3.7.0",
 		"typescript": "^5.0.2"
 	},
 	"eslintConfig": {

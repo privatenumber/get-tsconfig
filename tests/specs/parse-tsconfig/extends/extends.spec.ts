@@ -747,33 +747,6 @@ export default testSuite(({ describe }) => {
 			await fixture.rm();
 		});
 
-		test('watchOptions', async () => {
-			const fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.base.json': tsconfigJsonString({
-					watchOptions: {
-						synchronousWatchDirectory: true,
-						excludeDirectories: ['a', 'b'],
-					},
-				}),
-				'tsconfig.json': tsconfigJsonString({
-					extends: './tsconfig.base.json',
-					watchOptions: {
-						fallbackPolling: 'fixedinterval',
-						excludeDirectories: ['c'],
-					},
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
-		});
-
 		test('extends array', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
@@ -802,6 +775,33 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('watchOptions', async () => {
+			const fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.base.json': tsconfigJsonString({
+					watchOptions: {
+						synchronousWatchDirectory: true,
+						excludeDirectories: ['a', 'b'],
+					},
+				}),
+				'tsconfig.json': tsconfigJsonString({
+					extends: './tsconfig.base.json',
+					watchOptions: {
+						fallbackPolling: 'fixedinterval',
+						excludeDirectories: ['c'],
+					},
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
 		});
 	});
 });
