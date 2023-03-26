@@ -25,7 +25,7 @@ function resolveFromPackageJsonPath(packageJsonPath: string) {
 	);
 }
 
-export function resolveExtends(
+export function resolveExtendsPath(
 	requestedPath: string,
 	directoryPath: string,
 ) {

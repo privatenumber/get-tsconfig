@@ -76,7 +76,7 @@ export default testSuite(({ describe }) => {
 				'file.ts': '',
 				'tsconfig.json': tsconfigJsonString({
 					compilerOptions: {
-						moduleResolution: 'node',
+						moduleResolution: 'node10',
 						isolatedModules: true,
 						module: 'esnext',
 						esModuleInterop: true,
