@@ -17,29 +17,34 @@ const getPnpApi = () => {
 const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
+	ignoreExports?: boolean,
 ) => {
+	let resolvedPath = 'tsconfig.json';
+
 	const packageJson = readJsonc(packageJsonPath);
-	// let subpath = 'tsconfig.json';
-	let resolvedPath = '';
-	if (
-		packageJson // do we need this?
-		&& 'exports' in packageJson
-		&& packageJson.exports
-	) {
-		try {
-			const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
-			resolvedPath = resolvedExport;
-		} catch {
-			return;
+	if (packageJson) {
+		if (
+			!ignoreExports
+			&& packageJson.exports
+		) {
+			try {
+				const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
+				resolvedPath = resolvedExport;
+			} catch {
+				return;
+			}
+		} else if (
+			!subpath
+			&& packageJson.tsconfig
+		) {
+			resolvedPath = packageJson.tsconfig;
 		}
-	} else if (packageJson && ('tsconfig' in packageJson)) {
-		resolvedPath = packageJson.tsconfig;
 	}
 
 	return path.join(
 		packageJsonPath,
 		'..',
-		resolvedPath || 'tsconfig.json',
+		resolvedPath,
 	);
 };
 
@@ -47,29 +52,23 @@ export function resolveExtendsPath(
 	requestedPath: string,
 	directoryPath: string,
 ) {
-	let attemptingPath = requestedPath;
+	let filePath = requestedPath;
 
-	const isRelative = requestedPath[0] === '.';
+	if (requestedPath === '..') {
+		filePath += '/tsconfig.json';
+	}
 
-	// Is file path
-	if (
-		isRelative
-		|| path.isAbsolute(requestedPath)
-	) {
-		if (isRelative) {
-			if (attemptingPath === '..') {
-				attemptingPath += '/tsconfig.json';
+	if (requestedPath[0] === '.') {
+		filePath = path.resolve(directoryPath, filePath);
+	}
+
+	if (path.isAbsolute(filePath)) {
+		if (existsSync(filePath)) {
+			if (fs.statSync(filePath).isFile()) {
+				return filePath;
 			}
-
-			attemptingPath = path.resolve(directoryPath, attemptingPath);
-		}
-
-		if (existsSync(attemptingPath)) {
-			if (fs.statSync(attemptingPath).isFile()) {
-				return attemptingPath;
-			}
-		} else if (!attemptingPath.endsWith('.json')) {
-			const jsonPath = attemptingPath + '.json';
+		} else if (!filePath.endsWith('.json')) {
+			const jsonPath = filePath + '.json';
 
 			if (existsSync(jsonPath)) {
 				return jsonPath;
@@ -95,10 +94,10 @@ export function resolveExtendsPath(
 				);
 
 				if (packageJsonPath) {
-					const packagePath = resolveFromPackageJsonPath(packageJsonPath, subpath);
+					const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
 
-					if (packagePath && existsSync(packagePath)) {
-						return packagePath;
+					if (resolvedPath && existsSync(resolvedPath)) {
+						return resolvedPath;
 					}
 				}
 			} else {
@@ -135,38 +134,21 @@ export function resolveExtendsPath(
 	const packageJsonPath = path.join(packagePath, 'package.json');
 
 	if (existsSync(packageJsonPath)) {
-		const packageJson = readJsonc(packageJsonPath);
+		const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
 
-		if (packageJson) {
-			let resolvedPath = '';
-			if (
-				'exports' in packageJson
-				&& packageJson.exports
-			) {
-				try {
-					const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
-					resolvedPath = resolvedExport;
-				} catch {
-					throw new Error(`File '${requestedPath}' not found.`);
-				}
-			} else if ('tsconfig' in packageJson) {
-				resolvedPath = packageJson.tsconfig;
+		if (resolvedPath) {
+			if (existsSync(resolvedPath)) {
+				return resolvedPath;
 			}
-
-			const resolvedFromPackageJson = path.join(
-				packagePath,
-				resolvedPath || 'tsconfig.json',
-			);
-
-			if (existsSync(resolvedFromPackageJson)) {
-				return resolvedFromPackageJson;
-			}
+		} else {
+			throw new Error(`File '${requestedPath}' not found.`);
 		}
 	}
 
 	const fullPackagePath = path.join(packagePath, subpath);
+	const jsonExtension = fullPackagePath.endsWith('.json');
 
-	if (!fullPackagePath.endsWith('.json')) {
+	if (!jsonExtension) {
 		const fullPackagePathWithJson = `${fullPackagePath}.json`;
 
 		if (existsSync(fullPackagePathWithJson)) {
@@ -178,20 +160,9 @@ export function resolveExtendsPath(
 		if (fs.statSync(fullPackagePath).isDirectory()) {
 			const packageJsonPath = path.join(fullPackagePath, 'package.json');
 			if (existsSync(packageJsonPath)) {
-				const packageJson = readJsonc(packageJsonPath);
-				if (
-					packageJson
-					&& 'tsconfig' in packageJson
-				) {
-					const resolvedFromPackageJson = path.join(
-						packageJsonPath,
-						'..',
-						packageJson.tsconfig,
-					);
-
-					if (existsSync(resolvedFromPackageJson)) {
-						return resolvedFromPackageJson;
-					}
+				const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, '', true);
+				if (resolvedPath && existsSync(resolvedPath)) {
+					return resolvedPath;
 				}
 			}
 
@@ -199,7 +170,7 @@ export function resolveExtendsPath(
 			if (existsSync(tsconfigPath)) {
 				return tsconfigPath;
 			}
-		} else if (fullPackagePath.endsWith('.json')) {
+		} else if (jsonExtension) {
 			return fullPackagePath;
 		}
 	}

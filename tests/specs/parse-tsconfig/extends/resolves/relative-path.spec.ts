@@ -58,7 +58,6 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			console.log(111, expectedTsconfig);
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 

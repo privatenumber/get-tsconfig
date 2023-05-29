@@ -122,6 +122,31 @@ export default testSuite(({ describe }) => {
 
 				await fixture.rm();
 			});
+
+			test('ignores invalid package.json', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'package.json': 'invalid json',
+						'tsconfig.json': tsconfigJsonString({
+							compilerOptions: {
+								jsx: 'preserve',
+							},
+						}),
+					},
+					'tsconfig.json': tsconfigJsonString({
+						extends: 'dep',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
 		});
 
 		describe('dependency file', ({ test }) => {
