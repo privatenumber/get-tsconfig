@@ -15,8 +15,11 @@ const resolveExtends = (
 		directoryPath,
 	);
 
-	const extendsConfig = parseTsconfig(resolvedExtendsPath);
+	if (!resolvedExtendsPath) {
+		throw new Error(`File '${extendsPath}' not found.`);
+	}
 
+	const extendsConfig = parseTsconfig(resolvedExtendsPath);
 	delete extendsConfig.references;
 
 	if (extendsConfig.compilerOptions?.baseUrl) {

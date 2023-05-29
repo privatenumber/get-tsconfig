@@ -48,6 +48,9 @@
 		"type-check": "tsc --noEmit",
 		"prepack": "pnpm build && clean-pkg-json"
 	},
+	"dependencies": {
+		"resolve-pkg-maps": "^1.0.0"
+	},
 	"devDependencies": {
 		"@pvtnbr/eslint-config": "^0.33.0",
 		"@types/node": "^18.15.10",

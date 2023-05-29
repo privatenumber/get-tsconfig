@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import Module from 'module';
+import { resolveExports } from 'resolve-pkg-maps';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 
@@ -13,75 +14,92 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
-function resolveFromPackageJsonPath(packageJsonPath: string) {
+const resolveFromPackageJsonPath = (
+	packageJsonPath: string,
+	subpath: string,
+	ignoreExports?: boolean,
+) => {
+	let resolvedPath = 'tsconfig.json';
+
 	const packageJson = readJsonc(packageJsonPath);
+	if (packageJson) {
+		if (
+			!ignoreExports
+			&& packageJson.exports
+		) {
+			try {
+				const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
+				resolvedPath = resolvedExport;
+			} catch {
+				return;
+			}
+		} else if (
+			!subpath
+			&& packageJson.tsconfig
+		) {
+			resolvedPath = packageJson.tsconfig;
+		}
+	}
 
 	return path.join(
 		packageJsonPath,
 		'..',
-		(packageJson && 'tsconfig' in packageJson)
-			? packageJson.tsconfig
-			: 'tsconfig.json',
+		resolvedPath,
 	);
-}
+};
+
+const PACKAGE_JSON = 'package.json';
+const TS_CONFIG_JSON = 'tsconfig.json';
 
 export function resolveExtendsPath(
 	requestedPath: string,
 	directoryPath: string,
 ) {
-	let attemptingPath = requestedPath;
+	let filePath = requestedPath;
 
-	const isRelative = requestedPath[0] === '.';
-
-	// Is file path
-	if (
-		isRelative
-		|| path.isAbsolute(requestedPath)
-	) {
-		if (isRelative) {
-			if (attemptingPath === '..') {
-				attemptingPath += '/tsconfig.json';
-			}
-
-			attemptingPath = path.resolve(directoryPath, attemptingPath);
-		}
-
-		if (
-			existsSync(attemptingPath)
-			&& fs.statSync(attemptingPath).isFile()
-		) {
-			return attemptingPath;
-		}
-
-		if (!attemptingPath.endsWith('.json')) {
-			attemptingPath += '.json';
-
-			if (existsSync(attemptingPath)) {
-				return attemptingPath;
-			}
-		}
-
-		throw new Error(`File '${requestedPath}' not found.`);
+	if (requestedPath === '..') {
+		filePath = path.join(filePath, TS_CONFIG_JSON);
 	}
+
+	if (requestedPath[0] === '.') {
+		filePath = path.resolve(directoryPath, filePath);
+	}
+
+	if (path.isAbsolute(filePath)) {
+		if (existsSync(filePath)) {
+			if (fs.statSync(filePath).isFile()) {
+				return filePath;
+			}
+		} else if (!filePath.endsWith('.json')) {
+			const jsonPath = `${filePath}.json`;
+
+			if (existsSync(jsonPath)) {
+				return jsonPath;
+			}
+		}
+		return;
+	}
+
+	const [orgOrName, ...remaining] = requestedPath.split('/');
+	const packageName = orgOrName[0] === '@' ? `${orgOrName}/${remaining.shift()}` : orgOrName;
+	const subpath = remaining.join('/');
 
 	const pnpApi = getPnpApi();
 	if (pnpApi) {
 		const { resolveRequest: resolveWithPnp } = pnpApi;
-		const [first, second] = requestedPath.split('/');
-		const packageName = first.startsWith('@') ? `${first}/${second}` : first;
 
 		try {
 			if (packageName === requestedPath) {
 				const packageJsonPath = resolveWithPnp(
-					path.join(packageName, 'package.json'),
+					path.join(packageName, PACKAGE_JSON),
 					directoryPath,
 				);
 
 				if (packageJsonPath) {
-					const packagePath = resolveFromPackageJsonPath(packageJsonPath);
+					const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
 
-					if (existsSync(packagePath)) {
-						return packagePath;
+					if (resolvedPath && existsSync(resolvedPath)) {
+						return resolvedPath;
 					}
 				}
 			} else {
@@ -94,7 +112,7 @@ export function resolveExtendsPath(
 					);
 				} catch {
 					resolved = resolveWithPnp(
-						path.join(requestedPath, 'tsconfig.json'),
+						path.join(requestedPath, TS_CONFIG_JSON),
 						directoryPath,
 					);
 				}
@@ -106,41 +124,57 @@ export function resolveExtendsPath(
 		} catch {}
 	}
 
-	let packagePath = findUp(
+	const packagePath = findUp(
 		directoryPath,
-		path.join('node_modules', attemptingPath),
+		path.join('node_modules', packageName),
 	);
 
-	if (packagePath) {
-		if (fs.statSync(packagePath).isDirectory()) {
-			const packageJsonPath = path.join(packagePath, 'package.json');
+	if (!packagePath || !fs.statSync(packagePath).isDirectory()) {
+		return;
+	}
 
-			if (existsSync(packageJsonPath)) {
-				packagePath = resolveFromPackageJsonPath(packageJsonPath);
-			} else {
-				packagePath = path.join(packagePath, 'tsconfig.json');
-			}
+	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
+	if (existsSync(packageJsonPath)) {
+		const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
 
-			if (existsSync(packagePath)) {
-				return packagePath;
-			}
-		} else if (packagePath.endsWith('.json')) {
-			return packagePath;
+		if (!resolvedPath) {
+			return;
+		}
+
+		if (existsSync(resolvedPath)) {
+			return resolvedPath;
 		}
 	}
 
-	if (!attemptingPath.endsWith('.json')) {
-		attemptingPath += '.json';
+	const fullPackagePath = path.join(packagePath, subpath);
+	const jsonExtension = fullPackagePath.endsWith('.json');
 
-		packagePath = findUp(
-			directoryPath,
-			path.join('node_modules', attemptingPath),
-		);
+	if (!jsonExtension) {
+		const fullPackagePathWithJson = `${fullPackagePath}.json`;
 
-		if (packagePath) {
-			return packagePath;
+		if (existsSync(fullPackagePathWithJson)) {
+			return fullPackagePathWithJson;
 		}
 	}
 
-	throw new Error(`File '${requestedPath}' not found.`);
+	if (!existsSync(fullPackagePath)) {
+		return;
+	}
+
+	if (fs.statSync(fullPackagePath).isDirectory()) {
+		const fullPackageJsonPath = path.join(fullPackagePath, PACKAGE_JSON);
+		if (existsSync(fullPackageJsonPath)) {
+			const resolvedPath = resolveFromPackageJsonPath(fullPackageJsonPath, '', true);
+			if (resolvedPath && existsSync(resolvedPath)) {
+				return resolvedPath;
+			}
+		}
+
+		const tsconfigPath = path.join(fullPackagePath, TS_CONFIG_JSON);
+		if (existsSync(tsconfigPath)) {
+			return tsconfigPath;
+		}
+	} else if (jsonExtension) {
+		return fullPackagePath;
+	}
 }
