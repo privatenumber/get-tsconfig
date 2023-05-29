@@ -19,4 +19,4 @@ export const getTsconfig = (
 		path: configFile,
 		config,
 	};
-}
+};

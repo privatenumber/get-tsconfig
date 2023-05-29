@@ -13,27 +13,25 @@ const parsePaths = (
 	paths: Partial<Record<string, string[]>>,
 	baseUrl: string | undefined,
 	absoluteBaseUrl: string,
-) => {
-	return Object.entries(paths).map(([pattern, substitutions]) => {
-		assertStarCount(pattern, `Pattern '${pattern}' can have at most one '*' character.`);
+) => Object.entries(paths).map(([pattern, substitutions]) => {
+	assertStarCount(pattern, `Pattern '${pattern}' can have at most one '*' character.`);
 
-		return {
-			pattern: parsePattern(pattern),
-			substitutions: substitutions!.map((substitution) => {
-				assertStarCount(
-					substitution,
+	return {
+		pattern: parsePattern(pattern),
+		substitutions: substitutions!.map((substitution) => {
+			assertStarCount(
+				substitution,
 					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
-				);
+			);
 
-				if (!baseUrl && !isRelativePathPattern.test(substitution)) {
-					throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
-				}
+			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
+				throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+			}
 
-				return path.join(absoluteBaseUrl, substitution);
-			}),
-		} as PathEntry<string | StarPattern>;
-	});
-}
+			return path.join(absoluteBaseUrl, substitution);
+		}),
+	} as PathEntry<string | StarPattern>;
+});
 
 /**
  * Reference:
@@ -105,4 +103,4 @@ export const createPathsMatcher = (
 			substitution => slash(substitution.replace('*', matchedPath)),
 		);
 	};
-}
+};

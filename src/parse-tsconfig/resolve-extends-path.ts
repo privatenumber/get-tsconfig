@@ -178,4 +178,4 @@ export const resolveExtendsPath = (
 	} else if (jsonExtension) {
 		return fullPackagePath;
 	}
-}
+};

@@ -18,4 +18,4 @@ export const findUp = (
 
 		searchPath = parentPath;
 	}
-}
+};
