@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJsonString, getTscTsconfig } from '../../../../utils.js';
+import { tsconfigJsonString, getTscTsconfig, packageJson } from '../../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -141,7 +141,7 @@ export default testSuite(({ describe }) => {
 		test('shoud not resolve directory even with package.json#tsconfig', async () => {
 			const fixture = await createFixture({
 				directory: {
-					'package.json': JSON.stringify({
+					'package.json': packageJson({
 						tsconfig: './tsconfig.json',
 					}),
 					'tsconfig.json': tsconfigJsonString({

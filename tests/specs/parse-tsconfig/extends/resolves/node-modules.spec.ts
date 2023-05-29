@@ -2,10 +2,8 @@ import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
-import { tsconfigJsonString, getTscTsconfig } from '../../../../utils.js';
+import { tsconfigJsonString, getTscTsconfig, packageJson } from '../../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
-
-const createPackageJson = JSON.stringify;
 
 export default testSuite(({ describe }) => {
 	describe('node_modules', ({ describe, test }) => {
@@ -42,7 +40,7 @@ export default testSuite(({ describe }) => {
 			test('implicit tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							main: './index.js',
 						}),
 						'index.js': 'require("fs")',
@@ -322,7 +320,7 @@ export default testSuite(({ describe }) => {
 			test('package.json#tsconfig', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							tsconfig: './some-config.json',
 						}),
 						'some-config.json': tsconfigJsonString({
@@ -356,7 +354,7 @@ export default testSuite(({ describe }) => {
 			test('reads nested package.json#tsconfig', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/some-directory': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							// This is ignored because its not at root
 							exports: {
 								'./*': null,
@@ -414,7 +412,7 @@ export default testSuite(({ describe }) => {
 			test('main', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: './some-config.json',
 						}),
 						'some-config.json': tsconfigJsonString({
@@ -448,7 +446,7 @@ export default testSuite(({ describe }) => {
 			test('subpath', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: { './config': './some-config.json' },
 						}),
 						'some-config.json': tsconfigJsonString({
@@ -483,7 +481,7 @@ export default testSuite(({ describe }) => {
 				test('require', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': createPackageJson({
+							'package.json': packageJson({
 								exports: {
 									require: './some-config.json',
 								},
@@ -519,7 +517,7 @@ export default testSuite(({ describe }) => {
 				test('types', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': createPackageJson({
+							'package.json': packageJson({
 								exports: {
 									types: './some-config.json',
 								},
@@ -555,7 +553,7 @@ export default testSuite(({ describe }) => {
 				test('missing condition should fail', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': createPackageJson({
+							'package.json': packageJson({
 								exports: {
 									asdf: './some-config.json',
 								},
@@ -594,7 +592,7 @@ export default testSuite(({ describe }) => {
 			test('missing subpath should fail', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: {
 								'./config': './some-config.json',
 							},
@@ -633,7 +631,7 @@ export default testSuite(({ describe }) => {
 			test('null exports should resolve tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: null,
 						}),
 
@@ -661,7 +659,7 @@ export default testSuite(({ describe }) => {
 			test('null exports should resolve tsconfig.json in directory', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: null,
 						}),
 
@@ -689,7 +687,7 @@ export default testSuite(({ describe }) => {
 			test('path block should still resolve tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: {
 								'./*': null,
 							},
@@ -721,7 +719,7 @@ export default testSuite(({ describe }) => {
 			test('package.json ignored in nested directory', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/a': {
-						'package.json': createPackageJson({
+						'package.json': packageJson({
 							exports: {
 								'./*': null,
 							},

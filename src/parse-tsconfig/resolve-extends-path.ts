@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import Module from 'module';
 import { resolveExports } from 'resolve-pkg-maps';
+import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 
@@ -21,7 +22,7 @@ const resolveFromPackageJsonPath = (
 ) => {
 	let resolvedPath = 'tsconfig.json';
 
-	const packageJson = readJsonc(packageJsonPath);
+	const packageJson = readJsonc(packageJsonPath) as PackageJson;
 	if (packageJson) {
 		if (
 			!ignoreExports
@@ -37,7 +38,7 @@ const resolveFromPackageJsonPath = (
 			!subpath
 			&& packageJson.tsconfig
 		) {
-			resolvedPath = packageJson.tsconfig;
+			resolvedPath = packageJson.tsconfig as string;
 		}
 	}
 
