@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 
-export function findUp(
+export const findUp = (
 	searchPath: string,
 	fileName: string,
-) {
+) => {
 	while (true) {
 		const configPath = path.posix.join(searchPath, fileName);
 		if (fs.existsSync(configPath)) {
@@ -18,4 +18,4 @@ export function findUp(
 
 		searchPath = parentPath;
 	}
-}
+};

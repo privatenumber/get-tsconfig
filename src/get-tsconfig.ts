@@ -3,10 +3,10 @@ import { findUp } from './utils/find-up.js';
 import { parseTsconfig } from './parse-tsconfig/index.js';
 import type { TsConfigResult } from './types.js';
 
-export function getTsconfig(
+export const getTsconfig = (
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
-): TsConfigResult | null {
+): TsConfigResult | null => {
 	const configFile = findUp(slash(searchPath), configName);
 
 	if (!configFile) {
@@ -19,4 +19,4 @@ export function getTsconfig(
 		path: configFile,
 		config,
 	};
-}
+};

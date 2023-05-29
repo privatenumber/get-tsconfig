@@ -9,39 +9,37 @@ import {
 } from './utils.js';
 import type { StarPattern, PathEntry } from './types.js';
 
-function parsePaths(
+const parsePaths = (
 	paths: Partial<Record<string, string[]>>,
 	baseUrl: string | undefined,
 	absoluteBaseUrl: string,
-) {
-	return Object.entries(paths).map(([pattern, substitutions]) => {
-		assertStarCount(pattern, `Pattern '${pattern}' can have at most one '*' character.`);
+) => Object.entries(paths).map(([pattern, substitutions]) => {
+	assertStarCount(pattern, `Pattern '${pattern}' can have at most one '*' character.`);
 
-		return {
-			pattern: parsePattern(pattern),
-			substitutions: substitutions!.map((substitution) => {
-				assertStarCount(
-					substitution,
+	return {
+		pattern: parsePattern(pattern),
+		substitutions: substitutions!.map((substitution) => {
+			assertStarCount(
+				substitution,
 					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
-				);
+			);
 
-				if (!baseUrl && !isRelativePathPattern.test(substitution)) {
-					throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
-				}
+			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
+				throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+			}
 
-				return path.join(absoluteBaseUrl, substitution);
-			}),
-		} as PathEntry<string | StarPattern>;
-	});
-}
+			return path.join(absoluteBaseUrl, substitution);
+		}),
+	} as PathEntry<string | StarPattern>;
+});
 
 /**
  * Reference:
  * https://github.com/microsoft/TypeScript/blob/3ccbe804f850f40d228d3c875be952d94d39aa1d/src/compiler/moduleNameResolver.ts#L2465
  */
-export function createPathsMatcher(
+export const createPathsMatcher = (
 	tsconfig: TsConfigResult,
-) {
+) => {
 	if (!tsconfig.config.compilerOptions) {
 		return null;
 	}
@@ -58,7 +56,7 @@ export function createPathsMatcher(
 
 	const pathEntries = paths ? parsePaths(paths, baseUrl, resolvedBaseUrl) : [];
 
-	return function pathsMatcher(specifier: string) {
+	return (specifier: string) => {
 		if (isRelativePathPattern.test(specifier)) {
 			return [];
 		}
@@ -105,4 +103,4 @@ export function createPathsMatcher(
 			substitution => slash(substitution.replace('*', matchedPath)),
 		);
 	};
-}
+};
