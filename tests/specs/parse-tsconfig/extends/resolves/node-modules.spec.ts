@@ -9,10 +9,9 @@ const createPackageJson = JSON.stringify;
 
 export default testSuite(({ describe }) => {
 	describe('node_modules', ({ describe, test }) => {
-
 		test('prefers file over package', async () => {
 			const fixture = await createFixture({
-				'node_modules': {
+				node_modules: {
 					'dep.json': tsconfigJsonString({
 						compilerOptions: {
 							jsx: 'react-native',

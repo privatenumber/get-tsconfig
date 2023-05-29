@@ -48,6 +48,9 @@ const resolveFromPackageJsonPath = (
 	);
 };
 
+const PACKAGE_JSON = 'package.json';
+const TS_CONFIG_JSON = 'tsconfig.json';
+
 export function resolveExtendsPath(
 	requestedPath: string,
 	directoryPath: string,
@@ -55,7 +58,7 @@ export function resolveExtendsPath(
 	let filePath = requestedPath;
 
 	if (requestedPath === '..') {
-		filePath += '/tsconfig.json';
+		filePath = path.join(filePath, TS_CONFIG_JSON);
 	}
 
 	if (requestedPath[0] === '.') {
@@ -68,14 +71,13 @@ export function resolveExtendsPath(
 				return filePath;
 			}
 		} else if (!filePath.endsWith('.json')) {
-			const jsonPath = filePath + '.json';
+			const jsonPath = `${filePath}.json`;
 
 			if (existsSync(jsonPath)) {
 				return jsonPath;
 			}
 		}
-
-		throw new Error(`File '${requestedPath}' not found.`);
+		return;
 	}
 
 	const [orgOrName, ...remaining] = requestedPath.split('/');
@@ -89,7 +91,7 @@ export function resolveExtendsPath(
 		try {
 			if (packageName === requestedPath) {
 				const packageJsonPath = resolveWithPnp(
-					path.join(packageName, 'package.json'),
+					path.join(packageName, PACKAGE_JSON),
 					directoryPath,
 				);
 
@@ -110,7 +112,7 @@ export function resolveExtendsPath(
 					);
 				} catch {
 					resolved = resolveWithPnp(
-						path.join(requestedPath, 'tsconfig.json'),
+						path.join(requestedPath, TS_CONFIG_JSON),
 						directoryPath,
 					);
 				}
@@ -128,20 +130,19 @@ export function resolveExtendsPath(
 	);
 
 	if (!packagePath || !fs.statSync(packagePath).isDirectory()) {
-		throw new Error(`File '${requestedPath}' not found.`);
+		return;
 	}
 
-	const packageJsonPath = path.join(packagePath, 'package.json');
-
+	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
 	if (existsSync(packageJsonPath)) {
 		const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
 
-		if (resolvedPath) {
-			if (existsSync(resolvedPath)) {
-				return resolvedPath;
-			}
-		} else {
-			throw new Error(`File '${requestedPath}' not found.`);
+		if (!resolvedPath) {
+			return;
+		}
+
+		if (existsSync(resolvedPath)) {
+			return resolvedPath;
 		}
 	}
 
@@ -156,24 +157,24 @@ export function resolveExtendsPath(
 		}
 	}
 
-	if (existsSync(fullPackagePath)) {
-		if (fs.statSync(fullPackagePath).isDirectory()) {
-			const packageJsonPath = path.join(fullPackagePath, 'package.json');
-			if (existsSync(packageJsonPath)) {
-				const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, '', true);
-				if (resolvedPath && existsSync(resolvedPath)) {
-					return resolvedPath;
-				}
-			}
-
-			const tsconfigPath = path.join(fullPackagePath, 'tsconfig.json');
-			if (existsSync(tsconfigPath)) {
-				return tsconfigPath;
-			}
-		} else if (jsonExtension) {
-			return fullPackagePath;
-		}
+	if (!existsSync(fullPackagePath)) {
+		return;
 	}
 
-	throw new Error(`File '${requestedPath}' not found.`);
+	if (fs.statSync(fullPackagePath).isDirectory()) {
+		const fullPackageJsonPath = path.join(fullPackagePath, PACKAGE_JSON);
+		if (existsSync(fullPackageJsonPath)) {
+			const resolvedPath = resolveFromPackageJsonPath(fullPackageJsonPath, '', true);
+			if (resolvedPath && existsSync(resolvedPath)) {
+				return resolvedPath;
+			}
+		}
+
+		const tsconfigPath = path.join(fullPackagePath, TS_CONFIG_JSON);
+		if (existsSync(tsconfigPath)) {
+			return tsconfigPath;
+		}
+	} else if (jsonExtension) {
+		return fullPackagePath;
+	}
 }
