@@ -64,18 +64,15 @@ export function resolveExtendsPath(
 			attemptingPath = path.resolve(directoryPath, attemptingPath);
 		}
 
-		if (
-			existsSync(attemptingPath)
-			&& fs.statSync(attemptingPath).isFile()
-		) {
-			return attemptingPath;
-		}
-
-		if (!attemptingPath.endsWith('.json')) {
-			attemptingPath += '.json';
-
-			if (existsSync(attemptingPath)) {
+		if (existsSync(attemptingPath)) {
+			if (fs.statSync(attemptingPath).isFile()) {
 				return attemptingPath;
+			}
+		} else if (!attemptingPath.endsWith('.json')) {
+			const jsonPath = attemptingPath + '.json';
+
+			if (existsSync(jsonPath)) {
+				return jsonPath;
 			}
 		}
 
@@ -140,7 +137,6 @@ export function resolveExtendsPath(
 	if (existsSync(packageJsonPath)) {
 		const packageJson = readJsonc(packageJsonPath);
 
-		// What happens if its invalid?
 		if (packageJson) {
 			let resolvedPath = '';
 			if (
@@ -158,8 +154,7 @@ export function resolveExtendsPath(
 			}
 
 			const resolvedFromPackageJson = path.join(
-				packageJsonPath,
-				'..',
+				packagePath,
 				resolvedPath || 'tsconfig.json',
 			);
 
@@ -184,8 +179,10 @@ export function resolveExtendsPath(
 			const packageJsonPath = path.join(fullPackagePath, 'package.json');
 			if (existsSync(packageJsonPath)) {
 				const packageJson = readJsonc(packageJsonPath);
-
-				if (packageJson && 'tsconfig' in packageJson) {
+				if (
+					packageJson
+					&& 'tsconfig' in packageJson
+				) {
 					const resolvedFromPackageJson = path.join(
 						packageJsonPath,
 						'..',
@@ -196,54 +193,16 @@ export function resolveExtendsPath(
 						return resolvedFromPackageJson;
 					}
 				}
-			} else {
-				// console.log(111);
+			}
+
+			const tsconfigPath = path.join(fullPackagePath, 'tsconfig.json');
+			if (existsSync(tsconfigPath)) {
+				return tsconfigPath;
 			}
 		} else if (fullPackagePath.endsWith('.json')) {
 			return fullPackagePath;
 		}
-	} else {}
-	// if (!existsSync(packageJsonPath)) {
-	// Not sure if this logic makes sense because it ignores subpath. Probably add it back
-	// const tsconfigJsonPath = path.join(packagePath, 'tsconfig.json');
-
-	// if (existsSync(tsconfigJsonPath)) {
-	// 	return tsconfigJsonPath;
-	// }
-	// }
-
-	// if (existsSync(packageJsonPath)) {
-	// 	const asdf = resolveFromPackageJsonPath(packageJsonPath, subpath);
-	// 	if (asdf && existsSync(asdf)) {
-	// 		return asdf;
-	// 	}
-	// } else {
-
-	// }
-
-	const tsconfigPath = path.join(packagePath, subpath, 'tsconfig.json');
-	if (existsSync(tsconfigPath)) {
-		return tsconfigPath;
 	}
-
-	// if (packagePath) {
-	// 	if (fs.statSync(packagePath).isDirectory()) {
-	// 		const packageJsonPath = path.join(packagePath, 'package.json');
-
-	// 		if (existsSync(packageJsonPath)) {
-	// 			console.log(111, arguments);
-	// 			packagePath = resolveFromPackageJsonPath(packageJsonPath, subpath);
-	// 		} else {
-	// 			packagePath = path.join(packagePath, 'tsconfig.json');
-	// 		}
-
-	// 		if (packagePath && existsSync(packagePath)) {
-	// 			return packagePath;
-	// 		}
-	// 	} else if (packagePath.endsWith('.json')) {
-	// 		return packagePath;
-	// 	}
-	// }
 
 	throw new Error(`File '${requestedPath}' not found.`);
 }

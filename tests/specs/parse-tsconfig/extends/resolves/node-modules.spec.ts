@@ -9,6 +9,36 @@ const createPackageJson = JSON.stringify;
 
 export default testSuite(({ describe }) => {
 	describe('node_modules', ({ describe, test }) => {
+
+		test('prefers file over package', async () => {
+			const fixture = await createFixture({
+				'node_modules': {
+					'dep.json': tsconfigJsonString({
+						compilerOptions: {
+							jsx: 'react-native',
+						},
+					}),
+					'dep/tsconfig.json': tsconfigJsonString({
+						compilerOptions: {
+							jsx: 'react',
+						},
+					}),
+				},
+				'tsconfig.json': tsconfigJsonString({
+					extends: 'dep',
+				}),
+				'file.ts': '',
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
+		});
+
 		describe('extends dependency', ({ test }) => {
 			test('implicit tsconfig.json', async () => {
 				const fixture = await createFixture({
@@ -215,29 +245,27 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
-		describe('dependency directory', ({ test }) => {
-			test('directory named "tsconfig.json"', async () => {
-				const fixture = await createFixture({
-					'node_modules/dep/tsconfig.json/tsconfig.json': tsconfigJsonString({
-						compilerOptions: {
-							strict: true,
-							jsx: 'react',
-						},
-					}),
-					'tsconfig.json': tsconfigJsonString({
-						extends: 'dep/tsconfig.json',
-					}),
-					'file.ts': '',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
+		test('directory named "tsconfig.json"', async () => {
+			const fixture = await createFixture({
+				'node_modules/dep/tsconfig.json/tsconfig.json': tsconfigJsonString({
+					compilerOptions: {
+						strict: true,
+						jsx: 'react',
+					},
+				}),
+				'tsconfig.json': tsconfigJsonString({
+					extends: 'dep/tsconfig.json',
+				}),
+				'file.ts': '',
 			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
 		});
 
 		test('extends dependency package far', async () => {
@@ -266,76 +294,78 @@ export default testSuite(({ describe }) => {
 			await fixture.rm();
 		});
 
-		test('package.json#tsconfig', async () => {
-			const fixture = await createFixture({
-				'node_modules/dep': {
-					'package.json': createPackageJson({
-						tsconfig: './some-config.json',
-					}),
-					'some-config.json': tsconfigJsonString({
-						compilerOptions: {
-							strict: true,
-							jsx: 'react',
-						},
-					}),
-					// should be ignored
+		describe('package.json#tsconfig', ({ test }) => {
+			test('package.json#tsconfig', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'package.json': createPackageJson({
+							tsconfig: './some-config.json',
+						}),
+						'some-config.json': tsconfigJsonString({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react',
+							},
+						}),
+						// should be ignored
+						'tsconfig.json': tsconfigJsonString({
+							compilerOptions: {
+								jsx: 'preserve',
+							},
+						}),
+					},
 					'tsconfig.json': tsconfigJsonString({
-						compilerOptions: {
-							jsx: 'preserve',
-						},
+						extends: 'dep',
 					}),
-				},
-				'tsconfig.json': tsconfigJsonString({
-					extends: 'dep',
-				}),
-				'file.ts': '',
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
 			});
 
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
-		});
-
-		test('reads package.json#tsconfig not even at package root', async () => {
-			const fixture = await createFixture({
-				'node_modules/dep/some-directory': {
-					'package.json': createPackageJson({
-						// This is ignored becaused not at root
-						exports: {
-							'./*': null,
-						},
-						tsconfig: './some-config.json',
-					}),
-					'some-config.json': tsconfigJsonString({
-						compilerOptions: {
-							strict: true,
-							jsx: 'react',
-						},
-					}),
-					// should be ignored
+			test('reads nested package.json#tsconfig', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep/some-directory': {
+						'package.json': createPackageJson({
+							// This is ignored because its not at root
+							exports: {
+								'./*': null,
+							},
+							tsconfig: './some-config.json',
+						}),
+						'some-config.json': tsconfigJsonString({
+							compilerOptions: {
+								strict: true,
+								jsx: 'react',
+							},
+						}),
+						// should be ignored
+						'tsconfig.json': tsconfigJsonString({
+							compilerOptions: {
+								jsx: 'preserve',
+							},
+						}),
+					},
 					'tsconfig.json': tsconfigJsonString({
-						compilerOptions: {
-							jsx: 'preserve',
-						},
+						extends: 'dep/some-directory',
 					}),
-				},
-				'tsconfig.json': tsconfigJsonString({
-					extends: 'dep/some-directory',
-				}),
-				'file.ts': '',
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
 			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		// TODO: test pnp package exports
