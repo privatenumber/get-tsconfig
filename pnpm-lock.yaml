@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+patchedDependencies:
+  type-fest@3.11.0:
+    hash: jw67ck5l54ppcmzodxvgwbn5oy
+    path: patches/type-fest@3.11.0.patch
+
 dependencies:
   resolve-pkg-maps:
     specifier: ^1.0.0
@@ -47,7 +52,7 @@ devDependencies:
     version: 3.12.7
   type-fest:
     specifier: ^3.11.0
-    version: 3.11.0
+    version: 3.11.0(patch_hash=jw67ck5l54ppcmzodxvgwbn5oy)
   typescript:
     specifier: ^5.0.4
     version: 5.0.4
@@ -3189,10 +3194,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /type-fest@3.11.0:
+  /type-fest@3.11.0(patch_hash=jw67ck5l54ppcmzodxvgwbn5oy):
     resolution: {integrity: sha512-JaPw5U9ixP0XcpUbQoVSbxSDcK/K4nww20C3kjm9yE6cDRRhptU28AH60VWf9ltXmCrIfIbtt9J+2OUk2Uqiaw==}
     engines: {node: '>=14.16'}
     dev: true
+    patched: true
 
   /typescript@5.0.4:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}

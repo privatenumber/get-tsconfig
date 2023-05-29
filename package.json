@@ -89,5 +89,10 @@
 				}
 			}
 		]
+	},
+	"pnpm": {
+		"patchedDependencies": {
+			"type-fest@3.11.0": "patches/type-fest@3.11.0.patch"
+		}
 	}
 }
