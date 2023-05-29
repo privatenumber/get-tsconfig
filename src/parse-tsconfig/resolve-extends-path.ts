@@ -28,8 +28,8 @@ const resolveFromPackageJsonPath = (
 	) {
 		try {
 			const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
-			resolvedPath = resolvedExport;	
-		} catch (error) {
+			resolvedPath = resolvedExport;
+		} catch {
 			return;
 		}
 	} else if (packageJson && ('tsconfig' in packageJson)) {
@@ -41,7 +41,7 @@ const resolveFromPackageJsonPath = (
 		'..',
 		resolvedPath || 'tsconfig.json',
 	);
-}
+};
 
 export function resolveExtendsPath(
 	requestedPath: string,
@@ -126,7 +126,7 @@ export function resolveExtendsPath(
 		} catch {}
 	}
 
-	let packagePath = findUp(
+	const packagePath = findUp(
 		directoryPath,
 		path.join('node_modules', packageName),
 	);
@@ -149,8 +149,8 @@ export function resolveExtendsPath(
 			) {
 				try {
 					const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
-					resolvedPath = resolvedExport;	
-				} catch (error) {
+					resolvedPath = resolvedExport;
+				} catch {
 					throw new Error(`File '${requestedPath}' not found.`);
 				}
 			} else if ('tsconfig' in packageJson) {
@@ -172,7 +172,7 @@ export function resolveExtendsPath(
 	const fullPackagePath = path.join(packagePath, subpath);
 
 	if (!fullPackagePath.endsWith('.json')) {
-		const fullPackagePathWithJson = fullPackagePath + '.json';
+		const fullPackagePathWithJson = `${fullPackagePath}.json`;
 
 		if (existsSync(fullPackagePathWithJson)) {
 			return fullPackagePathWithJson;
@@ -181,17 +181,17 @@ export function resolveExtendsPath(
 
 	if (existsSync(fullPackagePath)) {
 		if (fs.statSync(fullPackagePath).isDirectory()) {
-			let packageJsonPath = path.join(fullPackagePath, 'package.json');
+			const packageJsonPath = path.join(fullPackagePath, 'package.json');
 			if (existsSync(packageJsonPath)) {
 				const packageJson = readJsonc(packageJsonPath);
-	
+
 				if (packageJson && 'tsconfig' in packageJson) {
 					const resolvedFromPackageJson = path.join(
 						packageJsonPath,
 						'..',
 						packageJson.tsconfig,
 					);
-	
+
 					if (existsSync(resolvedFromPackageJson)) {
 						return resolvedFromPackageJson;
 					}
@@ -199,21 +199,17 @@ export function resolveExtendsPath(
 			} else {
 				// console.log(111);
 			}
-		} else {
-			if (fullPackagePath.endsWith('.json')) {
-				return fullPackagePath;
-			}
+		} else if (fullPackagePath.endsWith('.json')) {
+			return fullPackagePath;
 		}
-	} else {
-	
-	}
+	} else {}
 	// if (!existsSync(packageJsonPath)) {
-		// Not sure if this logic makes sense because it ignores subpath. Probably add it back
-		// const tsconfigJsonPath = path.join(packagePath, 'tsconfig.json');
+	// Not sure if this logic makes sense because it ignores subpath. Probably add it back
+	// const tsconfigJsonPath = path.join(packagePath, 'tsconfig.json');
 
-		// if (existsSync(tsconfigJsonPath)) {
-		// 	return tsconfigJsonPath;
-		// }
+	// if (existsSync(tsconfigJsonPath)) {
+	// 	return tsconfigJsonPath;
+	// }
 	// }
 
 	// if (existsSync(packageJsonPath)) {
@@ -229,7 +225,6 @@ export function resolveExtendsPath(
 	if (existsSync(tsconfigPath)) {
 		return tsconfigPath;
 	}
-
 
 	// if (packagePath) {
 	// 	if (fs.statSync(packagePath).isDirectory()) {
@@ -249,7 +244,6 @@ export function resolveExtendsPath(
 	// 		return packagePath;
 	// 	}
 	// }
-
 
 	throw new Error(`File '${requestedPath}' not found.`);
 }

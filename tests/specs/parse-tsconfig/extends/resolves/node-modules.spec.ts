@@ -9,13 +9,12 @@ const createPackageJson = JSON.stringify;
 
 export default testSuite(({ describe }) => {
 	describe('node_modules', ({ describe, test }) => {
-
 		describe('extends dependency', ({ test }) => {
 			test('implicit tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
-							"main": "./index.js"
+							main: './index.js',
 						}),
 						'index.js': 'require("fs")',
 						'tsconfig.json': tsconfigJsonString({
@@ -30,13 +29,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -53,13 +52,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -84,13 +83,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 		});
@@ -109,13 +108,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -132,13 +131,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -159,13 +158,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -182,13 +181,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const errorMessage = 'File \'dep/tsconfig\' not found';
 				await expect(
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
-	
+
 				await fixture.rm();
 			});
 
@@ -205,19 +204,18 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const errorMessage = 'File \'dep/tsconfig.ts\' not found';
 				await expect(
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
-	
+
 				await fixture.rm();
 			});
 		});
 
 		describe('dependency directory', ({ test }) => {
-
 			test('directory named "tsconfig.json"', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/tsconfig.json/tsconfig.json': tsconfigJsonString({
@@ -231,13 +229,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 		});
@@ -272,7 +270,7 @@ export default testSuite(({ describe }) => {
 			const fixture = await createFixture({
 				'node_modules/dep': {
 					'package.json': createPackageJson({
-						"tsconfig": "./some-config.json",
+						tsconfig: './some-config.json',
 					}),
 					'some-config.json': tsconfigJsonString({
 						compilerOptions: {
@@ -363,7 +361,7 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
-							exports: "./some-config.json",
+							exports: './some-config.json',
 						}),
 						'some-config.json': tsconfigJsonString({
 							compilerOptions: {
@@ -383,13 +381,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -397,7 +395,7 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
-							exports: { "./config": "./some-config.json" },
+							exports: { './config': './some-config.json' },
 						}),
 						'some-config.json': tsconfigJsonString({
 							compilerOptions: {
@@ -417,13 +415,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -433,7 +431,7 @@ export default testSuite(({ describe }) => {
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
-									'require': './some-config.json',
+									require: './some-config.json',
 								},
 							}),
 							'some-config.json': tsconfigJsonString({
@@ -454,13 +452,13 @@ export default testSuite(({ describe }) => {
 						}),
 						'file.ts': '',
 					});
-		
+
 					const expectedTsconfig = await getTscTsconfig(fixture.path);
 					delete expectedTsconfig.files;
-		
+
 					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
-		
+
 					await fixture.rm();
 				});
 
@@ -469,7 +467,7 @@ export default testSuite(({ describe }) => {
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
-									'types': './some-config.json',
+									types: './some-config.json',
 								},
 							}),
 							'some-config.json': tsconfigJsonString({
@@ -490,13 +488,13 @@ export default testSuite(({ describe }) => {
 						}),
 						'file.ts': '',
 					});
-		
+
 					const expectedTsconfig = await getTscTsconfig(fixture.path);
 					delete expectedTsconfig.files;
-		
+
 					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
-		
+
 					await fixture.rm();
 				});
 
@@ -505,7 +503,7 @@ export default testSuite(({ describe }) => {
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
-									'asdf': './some-config.json',
+									asdf: './some-config.json',
 								},
 							}),
 							'some-config.json': tsconfigJsonString({
@@ -526,7 +524,7 @@ export default testSuite(({ describe }) => {
 						}),
 						'file.ts': '',
 					});
-		
+
 					const errorMessage = 'File \'dep\' not found.';
 					await expect(
 						getTscTsconfig(fixture.path),
@@ -534,10 +532,9 @@ export default testSuite(({ describe }) => {
 					expect(
 						() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 					).toThrow(errorMessage);
-		
+
 					await fixture.rm();
 				});
-
 			});
 
 			test('missing subpath should fail', async () => {
@@ -545,7 +542,7 @@ export default testSuite(({ describe }) => {
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: {
-								"./config": "./some-config.json",
+								'./config': './some-config.json',
 							},
 						}),
 						'some-config.json': tsconfigJsonString({
@@ -566,7 +563,7 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const errorMessage = 'File \'dep/missing\' not found.';
 				await expect(
 					getTscTsconfig(fixture.path),
@@ -574,7 +571,7 @@ export default testSuite(({ describe }) => {
 				expect(
 					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 				).toThrow(errorMessage);
-	
+
 				await fixture.rm();
 			});
 
@@ -597,10 +594,10 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 
@@ -625,13 +622,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 
@@ -655,7 +652,7 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const errorMessage = 'File \'dep\' not found.';
 				await expect(
 					getTscTsconfig(fixture.path),
@@ -672,7 +669,7 @@ export default testSuite(({ describe }) => {
 					'node_modules/dep/a': {
 						'package.json': createPackageJson({
 							exports: {
-								'./*': null
+								'./*': null,
 							},
 						}),
 						'tsconfig.json': tsconfigJsonString({
@@ -686,13 +683,13 @@ export default testSuite(({ describe }) => {
 					}),
 					'file.ts': '',
 				});
-	
+
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
-	
+
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-	
+
 				await fixture.rm();
 			});
 		});
