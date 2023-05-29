@@ -12,14 +12,14 @@ export const assertStarCount = (
 	}
 };
 
-export function parsePattern(pattern: string) {
+export const parsePattern = (pattern: string) => {
 	if (pattern.includes('*')) {
 		const [prefix, suffix] = pattern.split('*');
 		return { prefix, suffix } as StarPattern;
 	}
 
 	return pattern;
-}
+};
 
 export const isPatternMatch = (
 	{ prefix, suffix }: StarPattern,

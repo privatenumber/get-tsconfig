@@ -52,10 +52,10 @@ const resolveFromPackageJsonPath = (
 const PACKAGE_JSON = 'package.json';
 const TS_CONFIG_JSON = 'tsconfig.json';
 
-export function resolveExtendsPath(
+export const resolveExtendsPath = (
 	requestedPath: string,
 	directoryPath: string,
-) {
+) => {
 	let filePath = requestedPath;
 
 	if (requestedPath === '..') {
