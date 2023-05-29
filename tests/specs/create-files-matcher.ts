@@ -4,7 +4,7 @@ import slash from 'slash';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
-import { tsconfigJsonString } from '../utils.js';
+import { createTsconfigJson } from '../utils.js';
 import {
 	createFilesMatcher,
 	parseTsconfig,
@@ -77,7 +77,7 @@ export default testSuite(({ describe }) => {
 			test('should throw on relative path', async () => {
 				const tsconfig: TsConfigJsonResolved = {};
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
 
@@ -96,7 +96,7 @@ export default testSuite(({ describe }) => {
 
 				const tsconfigSubpath = 'some-dir/tsconfig.json';
 				const fixture = await createFixture({
-					[tsconfigSubpath]: tsconfigJsonString(tsconfig),
+					[tsconfigSubpath]: createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
 
@@ -122,7 +122,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 					'no-match.ts': '',
 				});
@@ -151,7 +151,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'project/tsconfig.json': tsconfigJsonString(tsconfig),
+					'project/tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
 
@@ -178,7 +178,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.js': '',
 				});
 
@@ -206,7 +206,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.ts': '',
 				});
 
@@ -233,7 +233,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig: TsConfigJsonResolved = {};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-directory': testFiles,
 				});
 
@@ -263,7 +263,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					directory: testFiles,
 					'ends-with-slash': testFiles,
 					[periodInPath]: testFiles,
@@ -291,7 +291,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-a/dir-b/dir-c': testFiles,
 				});
 
@@ -315,7 +315,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-abc': testFiles,
 				});
 
@@ -342,7 +342,7 @@ export default testSuite(({ describe }) => {
 
 				const fixture = await createFixture({
 					'src/a.ts': '',
-					'project/tsconfig.json': tsconfigJsonString(tsconfig),
+					'project/tsconfig.json': createTsconfigJson(tsconfig),
 				});
 
 				const tsconfigPath = path.join(fixture.path, 'project/tsconfig.json');
@@ -369,7 +369,7 @@ export default testSuite(({ describe }) => {
 					const tsconfig: TsConfigJsonResolved = {};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
 						),
@@ -395,7 +395,7 @@ export default testSuite(({ describe }) => {
 					const tsconfig: TsConfigJsonResolved = {};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
 
@@ -422,7 +422,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
 
@@ -449,7 +449,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
 
@@ -475,7 +475,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
 
@@ -501,7 +501,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
 						),
@@ -529,7 +529,7 @@ export default testSuite(({ describe }) => {
 						const tsconfig: TsConfigJsonResolved = {};
 
 						const fixture = await createFixture({
-							'tsconfig.json': tsconfigJsonString(tsconfig),
+							'tsconfig.json': createTsconfigJson(tsconfig),
 							[directoryName]: testFiles,
 						});
 
@@ -554,7 +554,7 @@ export default testSuite(({ describe }) => {
 						};
 
 						const fixture = await createFixture({
-							'tsconfig.json': tsconfigJsonString(tsconfig),
+							'tsconfig.json': createTsconfigJson(tsconfig),
 							[`${directory}/some-pkg`]: testFiles,
 						});
 
@@ -577,7 +577,7 @@ export default testSuite(({ describe }) => {
 
 						const fixture = await createFixture({
 							[directory]: {
-								'tsconfig.json': tsconfigJsonString(tsconfig),
+								'tsconfig.json': createTsconfigJson(tsconfig),
 								'some-dir': testFiles,
 							},
 						});
@@ -654,7 +654,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'abc.ts': '',
@@ -688,7 +688,7 @@ export default testSuite(({ describe }) => {
 						};
 
 						const fixture = await createFixture({
-							'tsconfig.json': tsconfigJsonString(tsconfig),
+							'tsconfig.json': createTsconfigJson(tsconfig),
 							'a.ts': '',
 						});
 
@@ -719,7 +719,7 @@ export default testSuite(({ describe }) => {
 						};
 
 						const fixture = await createFixture({
-							'tsconfig.json': tsconfigJsonString(tsconfig),
+							'tsconfig.json': createTsconfigJson(tsconfig),
 							'some-dir': {
 								'a.ts': '',
 								'aaabccc.ts': '',
@@ -757,7 +757,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'bc.ts': '',
@@ -799,7 +799,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -829,7 +829,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -859,7 +859,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -889,7 +889,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -933,7 +933,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						...directories,
 					});
 
@@ -964,7 +964,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						...directories,
 					});
 
@@ -996,7 +996,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.ts': '',
 				});
 
@@ -1022,7 +1022,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-prefixabc': testFiles,
 				});
 
@@ -1097,7 +1097,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'abc.ts': '',
@@ -1140,7 +1140,7 @@ export default testSuite(({ describe }) => {
 					};
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
 							'abc.ts': '',
@@ -1186,7 +1186,7 @@ export default testSuite(({ describe }) => {
 					];
 
 					const fixture = await createFixture({
-						'tsconfig.json': tsconfigJsonString(tsconfig),
+						'tsconfig.json': createTsconfigJson(tsconfig),
 						...Object.fromEntries(
 							files.map(fileName => [fileName, '']),
 						),
@@ -1224,7 +1224,7 @@ export default testSuite(({ describe }) => {
 
 				const jsFilePath = 'index.js';
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[jsFilePath]: '',
 				});
 
@@ -1253,7 +1253,7 @@ export default testSuite(({ describe }) => {
 
 				const jsFilePath = 'index.js';
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[jsFilePath]: '',
 				});
 
@@ -1282,7 +1282,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -1308,7 +1308,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString(tsconfig),
+					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
 
@@ -1347,14 +1347,14 @@ export default testSuite(({ describe }) => {
 
 			test('should match', async () => {
 				const fixture = await createFixture({
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							allowJs: true,
 						},
 					}),
 					'a.js': '',
 					project: {
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							extends: '../tsconfig.json',
 						}),
 						'b.js': '',

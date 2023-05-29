@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJsonString, getTscTsconfig } from '../../../utils.js';
+import { createTsconfigJson, getTscTsconfig } from '../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -10,7 +10,7 @@ export default testSuite(({ describe }) => {
 			test('invalid path', async () => {
 				const fixture = await createFixture({
 					'file.ts': '',
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './non-existent.json',
 					}),
 				});
@@ -26,7 +26,7 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'file.ts': '',
 					'tsconfig.empty.json': 'require("fs")',
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './tsconfig.empty.json',
 					}),
 				});
@@ -43,7 +43,7 @@ export default testSuite(({ describe }) => {
 			const fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.empty.json': '',
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.empty.json',
 				}),
 			});
@@ -60,8 +60,8 @@ export default testSuite(({ describe }) => {
 		test('empty json', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.empty.json': tsconfigJsonString({}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.empty.json': createTsconfigJson({}),
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.empty.json',
 				}),
 			});
@@ -84,7 +84,7 @@ export default testSuite(({ describe }) => {
 						"jsx": "react", // dangling comma
 					},
 				}`,
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.base.json',
 				}),
 			});
@@ -100,7 +100,7 @@ export default testSuite(({ describe }) => {
 
 		test('references is ignored', async () => {
 			const fixture = await createFixture({
-				'tsconfig.base.json': tsconfigJsonString({
+				'tsconfig.base.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
@@ -111,7 +111,7 @@ export default testSuite(({ describe }) => {
 						},
 					],
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.base.json',
 				}),
 				'file.ts': '',
@@ -135,13 +135,13 @@ export default testSuite(({ describe }) => {
 							'a.ts': '',
 							'b.ts': '',
 						},
-						'tsconfig.base.json': tsconfigJsonString({
+						'tsconfig.base.json': createTsconfigJson({
 							files: [
 								'src/a.ts',
 							],
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './some-dir/tsconfig.base.json',
 					}),
 				});
@@ -161,13 +161,13 @@ export default testSuite(({ describe }) => {
 							'a.ts': '',
 							'b.ts': '',
 						},
-						'tsconfig.base.json': tsconfigJsonString({
+						'tsconfig.base.json': createTsconfigJson({
 							files: [
 								'src/a.ts',
 							],
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './some-dir/tsconfig.base.json',
 						files: [
 							'src/b.ts',
@@ -191,11 +191,11 @@ export default testSuite(({ describe }) => {
 						'a.ts': '',
 						'b.ts': '',
 						'c.ts': '',
-						'tsconfig.base.json': tsconfigJsonString({
+						'tsconfig.base.json': createTsconfigJson({
 							include: ['*'],
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './src-a/tsconfig.base.json',
 					}),
 				});
@@ -222,10 +222,10 @@ export default testSuite(({ describe }) => {
 						'b.ts': '',
 						'c.ts': '',
 					},
-					'tsconfig.base.json': tsconfigJsonString({
+					'tsconfig.base.json': createTsconfigJson({
 						include: ['src-a'],
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './tsconfig.base.json',
 						include: ['src-b'],
 					}),
@@ -248,7 +248,7 @@ export default testSuite(({ describe }) => {
 					'src-a': {
 						'a.ts': '',
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							baseUrl: 'src-a',
 						},
@@ -271,13 +271,13 @@ export default testSuite(({ describe }) => {
 						'src-a': {
 							'a.ts': '',
 						},
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								baseUrl: 'src-a',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './project/tsconfig.json',
 					}),
 				});
@@ -293,12 +293,12 @@ export default testSuite(({ describe }) => {
 
 			test('resolves parent baseUrl path', async () => {
 				const fixture = await createFixture({
-					'project/tsconfig.json': tsconfigJsonString({
+					'project/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							baseUrl: '..',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: './project/tsconfig.json',
 					}),
 					'a.ts': '',
@@ -317,22 +317,22 @@ export default testSuite(({ describe }) => {
 		test('nested extends', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
-				'some-dir/some-dir/b': tsconfigJsonString({
+				'some-dir/some-dir/b': createTsconfigJson({
 					extends: '../../c.json',
 					compilerOptions: {
 						module: 'commonjs',
 					},
 				}),
-				'c.json': tsconfigJsonString({
+				'c.json': createTsconfigJson({
 					compileOnSave: true,
 				}),
-				'tsconfig.a.json': tsconfigJsonString({
+				'tsconfig.a.json': createTsconfigJson({
 					extends: './some-dir/some-dir/b',
 					compilerOptions: {
 						allowJs: true,
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.a.json',
 				}),
 			});
@@ -350,19 +350,19 @@ export default testSuite(({ describe }) => {
 		test('extends array', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.a.json': tsconfigJsonString({
+				'tsconfig.a.json': createTsconfigJson({
 					compilerOptions: {
 						allowJs: true,
 						strict: true,
 						jsx: 'react',
 					},
 				}),
-				'tsconfig.b.json': tsconfigJsonString({
+				'tsconfig.b.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react-jsx',
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: ['./tsconfig.a.json', './tsconfig.b.json'],
 					compilerOptions: {
 						allowJs: false,
@@ -380,13 +380,13 @@ export default testSuite(({ describe }) => {
 		test('watchOptions', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.base.json': tsconfigJsonString({
+				'tsconfig.base.json': createTsconfigJson({
 					watchOptions: {
 						synchronousWatchDirectory: true,
 						excludeDirectories: ['a', 'b'],
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.base.json',
 					watchOptions: {
 						fallbackPolling: 'fixedinterval',

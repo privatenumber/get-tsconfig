@@ -1,20 +1,20 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJsonString, getTscTsconfig, packageJson } from '../../../../utils.js';
+import { createTsconfigJson, getTscTsconfig, createPackageJson } from '../../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('relative path', ({ test }) => {
 		test('extensionless file', async () => {
 			const fixture = await createFixture({
-				asdf: tsconfigJsonString({
+				asdf: createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 						allowJs: true,
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './asdf',
 					compilerOptions: {
 						strict: true,
@@ -34,19 +34,19 @@ export default testSuite(({ describe }) => {
 
 		test('prefers exact match (extensionless file)', async () => {
 			const fixture = await createFixture({
-				asdf: tsconfigJsonString({
+				asdf: createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 						allowJs: true,
 					},
 				}),
-				'asdf.json': tsconfigJsonString({
+				'asdf.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react-native',
 						allowJs: true,
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './asdf',
 					compilerOptions: {
 						strict: true,
@@ -66,13 +66,13 @@ export default testSuite(({ describe }) => {
 
 		test('arbitrary extension', async () => {
 			const fixture = await createFixture({
-				'asdf.ts': tsconfigJsonString({
+				'asdf.ts': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 						allowJs: true,
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './asdf.ts',
 					compilerOptions: {
 						strict: true,
@@ -92,14 +92,14 @@ export default testSuite(({ describe }) => {
 
 		test('parent directory', async () => {
 			const fixture = await createFixture({
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 						allowJs: true,
 					},
 				}),
 				tests: {
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: '..',
 						compilerOptions: {
 							strict: true,
@@ -121,12 +121,12 @@ export default testSuite(({ describe }) => {
 
 		test('shoud not resolve directory', async () => {
 			const fixture = await createFixture({
-				'directory/tsconfig.json': tsconfigJsonString({
+				'directory/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './directory',
 				}),
 			});
@@ -141,16 +141,16 @@ export default testSuite(({ describe }) => {
 		test('shoud not resolve directory even with package.json#tsconfig', async () => {
 			const fixture = await createFixture({
 				directory: {
-					'package.json': packageJson({
+					'package.json': createPackageJson({
 						tsconfig: './tsconfig.json',
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react',
 						},
 					}),
 				},
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: './directory',
 				}),
 			});

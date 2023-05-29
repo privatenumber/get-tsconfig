@@ -1,7 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJsonString, getTscTsconfig } from '../../utils.js';
+import { createTsconfigJson, getTscTsconfig } from '../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -74,7 +74,7 @@ export default testSuite(({ describe }) => {
 		test('parses a path', async () => {
 			const fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						moduleResolution: 'node10',
 						isolatedModules: true,

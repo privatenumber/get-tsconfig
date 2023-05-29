@@ -3,15 +3,13 @@ import { promises as fs } from 'fs';
 import { execa } from 'execa';
 import type { TsConfigJson, PackageJson } from 'type-fest';
 
-export const tsconfigJsonString = (
+export const createTsconfigJson = (
 	tsconfig: TsConfigJson,
-) => JSON.stringify(
-	tsconfig,
-	null,
-	'\t',
-);
+) => JSON.stringify(tsconfig);
 
-export const packageJson = (object: PackageJson) => JSON.stringify(object);
+export const createPackageJson = (
+	packageJson: PackageJson,
+) => JSON.stringify(packageJson);
 
 const randomId = () => Math.random().toString(36).slice(2);
 

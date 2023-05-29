@@ -1,14 +1,14 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { tsconfigJsonString, getTscTsconfig } from '../../../../utils.js';
+import { createTsconfigJson, getTscTsconfig } from '../../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
 	describe('absolute path', ({ test }) => {
 		test('absolute path', async () => {
 			const fixture = await createFixture({
-				'dep/tsconfig.json': tsconfigJsonString({
+				'dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
@@ -16,7 +16,7 @@ export default testSuite(({ describe }) => {
 				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', tsconfigJsonString({
+			await fixture.writeFile('tsconfig.json', createTsconfigJson({
 				extends: path.join(fixture.path, 'dep/tsconfig.json'),
 			}));
 
@@ -31,7 +31,7 @@ export default testSuite(({ describe }) => {
 
 		test('no extension', async () => {
 			const fixture = await createFixture({
-				'dep/tsconfig.json': tsconfigJsonString({
+				'dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
@@ -39,7 +39,7 @@ export default testSuite(({ describe }) => {
 				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', tsconfigJsonString({
+			await fixture.writeFile('tsconfig.json', createTsconfigJson({
 				extends: path.join(fixture.path, 'dep/tsconfig'),
 			}));
 
@@ -54,7 +54,7 @@ export default testSuite(({ describe }) => {
 
 		test('arbitrary extension', async () => {
 			const fixture = await createFixture({
-				'dep/tsconfig.tsx': tsconfigJsonString({
+				'dep/tsconfig.tsx': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
@@ -62,7 +62,7 @@ export default testSuite(({ describe }) => {
 				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', tsconfigJsonString({
+			await fixture.writeFile('tsconfig.json', createTsconfigJson({
 				extends: path.join(fixture.path, 'dep/tsconfig.tsx'),
 			}));
 

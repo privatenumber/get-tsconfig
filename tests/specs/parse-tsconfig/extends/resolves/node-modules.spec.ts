@@ -2,7 +2,7 @@ import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
-import { tsconfigJsonString, getTscTsconfig, packageJson } from '../../../../utils.js';
+import { createTsconfigJson, getTscTsconfig, createPackageJson } from '../../../../utils.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
@@ -10,18 +10,18 @@ export default testSuite(({ describe }) => {
 		test('prefers file over package', async () => {
 			const fixture = await createFixture({
 				node_modules: {
-					'dep.json': tsconfigJsonString({
+					'dep.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react-native',
 						},
 					}),
-					'dep/tsconfig.json': tsconfigJsonString({
+					'dep/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react',
 						},
 					}),
 				},
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: 'dep',
 				}),
 				'file.ts': '',
@@ -40,18 +40,18 @@ export default testSuite(({ describe }) => {
 			test('implicit tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							main: './index.js',
 						}),
 						'index.js': 'require("fs")',
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -68,13 +68,13 @@ export default testSuite(({ describe }) => {
 
 			test('without package.json', async () => {
 				const fixture = await createFixture({
-					'node_modules/dep/tsconfig.json': tsconfigJsonString({
+					'node_modules/dep/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -93,19 +93,19 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': 'invalid json',
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -124,13 +124,13 @@ export default testSuite(({ describe }) => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': 'invalid json',
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -149,13 +149,13 @@ export default testSuite(({ describe }) => {
 		describe('dependency file', ({ test }) => {
 			test('direct tsconfig.json', async () => {
 				const fixture = await createFixture({
-					'node_modules/dep/some-file.json': tsconfigJsonString({
+					'node_modules/dep/some-file.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/some-file.json',
 					}),
 					'file.ts': '',
@@ -172,13 +172,13 @@ export default testSuite(({ describe }) => {
 
 			test('implicit .json extension', async () => {
 				const fixture = await createFixture({
-					'node_modules/dep/react-native.json': tsconfigJsonString({
+					'node_modules/dep/react-native.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react-native',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/react-native',
 					}),
 					'file.ts': '',
@@ -195,17 +195,17 @@ export default testSuite(({ describe }) => {
 
 			test('prefers implicit .json over directory', async () => {
 				const fixture = await createFixture({
-					'node_modules/config-package/lib/tsconfig.json': tsconfigJsonString({
+					'node_modules/config-package/lib/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react-jsxdev',
 						},
 					}),
-					'node_modules/config-package/lib.json': tsconfigJsonString({
+					'node_modules/config-package/lib.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react-jsx',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'config-package/lib',
 					}),
 					'file.ts': '',
@@ -222,13 +222,13 @@ export default testSuite(({ describe }) => {
 
 			test('extensionless file should not work', async () => {
 				const fixture = await createFixture({
-					'node_modules/dep/tsconfig': tsconfigJsonString({
+					'node_modules/dep/tsconfig': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react-native',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/tsconfig',
 					}),
 					'file.ts': '',
@@ -245,13 +245,13 @@ export default testSuite(({ describe }) => {
 
 			test('arbitrary extension should not work', async () => {
 				const fixture = await createFixture({
-					'node_modules/dep/tsconfig.ts': tsconfigJsonString({
+					'node_modules/dep/tsconfig.ts': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
 							jsx: 'react-native',
 						},
 					}),
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/tsconfig.ts',
 					}),
 					'file.ts': '',
@@ -269,13 +269,13 @@ export default testSuite(({ describe }) => {
 
 		test('directory named "tsconfig.json"', async () => {
 			const fixture = await createFixture({
-				'node_modules/dep/tsconfig.json/tsconfig.json': tsconfigJsonString({
+				'node_modules/dep/tsconfig.json/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
 					},
 				}),
-				'tsconfig.json': tsconfigJsonString({
+				'tsconfig.json': createTsconfigJson({
 					extends: 'dep/tsconfig.json',
 				}),
 				'file.ts': '',
@@ -292,14 +292,14 @@ export default testSuite(({ describe }) => {
 
 		test('extends dependency package far', async () => {
 			const fixture = await createFixture({
-				'node_modules/dep/tsconfig.json': tsconfigJsonString({
+				'node_modules/dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
 						jsx: 'react',
 					},
 				}),
 				'nested/nested/nested': {
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/tsconfig.json',
 					}),
 					'file.ts': '',
@@ -320,23 +320,23 @@ export default testSuite(({ describe }) => {
 			test('package.json#tsconfig', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							tsconfig: './some-config.json',
 						}),
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 						// should be ignored
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -354,27 +354,27 @@ export default testSuite(({ describe }) => {
 			test('reads nested package.json#tsconfig', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/some-directory': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							// This is ignored because its not at root
 							exports: {
 								'./*': null,
 							},
 							tsconfig: './some-config.json',
 						}),
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 						// should be ignored
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/some-directory',
 					}),
 					'file.ts': '',
@@ -412,23 +412,23 @@ export default testSuite(({ describe }) => {
 			test('main', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: './some-config.json',
 						}),
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 						// should be ignored
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -446,23 +446,23 @@ export default testSuite(({ describe }) => {
 			test('subpath', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: { './config': './some-config.json' },
 						}),
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 						// should be ignored
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/config',
 					}),
 					'file.ts': '',
@@ -481,25 +481,25 @@ export default testSuite(({ describe }) => {
 				test('require', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': packageJson({
+							'package.json': createPackageJson({
 								exports: {
 									require: './some-config.json',
 								},
 							}),
-							'some-config.json': tsconfigJsonString({
+							'some-config.json': createTsconfigJson({
 								compilerOptions: {
 									strict: true,
 									jsx: 'react',
 								},
 							}),
 							// should be ignored
-							'tsconfig.json': tsconfigJsonString({
+							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
 									jsx: 'preserve',
 								},
 							}),
 						},
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							extends: 'dep',
 						}),
 						'file.ts': '',
@@ -517,25 +517,25 @@ export default testSuite(({ describe }) => {
 				test('types', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': packageJson({
+							'package.json': createPackageJson({
 								exports: {
 									types: './some-config.json',
 								},
 							}),
-							'some-config.json': tsconfigJsonString({
+							'some-config.json': createTsconfigJson({
 								compilerOptions: {
 									strict: true,
 									jsx: 'react',
 								},
 							}),
 							// should be ignored
-							'tsconfig.json': tsconfigJsonString({
+							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
 									jsx: 'preserve',
 								},
 							}),
 						},
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							extends: 'dep',
 						}),
 						'file.ts': '',
@@ -553,25 +553,25 @@ export default testSuite(({ describe }) => {
 				test('missing condition should fail', async () => {
 					const fixture = await createFixture({
 						'node_modules/dep': {
-							'package.json': packageJson({
+							'package.json': createPackageJson({
 								exports: {
 									asdf: './some-config.json',
 								},
 							}),
-							'some-config.json': tsconfigJsonString({
+							'some-config.json': createTsconfigJson({
 								compilerOptions: {
 									strict: true,
 									jsx: 'react',
 								},
 							}),
 							// should be ignored
-							'tsconfig.json': tsconfigJsonString({
+							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
 									jsx: 'preserve',
 								},
 							}),
 						},
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							extends: 'dep',
 						}),
 						'file.ts': '',
@@ -592,25 +592,25 @@ export default testSuite(({ describe }) => {
 			test('missing subpath should fail', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: {
 								'./config': './some-config.json',
 							},
 						}),
-						'some-config.json': tsconfigJsonString({
+						'some-config.json': createTsconfigJson({
 							compilerOptions: {
 								strict: true,
 								jsx: 'react',
 							},
 						}),
 						// should be ignored
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'preserve',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/missing',
 					}),
 					'file.ts': '',
@@ -631,17 +631,17 @@ export default testSuite(({ describe }) => {
 			test('null exports should resolve tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: null,
 						}),
 
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'react-native',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -659,17 +659,17 @@ export default testSuite(({ describe }) => {
 			test('null exports should resolve tsconfig.json in directory', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: null,
 						}),
 
-						'some-directory/tsconfig.json': tsconfigJsonString({
+						'some-directory/tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'react-jsx',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/some-directory',
 					}),
 					'file.ts': '',
@@ -687,19 +687,19 @@ export default testSuite(({ describe }) => {
 			test('path block should still resolve tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: {
 								'./*': null,
 							},
 						}),
 
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'react-native',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep',
 					}),
 					'file.ts': '',
@@ -719,18 +719,18 @@ export default testSuite(({ describe }) => {
 			test('package.json ignored in nested directory', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep/a': {
-						'package.json': packageJson({
+						'package.json': createPackageJson({
 							exports: {
 								'./*': null,
 							},
 						}),
-						'tsconfig.json': tsconfigJsonString({
+						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
 								jsx: 'react-native',
 							},
 						}),
 					},
-					'tsconfig.json': tsconfigJsonString({
+					'tsconfig.json': createTsconfigJson({
 						extends: 'dep/a',
 					}),
 					'file.ts': '',
