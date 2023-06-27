@@ -124,7 +124,7 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
-							baseUrl: '/',
+							baseUrl: process.platform === 'win32' ? 'C:\\' : '/',
 						},
 					}),
 				});
