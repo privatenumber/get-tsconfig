@@ -1,3 +1,4 @@
+import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson, getTscResolution } from '../utils.js';
@@ -401,6 +402,35 @@ export default testSuite(({ describe }) => {
 
 			const resolvedAttempts = await getTscResolution('/absolute', fixture.path);
 			expect(matcher('/absolute')).toStrictEqual([
+				resolvedAttempts[0].filePath.slice(0, -3),
+			]);
+
+			await fixture.rm();
+		});
+
+		test('matches absolute target paths', async () => {
+			const fixture = await createFixture();
+
+			await fixture.writeFile(
+				'tsconfig.json',
+				createTsconfigJson({
+					compilerOptions: {
+						baseUrl: fixture.path,
+						paths: {
+							dir: [path.join(fixture.path, 'dir')],
+						},
+					},
+				}),
+			);
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+			expect(tsconfig).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolution('dir', fixture.path);
+			expect(matcher('dir')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 

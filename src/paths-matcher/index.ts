@@ -28,7 +28,7 @@ const parsePaths = (
 				throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
 			}
 
-			return path.join(absoluteBaseUrl, substitution);
+			return path.resolve(absoluteBaseUrl, substitution);
 		}),
 	} as PathEntry<string | StarPattern>;
 });
@@ -54,7 +54,11 @@ export const createPathsMatcher = (
 		baseUrl || '.',
 	);
 
-	const pathEntries = paths ? parsePaths(paths, baseUrl, resolvedBaseUrl) : [];
+	const pathEntries = (
+		paths
+			? parsePaths(paths, baseUrl, resolvedBaseUrl)
+			: []
+	);
 
 	return (specifier: string) => {
 		if (isRelativePathPattern.test(specifier)) {
