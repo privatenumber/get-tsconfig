@@ -107,6 +107,12 @@ export const parseTsconfig = (
 				directoryPath,
 				resolvedBaseUrl,
 			));
+			console.log({
+				directoryPath,
+				baseUrl: compilerOptions.baseUrl,
+				resolvedBaseUrl,
+				relativeBaseUrl,
+			});
 
 			compilerOptions.baseUrl = relativeBaseUrl;
 		}
