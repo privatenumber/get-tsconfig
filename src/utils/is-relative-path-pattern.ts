@@ -1,1 +1,1 @@
-export const isRelativePathPattern = /^\.{1,2}(\/.*)?$/;
+export const isRelativePathPattern = /^\.{1,2}([\\/].*)?$/;
