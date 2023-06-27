@@ -108,6 +108,7 @@ export const parseTsconfig = (
 				resolvedBaseUrl,
 			));
 			console.log({
+				root: path.resolve('/'),
 				directoryPath,
 				baseUrl: compilerOptions.baseUrl,
 				resolvedBaseUrl,
