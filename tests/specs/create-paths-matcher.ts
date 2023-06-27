@@ -102,62 +102,89 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
-		test('baseUrl', async () => {
-			const fixture = await createFixture({
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						baseUrl: '.',
-					},
-				}),
-			});
-
-			const tsconfig = getTsconfig(fixture.path);
-			expect(tsconfig).not.toBeNull();
-
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).not.toBeNull();
-
-			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-			expect(matcher('exactMatch')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
-			]);
-
-			await fixture.rm();
-		});
-
-		test('baseUrl from extends', async () => {
-			const fixture = await createFixture({
-				'src/lib/file': '',
-				'some-dir/tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						baseUrl: '..',
-						paths: {
-							$lib: [
-								'src/lib',
-							],
-							'$lib/*': [
-								'src/lib/*',
-							],
+		describe('baseUrl', ({ test }) => {
+			test('baseUrl', async () => {
+				const fixture = await createFixture({
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: '.',
 						},
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './some-dir/tsconfig.json',
-				}),
+					}),
+				});
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
+
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
+
+				const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+				expect(matcher('exactMatch')).toStrictEqual([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]);
+
+				await fixture.rm();
 			});
 
-			const tsconfig = getTsconfig(fixture.path);
-			expect(tsconfig).not.toBeNull();
+			test('inherited from extends', async () => {
+				const fixture = await createFixture({
+					'src/lib/file': '',
+					'some-dir/tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: '..',
+							paths: {
+								$lib: [
+									'src/lib',
+								],
+								'$lib/*': [
+									'src/lib/*',
+								],
+							},
+						},
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './some-dir/tsconfig.json',
+					}),
+				});
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).not.toBeNull();
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
 
-			const resolvedAttempts = await getTscResolution('$lib', fixture.path);
-			expect(matcher('$lib')).toStrictEqual([
-				resolvedAttempts[0].filePath.slice(0, -3),
-			]);
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
 
-			await fixture.rm();
+				const resolvedAttempts = await getTscResolution('$lib', fixture.path);
+				expect(matcher('$lib')).toStrictEqual([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]);
+
+				await fixture.rm();
+			});
+
+			test('absolute path', async () => {
+				const fixture = await createFixture();
+				await fixture.writeFile(
+					'tsconfig.json',
+					createTsconfigJson({
+						compilerOptions: {
+							baseUrl: fixture.path,
+						},
+					}),
+				);
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
+
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
+
+				const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
+				expect(matcher('exactMatch')).toStrictEqual([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]);
+
+				await fixture.rm();
+			});
 		});
 
 		test('exact match', async () => {

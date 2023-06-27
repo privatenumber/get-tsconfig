@@ -97,5 +97,47 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
+
+		describe('baseUrl', ({ test }) => {
+			test('relative path', async () => {
+				const fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: '.',
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
+
+			test('absolute path', async () => {
+				const fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: process.platform === 'win32' ? 'C:\\' : '/',
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
+		});
 	});
 });
