@@ -11,16 +11,16 @@ Find and parse `tsconfig.json` files.
 - Validates and throws parsing errors
 - Tiny! `3.6 kB` Minified + Gzipped
 
-## 🚀 Install
+## Install
 
 ```bash
 npm install get-tsconfig
 ```
 
-## 🙋‍♀️ Why?
+## Why?
 For TypeScript related tooling to correctly parse `tsconfig.json` file without depending on TypeScript.
 
-## ⚙️ API
+## API
 
 ### getTsconfig(searchPath?, configName?)
 Searches for a `tsconfig.json` file and parses it. Returns `null` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
