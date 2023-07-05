@@ -31,15 +31,25 @@ export default testSuite(({ describe }) => {
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
-								'@': ['src'],
+								'@/*': ['./src/*'],
 							},
 						},
 					}),
+					src: {
+						'file.ts': "export default {}",
+					},
 				});
 
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
-				expect(() => createPathsMatcher(tsconfig!)).toThrow('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
+
+				const resolvedAttempts = await getTscResolution('@/file', fixture.path);
+				expect(matcher('@/file')).toStrictEqual([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]);
 
 				await fixture.rm();
 			});

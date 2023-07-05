@@ -24,10 +24,6 @@ const parsePaths = (
 					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
 			);
 
-			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
-				throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
-			}
-
 			return path.resolve(absoluteBaseUrl, substitution);
 		}),
 	} as PathEntry<string | StarPattern>;
