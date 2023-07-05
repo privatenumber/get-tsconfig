@@ -37,9 +37,19 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
+				let throwsError = false;
+				const errorMessage = 'Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?';
+				try {
+					await getTscResolution('@', fixture.path);
+				} catch (error) {
+					throwsError = true;
+					expect((error as any).stdout).toMatch(errorMessage);
+				}
+				expect(throwsError).toBe(true);
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
-				expect(() => createPathsMatcher(tsconfig!)).toThrow('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
+				expect(() => createPathsMatcher(tsconfig!)).toThrow(errorMessage);
 
 				await fixture.rm();
 			});
