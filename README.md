@@ -9,7 +9,9 @@ Find and parse `tsconfig.json` files.
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
 - Validates and throws parsing errors
-- Tiny! `3.6 kB` Minified + Gzipped
+- Tiny! `7 kB` Minified + Gzipped
+
+<sub>Found this package useful? Show your support & appreciation by [sponsoring](https://github.com/sponsors/privatenumber)! ❤️</sub>
 
 ## Install
 
@@ -194,3 +196,10 @@ const parsedTsconfig = parseJsonConfigFileContent(
     path.dirname(tsconfigPath)
 )
 ```
+
+## Sponsors
+<p align="center">
+	<a href="https://github.com/sponsors/privatenumber">
+		<img src="https://cdn.jsdelivr.net/gh/privatenumber/sponsors/sponsorkit/sponsors.svg">
+	</a>
+</p>
