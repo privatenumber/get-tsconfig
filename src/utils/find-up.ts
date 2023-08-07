@@ -1,13 +1,14 @@
 import path from 'path';
-import fs from 'fs';
+import { exists } from './fs-cached.js';
 
 export const findUp = (
 	searchPath: string,
 	fileName: string,
+	cache?: Map<string, any>,
 ) => {
 	while (true) {
 		const configPath = path.posix.join(searchPath, fileName);
-		if (fs.existsSync(configPath)) {
+		if (exists(cache, configPath)) {
 			return configPath;
 		}
 

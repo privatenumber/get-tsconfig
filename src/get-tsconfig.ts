@@ -6,14 +6,19 @@ import type { TsConfigResult } from './types.js';
 export const getTsconfig = (
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
+	cache: Map<string, any> | undefined = undefined,
 ): TsConfigResult | null => {
-	const configFile = findUp(slash(searchPath), configName);
+	const configFile = findUp(
+		slash(searchPath),
+		configName,
+		cache,
+	);
 
 	if (!configFile) {
 		return null;
 	}
 
-	const config = parseTsconfig(configFile);
+	const config = parseTsconfig(configFile, cache);
 
 	return {
 		path: configFile,
