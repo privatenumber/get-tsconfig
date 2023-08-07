@@ -56,7 +56,7 @@ const resolveExtends = (
 
 export const parseTsconfig = (
 	tsconfigPath: string,
-	cache?: Map<string, any>,
+	cache: Map<string, any> = new Map(),
 ): TsConfigJsonResolved => {
 	let realTsconfigPath: string;
 	try {

@@ -72,5 +72,28 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
+
+		test('cache', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': tsconfigJson,
+			});
+
+			const expectedResult = {
+				path: slash(path.join(fixture.path, 'tsconfig.json')),
+				config: { compilerOptions },
+			};
+
+			const cache = new Map();
+			const tsconfig = getTsconfig(fixture.path, 'tsconfig.json', cache);
+			expect(tsconfig).toStrictEqual(expectedResult);
+			expect(cache.size).toBe(3);
+
+			await fixture.rm('tsconfig.json');
+
+			const tsconfigCacheHit = getTsconfig(fixture.path, 'tsconfig.json', cache);
+			expect(tsconfigCacheHit).toStrictEqual(expectedResult);
+
+			await fixture.rm();
+		});
 	});
 });

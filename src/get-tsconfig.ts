@@ -6,7 +6,7 @@ import type { TsConfigResult } from './types.js';
 export const getTsconfig = (
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
-	cache: Map<string, any> | undefined = undefined,
+	cache: Map<string, any> = new Map(),
 ): TsConfigResult | null => {
 	const configFile = findUp(
 		slash(searchPath),
