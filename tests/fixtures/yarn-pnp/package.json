@@ -1,7 +1,0 @@
-{
-	"dependencies": {
-		"@org/tsconfig-package": "../org-tsconfig-package",
-		"get-tsconfig": "link:../../..",
-		"tsconfig-package": "../tsconfig-package"
-	}
-}

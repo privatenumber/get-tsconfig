@@ -1,98 +1,46 @@
 {
-	"name": "get-tsconfig",
-	"version": "0.0.0-semantic-release",
-	"description": "Find and parse the tsconfig.json file from a directory path",
-	"keywords": [
-		"get-tsconfig",
-		"get",
-		"typescript",
-		"tsconfig",
-		"tsconfig.json"
-	],
-	"license": "MIT",
-	"repository": "privatenumber/get-tsconfig",
-	"funding": "https://github.com/privatenumber/get-tsconfig?sponsor=1",
-	"author": {
-		"name": "Hiroki Osame",
-		"email": "hiroki.osame@gmail.com"
-	},
-	"type": "module",
-	"files": [
-		"dist"
-	],
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.cts",
-	"exports": {
-		"require": {
-			"types": "./dist/index.d.cts",
-			"default": "./dist/index.cjs"
-		},
-		"import": {
-			"types": "./dist/index.d.mts",
-			"default": "./dist/index.mjs"
-		}
-	},
-	"imports": {
-		"#get-tsconfig": {
-			"types": "./src/index.ts",
-			"development": "./src/index.ts",
-			"default": "./dist/index.mjs"
-		}
-	},
-	"scripts": {
-		"lint": "eslint --cache .",
-		"build": "pkgroll --minify --target node12.20",
-		"test": "pnpm build && tsx tests",
-		"dev": "tsx watch --conditions=development tests",
-		"type-check": "tsc --noEmit",
-		"prepack": "pnpm build && clean-pkg-json"
-	},
-	"dependencies": {
-		"resolve-pkg-maps": "^1.0.0"
-	},
-	"devDependencies": {
-		"@pvtnbr/eslint-config": "^0.33.0",
-		"@types/node": "^18.15.10",
-		"@yarnpkg/pnp": "3.3.1",
-		"clean-pkg-json": "^1.2.0",
-		"eslint": "^8.36.0",
-		"execa": "^7.1.1",
-		"fs-fixture": "^1.2.0",
-		"is-fs-case-sensitive": "^1.0.0",
-		"jsonc-parser": "^3.2.0",
-		"manten": "^0.7.0",
-		"pkgroll": "^1.10.0",
-		"slash": "^5.1.0",
-		"tsx": "^3.12.7",
-		"type-fest": "^3.11.0",
-		"typescript": "^5.0.4"
-	},
-	"eslintConfig": {
-		"extends": "@pvtnbr/eslint-config",
-		"ignorePatterns": [
-			"tests/fixtures"
-		],
-		"overrides": [
-			{
-				"files": "tests/**/*.ts",
-				"rules": {
-					"@typescript-eslint/no-shadow": [
-						"error",
-						{
-							"allow": [
-								"test",
-								"describe"
-							]
-						}
-					]
-				}
-			}
-		]
-	},
-	"pnpm": {
-		"patchedDependencies": {
-			"type-fest@3.11.0": "patches/type-fest@3.11.0.patch"
-		}
-	}
+  "name": "get-tsconfig",
+  "version": "0.0.0-semantic-release",
+  "description": "Find and parse the tsconfig.json file from a directory path",
+  "keywords": [
+    "get-tsconfig",
+    "get",
+    "typescript",
+    "tsconfig",
+    "tsconfig.json"
+  ],
+  "license": "MIT",
+  "repository": "privatenumber/get-tsconfig",
+  "funding": "https://github.com/privatenumber/get-tsconfig?sponsor=1",
+  "author": {
+    "name": "Hiroki Osame",
+    "email": "hiroki.osame@gmail.com"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "imports": {
+    "#get-tsconfig": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "dependencies": {
+    "resolve-pkg-maps": "^1.0.0"
+  }
 }
