@@ -139,5 +139,40 @@ export default testSuite(({ describe }) => {
 				await fixture.rm();
 			});
 		});
+
+		test('cache', async () => {
+			const fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: '.',
+						moduleResolution: 'node10',
+						isolatedModules: true,
+						module: 'esnext',
+						esModuleInterop: true,
+						declaration: true,
+						outDir: 'dist',
+						strict: true,
+						target: 'esnext',
+					},
+				}),
+			});
+
+			const cache = new Map();
+			const parsedTsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'), cache);
+			expect(cache.size).toBe(2);
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+
+			const parsedTsconfigCached = parseTsconfig(path.join(fixture.path, 'tsconfig.json'), cache);
+			expect(cache.size).toBe(2);
+
+			expect(parsedTsconfigCached).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
+		});
 	});
 });

@@ -1,6 +1,7 @@
-import fs from 'fs';
 import { parse } from 'jsonc-parser';
+import { readFile } from './fs-cached.js';
 
 export const readJsonc = (
 	jsonPath: string,
-) => parse(fs.readFileSync(jsonPath, 'utf8')) as unknown;
+	cache?: Map<string, any>,
+) => parse(readFile(cache, jsonPath, 'utf8') as string) as unknown;

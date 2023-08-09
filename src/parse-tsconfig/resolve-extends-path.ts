@@ -1,12 +1,10 @@
 import path from 'path';
-import fs from 'fs';
 import Module from 'module';
 import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-
-const { existsSync } = fs;
+import { stat, exists } from '../utils/fs-cached.js';
 
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
@@ -19,10 +17,16 @@ const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
 	ignoreExports?: boolean,
+	cache?: Map<string, any>,
 ) => {
+	const cacheKey = `resolveFromPackageJsonPath:${packageJsonPath}:${subpath}:${ignoreExports}`;
+	if (cache?.has(cacheKey)) {
+		return cache.get(cacheKey);
+	}
+
 	let resolvedPath = 'tsconfig.json';
 
-	const packageJson = readJsonc(packageJsonPath) as PackageJson;
+	const packageJson = readJsonc(packageJsonPath, cache) as PackageJson;
 	if (packageJson) {
 		if (
 			!ignoreExports
@@ -42,11 +46,15 @@ const resolveFromPackageJsonPath = (
 		}
 	}
 
-	return path.join(
+	resolvedPath = path.join(
 		packageJsonPath,
 		'..',
 		resolvedPath,
 	);
+
+	cache?.set(cacheKey, resolvedPath);
+
+	return resolvedPath;
 };
 
 const PACKAGE_JSON = 'package.json';
@@ -55,6 +63,7 @@ const TS_CONFIG_JSON = 'tsconfig.json';
 export const resolveExtendsPath = (
 	requestedPath: string,
 	directoryPath: string,
+	cache?: Map<string, any>,
 ) => {
 	let filePath = requestedPath;
 
@@ -67,14 +76,14 @@ export const resolveExtendsPath = (
 	}
 
 	if (path.isAbsolute(filePath)) {
-		if (existsSync(filePath)) {
-			if (fs.statSync(filePath).isFile()) {
+		if (exists(cache, filePath)) {
+			if (stat(cache, filePath)!.isFile()) {
 				return filePath;
 			}
 		} else if (!filePath.endsWith('.json')) {
 			const jsonPath = `${filePath}.json`;
 
-			if (existsSync(jsonPath)) {
+			if (exists(cache, jsonPath)) {
 				return jsonPath;
 			}
 		}
@@ -97,9 +106,14 @@ export const resolveExtendsPath = (
 				);
 
 				if (packageJsonPath) {
-					const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
+					const resolvedPath = resolveFromPackageJsonPath(
+						packageJsonPath,
+						subpath,
+						false,
+						cache,
+					);
 
-					if (resolvedPath && existsSync(resolvedPath)) {
+					if (resolvedPath && exists(cache, resolvedPath)) {
 						return resolvedPath;
 					}
 				}
@@ -128,21 +142,27 @@ export const resolveExtendsPath = (
 	const packagePath = findUp(
 		directoryPath,
 		path.join('node_modules', packageName),
+		cache,
 	);
 
-	if (!packagePath || !fs.statSync(packagePath).isDirectory()) {
+	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
 		return;
 	}
 
 	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
-	if (existsSync(packageJsonPath)) {
-		const resolvedPath = resolveFromPackageJsonPath(packageJsonPath, subpath);
+	if (exists(cache, packageJsonPath)) {
+		const resolvedPath = resolveFromPackageJsonPath(
+			packageJsonPath,
+			subpath,
+			false,
+			cache,
+		);
 
 		if (!resolvedPath) {
 			return;
 		}
 
-		if (existsSync(resolvedPath)) {
+		if (exists(cache, resolvedPath)) {
 			return resolvedPath;
 		}
 	}
@@ -153,26 +173,31 @@ export const resolveExtendsPath = (
 	if (!jsonExtension) {
 		const fullPackagePathWithJson = `${fullPackagePath}.json`;
 
-		if (existsSync(fullPackagePathWithJson)) {
+		if (exists(cache, fullPackagePathWithJson)) {
 			return fullPackagePathWithJson;
 		}
 	}
 
-	if (!existsSync(fullPackagePath)) {
+	if (!exists(cache, fullPackagePath)) {
 		return;
 	}
 
-	if (fs.statSync(fullPackagePath).isDirectory()) {
+	if (stat(cache, fullPackagePath)!.isDirectory()) {
 		const fullPackageJsonPath = path.join(fullPackagePath, PACKAGE_JSON);
-		if (existsSync(fullPackageJsonPath)) {
-			const resolvedPath = resolveFromPackageJsonPath(fullPackageJsonPath, '', true);
-			if (resolvedPath && existsSync(resolvedPath)) {
+		if (exists(cache, fullPackageJsonPath)) {
+			const resolvedPath = resolveFromPackageJsonPath(
+				fullPackageJsonPath,
+				'',
+				true,
+				cache,
+			);
+			if (resolvedPath && exists(cache, resolvedPath)) {
 				return resolvedPath;
 			}
 		}
 
 		const tsconfigPath = path.join(fullPackagePath, TS_CONFIG_JSON);
-		if (existsSync(tsconfigPath)) {
+		if (exists(cache, tsconfigPath)) {
 			return tsconfigPath;
 		}
 	} else if (jsonExtension) {

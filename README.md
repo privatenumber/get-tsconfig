@@ -24,7 +24,7 @@ For TypeScript related tooling to correctly parse `tsconfig.json` file without d
 
 ## API
 
-### getTsconfig(searchPath?, configName?)
+### getTsconfig(searchPath?, configName?, cache?)
 Searches for a `tsconfig.json` file and parses it. Returns `null` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
 
 Returns:
@@ -57,6 +57,13 @@ Default: `tsconfig.json`
 
 The file name of the TypeScript config file.
 
+#### cache
+Type: `Map<string, any>`
+
+Default: `new Map()`
+
+Optional cache for fs operations.
+
 #### Example
 
 ```ts
@@ -80,13 +87,20 @@ console.log(getTsconfig('.', 'jsconfig.json'))
 
 ---
 
-### parseTsconfig(tsconfigPath)
+### parseTsconfig(tsconfigPath, cache?)
 The `tsconfig.json` parser used internally by `getTsconfig`. Returns the parsed tsconfig as `TsConfigJsonResolved`.
 
 #### tsconfigPath
 Type: `string`
 
 Required path to the tsconfig file.
+
+#### cache
+Type: `Map<string, any>`
+
+Default: `new Map()`
+
+Optional cache for fs operations.
 
 #### Example
 
