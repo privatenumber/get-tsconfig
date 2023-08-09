@@ -123,6 +123,18 @@ console.log(parseTsconfig('./path/to/tsconfig.custom.json'))
 
 ---
 
+<p align="center">
+	<a href="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold">
+		<picture>
+			<source width="830" media="(prefers-color-scheme: dark)" srcset="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image=dark">
+			<source width="830" media="(prefers-color-scheme: light)" srcset="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image">
+			<img width="830" src="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image" alt="Premium sponsor banner">
+		</picture>
+	</a>
+</p>
+
+---
+
 ### createFileMatcher(tsconfig: TsconfigResult, caseSensitivePaths?: boolean)
 
 Given a `tsconfig.json` file, it returns a file-matcher function that determines whether it should apply to a file path.
@@ -191,18 +203,6 @@ function exampleResolver(request: string) {
     }
 }
 ```
-
-<br>
-
-<p align="center">
-	<a href="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold">
-		<picture>
-			<source width="830" media="(prefers-color-scheme: dark)" srcset="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image=dark">
-			<source width="830" media="(prefers-color-scheme: light)" srcset="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image">
-			<img width="830" src="https://privatenumber-sponsors.vercel.app/api/sponsor?tier=gold&image" alt="Premium sponsor banner">
-		</picture>
-	</a>
-</p>
 
 ## FAQ
 
