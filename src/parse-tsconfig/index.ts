@@ -64,7 +64,6 @@ const resolveExtends = (
 				path.join(path.dirname(resolvedExtendsPath), file),
 			)),
 		);
-		console.log('extendsConfig.exclude', extendsConfig.exclude);
 	}
 
 	return extendsConfig;
@@ -156,7 +155,6 @@ export const parseTsconfig = (
 			}
 
 			if (!config.exclude.includes(outDir)) {
-				console.log('push', outDir);
 				config.exclude.push(outDir);
 			}
 			compilerOptions.outDir = normalizePath(outDir);
