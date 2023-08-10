@@ -9,6 +9,7 @@ import { resolveExtendsPath } from './resolve-extends-path.js';
 const resolveExtends = (
 	extendsPath: string,
 	fromDirectoryPath: string,
+	circularExtendsTracker: Set<string>,
 	cache?: Map<string, any>,
 ) => {
 	const resolvedExtendsPath = resolveExtendsPath(
@@ -21,8 +22,14 @@ const resolveExtends = (
 		throw new Error(`File '${extendsPath}' not found.`);
 	}
 
+	if (circularExtendsTracker.has(resolvedExtendsPath)) {
+		throw new Error(`Circularity detected while resolving configuration: ${resolvedExtendsPath}`);
+	}
+
+	circularExtendsTracker.add(resolvedExtendsPath);
+
 	const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
-	const extendsConfig = parseTsconfig(resolvedExtendsPath, cache);
+	const extendsConfig = _parseTsconfig(resolvedExtendsPath, cache, circularExtendsTracker);
 	delete extendsConfig.references;
 
 	const { compilerOptions } = extendsConfig;
@@ -70,9 +77,10 @@ const resolveExtends = (
 	return extendsConfig;
 };
 
-export const parseTsconfig = (
+const _parseTsconfig = (
 	tsconfigPath: string,
-	cache: Map<string, any> = new Map(),
+	cache?: Map<string, any>,
+	circularExtendsTracker = new Set<string>(),
 ): TsConfigJsonResolved => {
 	let realTsconfigPath: string;
 	try {
@@ -108,7 +116,12 @@ export const parseTsconfig = (
 		delete config.extends;
 
 		for (const extendsPath of extendsPathList.reverse()) {
-			const extendsConfig = resolveExtends(extendsPath, directoryPath, cache);
+			const extendsConfig = resolveExtends(
+				extendsPath,
+				directoryPath,
+				circularExtendsTracker,
+				cache,
+			);
 			const merged = {
 				...extendsConfig,
 				...config,
@@ -184,3 +197,8 @@ export const parseTsconfig = (
 
 	return config;
 };
+
+export const parseTsconfig = (
+	tsconfigPath: string,
+	cache = new Map<string, any>(),
+): TsConfigJsonResolved => _parseTsconfig(tsconfigPath, cache);
