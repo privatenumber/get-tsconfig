@@ -31,10 +31,10 @@ const resolveExtends = (
 		for (const property of resolvePaths) {
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
-				compilerOptions[property] = path.relative(
+				compilerOptions[property] = slash(path.relative(
 					directoryPath,
-					path.posix.join(path.dirname(resolvedExtendsPath), unresolvedPath),
-				) || './';
+					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
+				)) || './';
 			}
 		}
 	}
@@ -43,7 +43,7 @@ const resolveExtends = (
 		extendsConfig.files = extendsConfig.files.map(
 			file => path.relative(
 				directoryPath,
-				path.posix.join(path.dirname(resolvedExtendsPath), file),
+				path.join(path.dirname(resolvedExtendsPath), file),
 			),
 		);
 	}
@@ -52,7 +52,7 @@ const resolveExtends = (
 		extendsConfig.include = extendsConfig.include.map(
 			file => path.relative(
 				directoryPath,
-				path.posix.join(path.dirname(resolvedExtendsPath), file),
+				path.join(path.dirname(resolvedExtendsPath), file),
 			),
 		);
 	}
@@ -61,7 +61,7 @@ const resolveExtends = (
 		extendsConfig.exclude = extendsConfig.exclude.map(
 			file => path.relative(
 				directoryPath,
-				path.posix.join(path.dirname(resolvedExtendsPath), file),
+				path.join(path.dirname(resolvedExtendsPath), file),
 			),
 		);
 	}
