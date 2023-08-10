@@ -24,13 +24,19 @@ const resolveExtends = (
 	const extendsConfig = parseTsconfig(resolvedExtendsPath, cache);
 	delete extendsConfig.references;
 
-	if (extendsConfig.compilerOptions?.baseUrl) {
-		const { compilerOptions } = extendsConfig;
+	const { compilerOptions } = extendsConfig;
+	if (compilerOptions) {
+		const resolvePaths = ['baseUrl', 'outDir'] as const;
 
-		compilerOptions.baseUrl = path.relative(
-			directoryPath,
-			path.join(path.dirname(resolvedExtendsPath), compilerOptions.baseUrl!),
-		) || './';
+		for (const property of resolvePaths) {
+			const unresolvedPath = compilerOptions[property];
+			if (unresolvedPath) {
+				compilerOptions[property] = path.relative(
+					directoryPath,
+					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
+				) || './';
+			}
+		}
 	}
 
 	if (extendsConfig.files) {
@@ -44,6 +50,15 @@ const resolveExtends = (
 
 	if (extendsConfig.include) {
 		extendsConfig.include = extendsConfig.include.map(
+			file => path.relative(
+				directoryPath,
+				path.join(path.dirname(resolvedExtendsPath), file),
+			),
+		);
+	}
+
+	if (extendsConfig.exclude) {
+		extendsConfig.exclude = extendsConfig.exclude.map(
 			file => path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
@@ -133,13 +148,16 @@ export const parseTsconfig = (
 			}
 		}
 
-		if (compilerOptions.outDir) {
+		const { outDir } = compilerOptions;
+		if (outDir) {
 			if (!Array.isArray(config.exclude)) {
 				config.exclude = [];
 			}
 
-			config.exclude.push(compilerOptions.outDir);
-			compilerOptions.outDir = normalizePath(compilerOptions.outDir);
+			if (!config.exclude.includes(outDir)) {
+				config.exclude.push(outDir);
+			}
+			compilerOptions.outDir = normalizePath(outDir);
 		}
 	} else {
 		config.compilerOptions = {};

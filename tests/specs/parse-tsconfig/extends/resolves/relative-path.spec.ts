@@ -161,5 +161,34 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
+
+		test('outDir in extends', async () => {
+			const fixture = await createFixture({
+				'a/dep.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'react-native',
+						outDir: 'dist',
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './a/dep.json',
+				}),
+				'file.ts': '',
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			/**
+			 * tsc should put the outDir in exclude  but doesn't happen
+			 * when it's in extended tsconfig. I think this is a bug in tsc
+			 */
+			expectedTsconfig.exclude = ['a/dist'];
+
+			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+			await fixture.rm();
+		});
 	});
 });
