@@ -144,6 +144,66 @@ export default testSuite(({ describe }) => {
 
 				await fixture.rm();
 			});
+
+			test('empty package.json', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'package.json': '',
+						'custom.json': createTsconfigJson({
+							compilerOptions: {
+								module: 'node16',
+							},
+						}),
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								module: 'commonjs',
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep/custom.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
+
+			test('empty object package.json', async () => {
+				const fixture = await createFixture({
+					'node_modules/dep': {
+						'package.json': '{}',
+						'custom.json': createTsconfigJson({
+							compilerOptions: {
+								module: 'node16',
+							},
+						}),
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								module: 'commonjs',
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep/custom.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
 		});
 
 		describe('dependency file', ({ test }) => {

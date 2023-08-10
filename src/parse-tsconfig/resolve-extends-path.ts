@@ -24,26 +24,29 @@ const resolveFromPackageJsonPath = (
 		return cache.get(cacheKey);
 	}
 
-	let resolvedPath = 'tsconfig.json';
-
 	const packageJson = readJsonc(packageJsonPath, cache) as PackageJson;
-	if (packageJson) {
-		if (
-			!ignoreExports
-			&& packageJson.exports
-		) {
-			try {
-				const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
-				resolvedPath = resolvedExport;
-			} catch {
-				return;
-			}
-		} else if (
-			!subpath
-			&& packageJson.tsconfig
-		) {
-			resolvedPath = packageJson.tsconfig as string;
+	if (!packageJson) {
+		return;
+	}
+
+	let resolvedPath = subpath || 'tsconfig.json';
+
+	if (
+		!ignoreExports
+		&& packageJson.exports
+	) {
+		try {
+			const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
+			resolvedPath = resolvedExport;
+		} catch {
+			// Block
+			return false;
 		}
+	} else if (
+		!subpath
+		&& packageJson.tsconfig
+	) {
+		resolvedPath = packageJson.tsconfig as string;
 	}
 
 	resolvedPath = path.join(
@@ -158,11 +161,16 @@ export const resolveExtendsPath = (
 			cache,
 		);
 
-		if (!resolvedPath) {
+		// Blocked
+		if (resolvedPath === false) {
 			return;
 		}
 
-		if (exists(cache, resolvedPath)) {
+		if (
+			resolvedPath
+			&& exists(cache, resolvedPath)
+			&& stat(cache, resolvedPath)!.isFile()
+		) {
 			return resolvedPath;
 		}
 	}
