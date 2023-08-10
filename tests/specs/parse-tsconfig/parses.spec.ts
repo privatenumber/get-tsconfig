@@ -84,12 +84,12 @@ export default testSuite(({ describe }) => {
 						outDir: 'dist',
 						strict: true,
 						target: 'esnext',
+						rootDir: 'root-dir',
 					},
 				}),
 			});
 
 			const parsedTsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
-
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
