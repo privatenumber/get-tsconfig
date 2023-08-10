@@ -684,7 +684,7 @@ export default testSuite(({ describe }) => {
 				await fixture.rm();
 			});
 
-			test('path block should still resolve tsconfig.json', async () => {
+			test('path block should not resolve tsconfig.json', async () => {
 				const fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
