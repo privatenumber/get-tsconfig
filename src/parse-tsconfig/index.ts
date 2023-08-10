@@ -8,12 +8,12 @@ import { resolveExtendsPath } from './resolve-extends-path.js';
 
 const resolveExtends = (
 	extendsPath: string,
-	directoryPath: string,
+	fromDirectoryPath: string,
 	cache?: Map<string, any>,
 ) => {
 	const resolvedExtendsPath = resolveExtendsPath(
 		extendsPath,
-		directoryPath,
+		fromDirectoryPath,
 		cache,
 	);
 
@@ -21,6 +21,7 @@ const resolveExtends = (
 		throw new Error(`File '${extendsPath}' not found.`);
 	}
 
+	const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
 	const extendsConfig = parseTsconfig(resolvedExtendsPath, cache);
 	delete extendsConfig.references;
 
@@ -31,38 +32,38 @@ const resolveExtends = (
 		for (const property of resolvePaths) {
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
-				compilerOptions[property] = path.relative(
-					directoryPath,
-					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
-				) || './';
+				compilerOptions[property] = slash(path.relative(
+					fromDirectoryPath,
+					path.join(extendsDirectoryPath, unresolvedPath),
+				)) || './';
 			}
 		}
 	}
 
 	if (extendsConfig.files) {
 		extendsConfig.files = extendsConfig.files.map(
-			file => path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			file => slash(path.relative(
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
+			)),
 		);
 	}
 
 	if (extendsConfig.include) {
 		extendsConfig.include = extendsConfig.include.map(
-			file => path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			file => slash(path.relative(
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
+			)),
 		);
 	}
 
 	if (extendsConfig.exclude) {
 		extendsConfig.exclude = extendsConfig.exclude.map(
-			file => path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			file => slash(path.relative(
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
+			)),
 		);
 	}
 
