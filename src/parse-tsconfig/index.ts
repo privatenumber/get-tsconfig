@@ -31,38 +31,38 @@ const resolveExtends = (
 		for (const property of resolvePaths) {
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
-				compilerOptions[property] = path.relative(
+				compilerOptions[property] = slash(path.relative(
 					directoryPath,
 					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
-				) || './';
+				)) || './';
 			}
 		}
 	}
 
 	if (extendsConfig.files) {
 		extendsConfig.files = extendsConfig.files.map(
-			file => slash(path.relative(
+			file => path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			)),
+			),
 		);
 	}
 
 	if (extendsConfig.include) {
 		extendsConfig.include = extendsConfig.include.map(
-			file => slash(path.relative(
+			file => path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			)),
+			),
 		);
 	}
 
 	if (extendsConfig.exclude) {
 		extendsConfig.exclude = extendsConfig.exclude.map(
-			file => slash(path.relative(
+			file => path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			)),
+			),
 		);
 	}
 
