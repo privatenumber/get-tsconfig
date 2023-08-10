@@ -1,4 +1,0 @@
-{
-	"name": "@org/tsconfig-package",
-	"tsconfig": "./some-config.json"
-}
