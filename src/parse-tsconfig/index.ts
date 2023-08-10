@@ -31,9 +31,9 @@ const resolveExtends = (
 		for (const property of resolvePaths) {
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
-				compilerOptions[property] = path.relative(
+				compilerOptions[property] = path.posix.relative(
 					directoryPath,
-					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
+					path.posix.join(path.posix.dirname(resolvedExtendsPath), unresolvedPath),
 				) || './';
 			}
 		}
