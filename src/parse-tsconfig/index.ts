@@ -8,12 +8,12 @@ import { resolveExtendsPath } from './resolve-extends-path.js';
 
 const resolveExtends = (
 	extendsPath: string,
-	directoryPath: string,
+	fromDirectoryPath: string,
 	cache?: Map<string, any>,
 ) => {
 	const resolvedExtendsPath = resolveExtendsPath(
 		extendsPath,
-		directoryPath,
+		fromDirectoryPath,
 		cache,
 	);
 
@@ -21,6 +21,7 @@ const resolveExtends = (
 		throw new Error(`File '${extendsPath}' not found.`);
 	}
 
+	const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
 	const extendsConfig = parseTsconfig(resolvedExtendsPath, cache);
 	delete extendsConfig.references;
 
@@ -32,8 +33,8 @@ const resolveExtends = (
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
 				compilerOptions[property] = slash(path.relative(
-					directoryPath,
-					path.join(path.dirname(resolvedExtendsPath), unresolvedPath),
+					fromDirectoryPath,
+					path.join(extendsDirectoryPath, unresolvedPath),
 				)) || './';
 			}
 		}
@@ -42,8 +43,8 @@ const resolveExtends = (
 	if (extendsConfig.files) {
 		extendsConfig.files = extendsConfig.files.map(
 			file => slash(path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
 			)),
 		);
 	}
@@ -51,8 +52,8 @@ const resolveExtends = (
 	if (extendsConfig.include) {
 		extendsConfig.include = extendsConfig.include.map(
 			file => slash(path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
 			)),
 		);
 	}
@@ -60,8 +61,8 @@ const resolveExtends = (
 	if (extendsConfig.exclude) {
 		extendsConfig.exclude = extendsConfig.exclude.map(
 			file => slash(path.relative(
-				directoryPath,
-				path.join(path.dirname(resolvedExtendsPath), file),
+				fromDirectoryPath,
+				path.join(extendsDirectoryPath, file),
 			)),
 		);
 	}
