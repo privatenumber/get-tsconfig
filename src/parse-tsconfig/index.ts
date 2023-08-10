@@ -41,28 +41,28 @@ const resolveExtends = (
 
 	if (extendsConfig.files) {
 		extendsConfig.files = extendsConfig.files.map(
-			file => path.relative(
+			file => slash(path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			)),
 		);
 	}
 
 	if (extendsConfig.include) {
 		extendsConfig.include = extendsConfig.include.map(
-			file => path.relative(
+			file => slash(path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			)),
 		);
 	}
 
 	if (extendsConfig.exclude) {
 		extendsConfig.exclude = extendsConfig.exclude.map(
-			file => path.relative(
+			file => slash(path.relative(
 				directoryPath,
 				path.join(path.dirname(resolvedExtendsPath), file),
-			),
+			)),
 		);
 		console.log('extendsConfig.exclude', extendsConfig.exclude);
 	}
