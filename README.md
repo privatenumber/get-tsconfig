@@ -1,4 +1,4 @@
-# get-tsconfig [![Latest version](https://badgen.net/npm/v/get-tsconfig)](https://npm.im/get-tsconfig)
+# get-tsconfig [![Latest version](https://badgen.net/npm/v/get-tsconfig)](https://npm.im/get-tsconfig) [![npm downloads](https://badgen.net/npm/dm/esbuild-loader)](https://npm.im/esbuild-loader)
 
 Find and parse `tsconfig.json` files.
 
