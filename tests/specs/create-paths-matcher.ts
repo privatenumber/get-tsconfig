@@ -471,5 +471,37 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
+
+		test('extended config should resolve relative to self', async () => {
+			const fixture = await createFixture({
+				tsconfigs: {
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							paths: {
+								'#imports': [
+									'./imports',
+								],
+							},
+						},
+					}),
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './tsconfigs/tsconfig.json',
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const matcher = createPathsMatcher(tsconfig!)!;
+			expect(tsconfig).not.toBeNull();
+
+			const resolvedAttempts = await getTscResolution('#imports', fixture.path);
+			expect(matcher('#imports')).toStrictEqual([
+				resolvedAttempts[0].filePath.slice(0, -3),
+			]);
+
+			await fixture.rm();
+		});
 	});
 });
