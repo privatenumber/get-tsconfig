@@ -475,7 +475,6 @@ export default testSuite(({ describe }) => {
 		test('extended config should resolve relative to self', async () => {
 			const fixture = await createFixture({
 				tsconfigs: {
-					'imports.d.ts': 'export type Test = number;',
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
