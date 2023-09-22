@@ -4,8 +4,8 @@ import type { TsConfigJson, TsConfigJsonResolved } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { realpath } from '../utils/fs-cached.js';
-import { resolveExtendsPath } from './resolve-extends-path.js';
 import { implicitBaseUrlSymbol } from '../utils/symbols.js';
+import { resolveExtendsPath } from './resolve-extends-path.js';
 
 const resolveExtends = (
 	extendsPath: string,

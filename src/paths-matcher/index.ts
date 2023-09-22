@@ -2,13 +2,13 @@ import path from 'path';
 import slash from 'slash';
 import type { TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
+import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import {
 	assertStarCount,
 	parsePattern,
 	isPatternMatch,
 } from './utils.js';
 import type { StarPattern, PathEntry } from './types.js';
-import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 
 const parsePaths = (
 	paths: Partial<Record<string, string[]>>,
