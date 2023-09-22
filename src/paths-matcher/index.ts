@@ -2,6 +2,7 @@ import path from 'path';
 import slash from 'slash';
 import type { TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
+import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import {
 	assertStarCount,
 	parsePattern,
@@ -21,7 +22,7 @@ const parsePaths = (
 		substitutions: substitutions!.map((substitution) => {
 			assertStarCount(
 				substitution,
-					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
+				`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
 			);
 
 			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
@@ -45,13 +46,17 @@ export const createPathsMatcher = (
 	}
 
 	const { baseUrl, paths } = tsconfig.config.compilerOptions;
+	const implicitBaseUrl = (
+		implicitBaseUrlSymbol in tsconfig.config.compilerOptions
+		&& (tsconfig.config.compilerOptions[implicitBaseUrlSymbol] as string)
+	);
 	if (!baseUrl && !paths) {
 		return null;
 	}
 
 	const resolvedBaseUrl = path.resolve(
 		path.dirname(tsconfig.path),
-		baseUrl || '.',
+		baseUrl || implicitBaseUrl || '.',
 	);
 
 	const pathEntries = (

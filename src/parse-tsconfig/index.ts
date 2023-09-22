@@ -4,6 +4,7 @@ import type { TsConfigJson, TsConfigJsonResolved } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { realpath } from '../utils/fs-cached.js';
+import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
 
 const resolveExtends = (
@@ -34,20 +35,6 @@ const resolveExtends = (
 
 	const { compilerOptions } = extendsConfig;
 	if (compilerOptions) {
-		const { baseUrl = '.', paths } = compilerOptions;
-		if (paths) {
-			for (const key in paths) {
-				if (Array.isArray(paths[key])) {
-					paths[key] = paths[key].map(
-						p => normalizePath(path.relative(
-							fromDirectoryPath,
-							path.join(extendsDirectoryPath, baseUrl, p),
-						)),
-					);
-				}
-			}
-		}
-
 		const resolvePaths = ['baseUrl', 'outDir'] as const;
 		for (const property of resolvePaths) {
 			const unresolvedPath = compilerOptions[property];
@@ -119,6 +106,20 @@ const _parseTsconfig = (
 	}
 
 	const directoryPath = path.dirname(realTsconfigPath);
+
+	if (config.compilerOptions) {
+		const { compilerOptions } = config;
+		if (
+			compilerOptions.paths
+			&& !compilerOptions.baseUrl
+		) {
+			type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
+				[implicitBaseUrlSymbol]: string;
+			};
+			(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
+		}
+	}
+
 	if (config.extends) {
 		const extendsPathList = (
 			Array.isArray(config.extends)
@@ -157,7 +158,6 @@ const _parseTsconfig = (
 
 	if (config.compilerOptions) {
 		const { compilerOptions } = config;
-
 		const normalizedPaths = [
 			'baseUrl',
 			'rootDir',
