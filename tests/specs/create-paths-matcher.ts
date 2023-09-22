@@ -524,21 +524,21 @@ export default testSuite(({ describe }) => {
 						extends: './tsconfigs/tsconfig.json',
 					}),
 				});
-	
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
-	
+
 				const matcher = createPathsMatcher(tsconfig!)!;
 				expect(tsconfig).not.toBeNull();
-	
+
 				const resolvedAttempts = await getTscResolution('@', fixture.path);
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-	
+
 				await fixture.rm();
 			});
-	
+
 			test('extended config should implicitly resolve paths from self', async () => {
 				const fixture = await createFixture({
 					tsconfigs: {
@@ -556,18 +556,18 @@ export default testSuite(({ describe }) => {
 						extends: './tsconfigs/tsconfig.json',
 					}),
 				});
-	
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
-	
+
 				const matcher = createPathsMatcher(tsconfig!)!;
 				expect(tsconfig).not.toBeNull();
-	
+
 				const resolvedAttempts = await getTscResolution('@', fixture.path);
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-	
+
 				await fixture.rm();
 			});
 
@@ -588,18 +588,18 @@ export default testSuite(({ describe }) => {
 						extends: './some-dir/tsconfig.json',
 					}),
 				});
-	
+
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
-	
+
 				const matcher = createPathsMatcher(tsconfig!)!;
 				expect(tsconfig).not.toBeNull();
-	
+
 				const resolvedAttempts = await getTscResolution('@', fixture.path);
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-	
+
 				await fixture.rm();
 			});
 		});
