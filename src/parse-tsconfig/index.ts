@@ -34,19 +34,19 @@ const resolveExtends = (
 
 	const { compilerOptions } = extendsConfig;
 	if (compilerOptions) {
-		const { baseUrl = '.', paths } = compilerOptions;
-		if (paths) {
-			for (const key in paths) {
-				if (Array.isArray(paths[key])) {
-					paths[key] = paths[key].map(
-						p => normalizePath(path.relative(
-							fromDirectoryPath,
-							path.join(extendsDirectoryPath, baseUrl, p),
-						)),
-					);
-				}
-			}
-		}
+		// const { baseUrl = '.', paths } = compilerOptions;
+		// if (paths) {
+		// 	for (const key in paths) {
+		// 		if (Array.isArray(paths[key])) {
+		// 			paths[key] = paths[key].map(
+		// 				p => normalizePath(path.relative(
+		// 					fromDirectoryPath,
+		// 					path.join(extendsDirectoryPath, baseUrl, p),
+		// 				)),
+		// 			);
+		// 		}
+		// 	}
+		// }
 
 		const resolvePaths = ['baseUrl', 'outDir'] as const;
 		for (const property of resolvePaths) {
