@@ -312,6 +312,31 @@ export default testSuite(({ describe }) => {
 
 				await fixture.rm();
 			});
+
+			test('resolves parent baseUrl & paths', async () => {
+				const fixture = await createFixture({
+					'project/tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: '.',
+							paths: {
+								'@/*': ['src/*'],
+							},
+						},
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'a.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+
+				await fixture.rm();
+			});
 		});
 
 		test('nested extends', async () => {

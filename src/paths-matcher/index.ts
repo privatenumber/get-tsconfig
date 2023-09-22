@@ -21,7 +21,7 @@ const parsePaths = (
 		substitutions: substitutions!.map((substitution) => {
 			assertStarCount(
 				substitution,
-					`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
+				`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
 			);
 
 			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
@@ -44,14 +44,14 @@ export const createPathsMatcher = (
 		return null;
 	}
 
-	const { baseUrl, paths } = tsconfig.config.compilerOptions;
+	const { baseUrl, _implicitBaseUrl, paths } = tsconfig.config.compilerOptions;
 	if (!baseUrl && !paths) {
 		return null;
 	}
 
 	const resolvedBaseUrl = path.resolve(
 		path.dirname(tsconfig.path),
-		baseUrl || '.',
+		baseUrl || _implicitBaseUrl || '.',
 	);
 
 	const pathEntries = (
