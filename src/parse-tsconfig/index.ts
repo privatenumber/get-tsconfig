@@ -5,6 +5,7 @@ import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { realpath } from '../utils/fs-cached.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
+import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 
 const resolveExtends = (
 	extendsPath: string,
@@ -112,7 +113,10 @@ const _parseTsconfig = (
 			compilerOptions.paths
 			&& !compilerOptions.baseUrl
 		) {
-			compilerOptions._implicitBaseUrl = directoryPath;
+			type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
+				[implicitBaseUrlSymbol]: string;
+			};
+			(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
 		}
 	}
 

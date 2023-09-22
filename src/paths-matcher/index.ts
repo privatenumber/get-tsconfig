@@ -8,6 +8,7 @@ import {
 	isPatternMatch,
 } from './utils.js';
 import type { StarPattern, PathEntry } from './types.js';
+import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 
 const parsePaths = (
 	paths: Partial<Record<string, string[]>>,
@@ -44,14 +45,18 @@ export const createPathsMatcher = (
 		return null;
 	}
 
-	const { baseUrl, _implicitBaseUrl, paths } = tsconfig.config.compilerOptions;
+	const { baseUrl, paths } = tsconfig.config.compilerOptions;
+	const implicitBaseUrl = (
+		implicitBaseUrlSymbol in tsconfig.config.compilerOptions
+		&& (tsconfig.config.compilerOptions[implicitBaseUrlSymbol] as string)
+	);
 	if (!baseUrl && !paths) {
 		return null;
 	}
 
 	const resolvedBaseUrl = path.resolve(
 		path.dirname(tsconfig.path),
-		baseUrl || _implicitBaseUrl || '.',
+		baseUrl || implicitBaseUrl || '.',
 	);
 
 	const pathEntries = (
