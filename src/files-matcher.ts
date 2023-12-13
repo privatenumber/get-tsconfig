@@ -56,7 +56,7 @@ const getDefaultExcludeSpec = (
 	return excludesSpec;
 };
 
-const escapeForRegexp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeForRegexp = (string: string) => string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const dependencyDirectories = ['node_modules', 'bower_components', 'jspm_packages'] as const;
 const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})(/|$))`;
@@ -129,13 +129,13 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace **/
-				.replace(/\\\*\\\*\//g, '(.+/)?')
+				.replaceAll('\\*\\*/', '(.+/)?')
 
 				// Replace *
-				.replace(/\\\*/g, `${anyCharacter}*`)
+				.replaceAll('\\*', `${anyCharacter}*`)
 
 				// Replace ?
-				.replace(/\\\?/g, anyCharacter);
+				.replaceAll('\\?', anyCharacter);
 
 			return new RegExp(
 				`^${projectFilePathPattern}($|/)`,
@@ -144,7 +144,7 @@ export const createFilesMatcher = (
 		});
 
 	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#LL3020C29-L3020C47
-	const includeSpec = !(files || include) ? [matchAllGlob] : include;
+	const includeSpec = (files || include) ? include : [matchAllGlob];
 	const includePatterns = includeSpec
 		? includeSpec.map((filePath) => {
 			let projectFilePath = pathJoin(projectDirectory, filePath);
@@ -157,10 +157,10 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace /**
-				.replace(/\/\\\*\\\*/g, `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
+				.replaceAll('/\\*\\*', `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
 
 				// Replace *
-				.replace(/(\/)?\\\*/g, (_, hasSlash) => {
+				.replaceAll(/(\/)?\\\*/g, (_, hasSlash) => {
 					const pattern = `(${noPeriodOrSlash}|(\\.(?!min\\.js$))?)*`;
 					if (hasSlash) {
 						return `/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${pattern}`;
@@ -170,7 +170,7 @@ export const createFilesMatcher = (
 				})
 
 				// Replace ?
-				.replace(/(\/)?\\\?/g, (_, hasSlash) => {
+				.replaceAll(/(\/)?\\\?/g, (_, hasSlash) => {
 					const pattern = anyCharacter;
 					if (hasSlash) {
 						return `/${implicitExcludePathRegexPattern}${pattern}`;

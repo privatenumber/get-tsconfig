@@ -24,7 +24,7 @@ function assertFilesMatch(
 		expect(matcher(file)).toBeTruthy();
 
 		if (isWindows) {
-			expect(matcher(file.replace(/\//g, '\\'))).toBeTruthy();
+			expect(matcher(file.replaceAll('/', '\\'))).toBeTruthy();
 		}
 	}
 }
