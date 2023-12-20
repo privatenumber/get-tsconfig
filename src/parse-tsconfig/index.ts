@@ -11,7 +11,7 @@ const resolveExtends = (
 	extendsPath: string,
 	fromDirectoryPath: string,
 	circularExtendsTracker: Set<string>,
-	cache?: Cache,
+	cache?: Cache<string>,
 ) => {
 	const resolvedExtendsPath = resolveExtendsPath(
 		extendsPath,
@@ -79,7 +79,7 @@ const resolveExtends = (
 
 const _parseTsconfig = (
 	tsconfigPath: string,
-	cache?: Cache,
+	cache?: Cache<string>,
 	circularExtendsTracker = new Set<string>(),
 ): TsConfigJsonResolved => {
 	let realTsconfigPath: string;
@@ -213,5 +213,5 @@ const _parseTsconfig = (
 
 export const parseTsconfig = (
 	tsconfigPath: string,
-	cache: Cache = new Map(),
+	cache: Cache<string> = new Map(),
 ): TsConfigJsonResolved => _parseTsconfig(tsconfigPath, cache);

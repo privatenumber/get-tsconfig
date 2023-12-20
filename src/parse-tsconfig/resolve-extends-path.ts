@@ -18,7 +18,7 @@ const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
 	ignoreExports?: boolean,
-	cache?: Cache,
+	cache?: Cache<string>,
 ) => {
 	const cacheKey = `resolveFromPackageJsonPath:${packageJsonPath}:${subpath}:${ignoreExports}`;
 	if (cache?.has(cacheKey)) {
@@ -67,7 +67,7 @@ const TS_CONFIG_JSON = 'tsconfig.json';
 export const resolveExtendsPath = (
 	requestedPath: string,
 	directoryPath: string,
-	cache?: Cache,
+	cache?: Cache<string>,
 ) => {
 	let filePath = requestedPath;
 

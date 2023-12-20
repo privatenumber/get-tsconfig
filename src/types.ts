@@ -18,4 +18,4 @@ export type TsConfigResult = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Cache = Map<string, any>;
+export type Cache<value = any> = Map<string, value>;

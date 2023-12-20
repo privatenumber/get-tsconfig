@@ -16,12 +16,14 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 	name: MethodName,
 ) => {
 	const method = fs[name];
+	type FsReturnType = ReturnType<FsMethods[MethodName]>;
+
 	return (
 		cache?: Cache,
 		...args: any[]
-	): ReturnType<FsMethods[MethodName]> => {
+	): FsReturnType => {
 		const cacheKey = `${name}:${args.join(':')}`;
-		let result = cache?.get(cacheKey);
+		let result = cache?.get(cacheKey) as FsReturnType;
 
 		if (result === undefined) {
 			result = Reflect.apply(method, fs, args);
