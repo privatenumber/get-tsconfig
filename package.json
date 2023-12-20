@@ -52,20 +52,42 @@
 		"resolve-pkg-maps": "^1.0.0"
 	},
 	"devDependencies": {
-		"@pvtnbr/eslint-config": "github:privatenumber/eslint-config#npm/flat-config",
+		"@pvtnbr/eslint-config": "github:privatenumber/eslint-config#npm/develop",
 		"@types/node": "^18.15.10",
 		"@yarnpkg/pnp": "3.3.1",
 		"clean-pkg-json": "^1.2.0",
-		"eslint": "^8.55.0",
+		"eslint": "^8.36.0",
 		"execa": "^8.0.1",
 		"fs-fixture": "^1.2.0",
 		"is-fs-case-sensitive": "^1.0.0",
 		"jsonc-parser": "^3.2.0",
 		"manten": "^1.1.0",
-		"pkgroll": "^1.11.0",
+		"pkgroll": "^2.0.1",
 		"slash": "^5.1.0",
-		"tsx": "^4.6.2",
-		"type-fest": "^4.3.1",
-		"typescript": "^5.3.3"
+		"tsx": "^4.7.0",
+		"type-fest": "^4.8.3",
+		"typescript": "^5.0.4"
+	},
+	"eslintConfig": {
+		"extends": "@pvtnbr/eslint-config",
+		"ignorePatterns": [
+			"tests/fixtures"
+		],
+		"overrides": [
+			{
+				"files": "tests/**/*.ts",
+				"rules": {
+					"@typescript-eslint/no-shadow": [
+						"error",
+						{
+							"allow": [
+								"test",
+								"describe"
+							]
+						}
+					]
+				}
+			}
+		]
 	}
 }
