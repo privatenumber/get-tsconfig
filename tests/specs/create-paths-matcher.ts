@@ -1,6 +1,7 @@
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
+import type { ExecaError } from 'execa';
 import { createTsconfigJson, getTscResolution } from '../utils.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 
@@ -43,7 +44,7 @@ export default testSuite(({ describe }) => {
 					await getTscResolution('@', fixture.path);
 				} catch (error) {
 					throwsError = true;
-					expect((error as any).stdout).toMatch(errorMessage);
+					expect((error as ExecaError).stdout).toMatch(errorMessage);
 				}
 				expect(throwsError).toBe(true);
 
@@ -77,7 +78,7 @@ export default testSuite(({ describe }) => {
 					await getTscResolution('@', fixture.path);
 				} catch (error) {
 					throwsError = true;
-					expect((error as any).stdout).toMatch(errorMessage);
+					expect((error as ExecaError).stdout).toMatch(errorMessage);
 				}
 				expect(throwsError).toBe(true);
 

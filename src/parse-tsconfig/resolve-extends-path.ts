@@ -5,6 +5,7 @@ import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { stat, exists } from '../utils/fs-cached.js';
+import type { Cache } from '../types.js';
 
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
@@ -17,7 +18,7 @@ const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
 	ignoreExports?: boolean,
-	cache?: Map<string, any>,
+	cache?: Cache,
 ) => {
 	const cacheKey = `resolveFromPackageJsonPath:${packageJsonPath}:${subpath}:${ignoreExports}`;
 	if (cache?.has(cacheKey)) {
@@ -66,7 +67,7 @@ const TS_CONFIG_JSON = 'tsconfig.json';
 export const resolveExtendsPath = (
 	requestedPath: string,
 	directoryPath: string,
-	cache?: Map<string, any>,
+	cache?: Cache,
 ) => {
 	let filePath = requestedPath;
 

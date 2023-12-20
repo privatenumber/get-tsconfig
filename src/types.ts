@@ -16,3 +16,6 @@ export type TsConfigResult = {
 	 */
 	config: TsConfigJsonResolved;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Cache = Map<string, any>;

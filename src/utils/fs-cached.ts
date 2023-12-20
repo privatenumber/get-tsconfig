@@ -1,7 +1,9 @@
 import fs from 'fs';
+import type { Cache } from '../types.js';
 
 type Fs = typeof fs;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunction = (...args: any[]) => any;
 
 type FunctionProperties<Type> = {
@@ -14,7 +16,10 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 	name: MethodName,
 ) => {
 	const method = fs[name];
-	return (cache?: Map<string, any>, ...args: any[]): ReturnType<FsMethods[MethodName]> => {
+	return (
+		cache?: Cache,
+		...args: any[]
+	): ReturnType<FsMethods[MethodName]> => {
 		const cacheKey = `${name}:${args.join(':')}`;
 		let result = cache?.get(cacheKey);
 
