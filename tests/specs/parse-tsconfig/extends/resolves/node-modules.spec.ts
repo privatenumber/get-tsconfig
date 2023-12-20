@@ -389,6 +389,7 @@ export default testSuite(({ describe }) => {
 								jsx: 'react',
 							},
 						}),
+
 						// should be ignored
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -427,6 +428,7 @@ export default testSuite(({ describe }) => {
 								jsx: 'react',
 							},
 						}),
+
 						// should be ignored
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -481,6 +483,7 @@ export default testSuite(({ describe }) => {
 								jsx: 'react',
 							},
 						}),
+
 						// should be ignored
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -515,6 +518,7 @@ export default testSuite(({ describe }) => {
 								jsx: 'react',
 							},
 						}),
+
 						// should be ignored
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -552,6 +556,7 @@ export default testSuite(({ describe }) => {
 									jsx: 'react',
 								},
 							}),
+
 							// should be ignored
 							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
@@ -588,6 +593,7 @@ export default testSuite(({ describe }) => {
 									jsx: 'react',
 								},
 							}),
+
 							// should be ignored
 							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
@@ -624,6 +630,7 @@ export default testSuite(({ describe }) => {
 									jsx: 'react',
 								},
 							}),
+
 							// should be ignored
 							'tsconfig.json': createTsconfigJson({
 								compilerOptions: {
@@ -663,6 +670,7 @@ export default testSuite(({ describe }) => {
 								jsx: 'react',
 							},
 						}),
+
 						// should be ignored
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {

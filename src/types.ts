@@ -5,6 +5,7 @@ export type { TsConfigJson };
 export type TsConfigJsonResolved = Except<TsConfigJson, 'extends'>;
 
 export type TsConfigResult = {
+
 	/**
 	 * The path to the tsconfig.json file
 	 */

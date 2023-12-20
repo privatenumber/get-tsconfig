@@ -16,10 +16,10 @@ const fsCaseSensitive = isFsCaseSensitive();
 
 const isWindows = process.platform === 'win32';
 
-function assertFilesMatch(
+const assertFilesMatch = (
 	matcher: FileMatcher,
 	files: string[],
-) {
+) => {
 	for (const file of files) {
 		expect(matcher(file)).toBeTruthy();
 
@@ -27,7 +27,7 @@ function assertFilesMatch(
 			expect(matcher(file.replaceAll('/', '\\'))).toBeTruthy();
 		}
 	}
-}
+};
 
 const fileNames = Object.freeze([
 	'ts.ts',

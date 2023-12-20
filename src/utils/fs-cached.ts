@@ -14,10 +14,7 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 	name: MethodName,
 ) => {
 	const method = fs[name];
-	return function (
-		cache?: Map<string, any>,
-		...args: any[]
-	): ReturnType<FsMethods[MethodName]> {
+	return (cache?: Map<string, any>, ...args: any[]): ReturnType<FsMethods[MethodName]> => {
 		const cacheKey = `${name}:${args.join(':')}`;
 		let result = cache?.get(cacheKey);
 

@@ -15,9 +15,9 @@ const randomId = () => Math.random().toString(36).slice(2);
 
 const tscPath = path.resolve('node_modules/.bin/tsc');
 
-export async function getTscTsconfig(
+export const getTscTsconfig = async (
 	cwd: string,
-): Promise<TsConfigJson> {
+): Promise<TsConfigJson> => {
 	const tscProcess = await execa(
 		tscPath,
 		['--showConfig'],
@@ -25,16 +25,16 @@ export async function getTscTsconfig(
 	);
 
 	return JSON.parse(tscProcess.stdout);
-}
+};
 
 const resolveAttemptPattern = /^(File|Directory) '(.+)'/gm;
 
 const divider = '='.repeat(8);
 
-async function parseTscResolve(
+const parseTscResolve = async (
 	stdout: string,
 	request: string,
-) {
+) => {
 	const resolveLog = stdout.slice(
 		stdout.indexOf(`${divider} Resolving module '${request}'`),
 		stdout.indexOf(`${divider} Module name '${request}'`),
@@ -43,13 +43,16 @@ async function parseTscResolve(
 
 	return Array.from(resolveAttempts).map((
 		[, type, filePath],
-	) => ({ type, filePath }));
-}
+	) => ({
+		type,
+		filePath,
+	}));
+};
 
-export async function getTscResolution(
+export const getTscResolution = async (
 	request: string,
 	fixturePath: string,
-) {
+) => {
 	const filePath = path.join(fixturePath, `${randomId()}.ts`);
 
 	await Promise.all([
@@ -78,4 +81,4 @@ export async function getTscResolution(
 	});
 
 	return parsed;
-}
+};
