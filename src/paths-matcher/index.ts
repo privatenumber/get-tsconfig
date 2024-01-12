@@ -1,6 +1,6 @@
 import path from 'path';
 import slash from 'slash';
-import type { TsConfigResult } from '../types.js';
+import type { MatchOptions, TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
 import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import {
@@ -40,6 +40,7 @@ const parsePaths = (
  */
 export const createPathsMatcher = (
 	tsconfig: TsConfigResult,
+	{ fallback = true }: MatchOptions = {},
 ) => {
 	if (!tsconfig.config.compilerOptions) {
 		return null;
@@ -97,7 +98,7 @@ export const createPathsMatcher = (
 
 		if (!matchedValue) {
 			return (
-				baseUrl
+				(baseUrl && fallback)
 					? [slash(path.join(resolvedBaseUrl, specifier))]
 					: []
 			);

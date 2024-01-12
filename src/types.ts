@@ -15,3 +15,12 @@ export type TsConfigResult = {
 	 */
 	config: TsConfigJsonResolved;
 };
+
+export type MatchOptions = {
+	/**
+	 * Fallback to joined path.
+	 * @description Return `path.join(baseUrl, specifier)` if the specifier matches nothing
+	 * @default true
+	 */
+	fallback?: boolean;
+}
