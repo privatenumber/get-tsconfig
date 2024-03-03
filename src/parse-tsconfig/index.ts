@@ -153,6 +153,9 @@ const _parseTsconfig = (
 				};
 			}
 			config = merged;
+
+			circularExtendsTracker.clear();
+			circularExtendsTracker.add(realTsconfigPath);
 		}
 	}
 
