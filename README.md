@@ -41,6 +41,7 @@ Returns:
 
 ```ts
 type TsconfigResult = {
+
     /**
      * The path to the tsconfig.json file
      */
@@ -195,7 +196,7 @@ import { getTsconfig, createPathsMatcher } from 'get-tsconfig'
 const tsconfig = getTsconfig()
 const pathsMatcher = createPathsMatcher(tsconfig)
 
-function exampleResolver(request: string) {
+const exampleResolver = (request: string) => {
     if (pathsMatcher) {
         const tryPaths = pathsMatcher(request)
 

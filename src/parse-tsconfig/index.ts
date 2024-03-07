@@ -1,6 +1,6 @@
 import path from 'path';
 import slash from 'slash';
-import type { TsConfigJson, TsConfigJsonResolved } from '../types.js';
+import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { realpath } from '../utils/fs-cached.js';
@@ -11,7 +11,7 @@ const resolveExtends = (
 	extendsPath: string,
 	fromDirectoryPath: string,
 	circularExtendsTracker: Set<string>,
-	cache?: Map<string, any>,
+	cache?: Cache<string>,
 ) => {
 	const resolvedExtendsPath = resolveExtendsPath(
 		extendsPath,
@@ -79,7 +79,7 @@ const resolveExtends = (
 
 const _parseTsconfig = (
 	tsconfigPath: string,
-	cache?: Map<string, any>,
+	cache?: Cache<string>,
 	circularExtendsTracker = new Set<string>(),
 ): TsConfigJsonResolved => {
 	let realTsconfigPath: string;
@@ -213,5 +213,5 @@ const _parseTsconfig = (
 
 export const parseTsconfig = (
 	tsconfigPath: string,
-	cache = new Map<string, any>(),
+	cache: Cache<string> = new Map(),
 ): TsConfigJsonResolved => _parseTsconfig(tsconfigPath, cache);
