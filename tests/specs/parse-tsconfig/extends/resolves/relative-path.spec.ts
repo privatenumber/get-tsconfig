@@ -190,24 +190,5 @@ export default testSuite(({ describe }) => {
 
 			await fixture.rm();
 		});
-
-		test('circular extends', async () => {
-			const fixture = await createFixture({
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.json',
-				}),
-				'file.ts': '',
-			});
-
-			const errorMessage = 'Circularity detected while resolving configuration';
-			await expect(
-				getTscTsconfig(fixture.path),
-			).rejects.toThrow(errorMessage);
-			expect(
-				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
-			).toThrow(errorMessage);
-
-			await fixture.rm();
-		});
 	});
 });

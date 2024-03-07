@@ -133,7 +133,7 @@ const _parseTsconfig = (
 			const extendsConfig = resolveExtends(
 				extendsPath,
 				directoryPath,
-				circularExtendsTracker,
+				new Set(circularExtendsTracker),
 				cache,
 			);
 			const merged = {
@@ -153,9 +153,6 @@ const _parseTsconfig = (
 				};
 			}
 			config = merged;
-
-			circularExtendsTracker.clear();
-			circularExtendsTracker.add(realTsconfigPath);
 		}
 	}
 
