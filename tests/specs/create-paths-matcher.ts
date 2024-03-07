@@ -427,6 +427,38 @@ export default testSuite(({ describe }) => {
 			await fixture.rm();
 		});
 
+		test('fallback option', async () => {
+			const fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: '.',
+						paths: {
+							'@match': ['./match'],
+						},
+					},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path);
+			expect(tsconfig).not.toBeNull();
+
+			const fallbackmatcher = createPathsMatcher(tsconfig!, { fallback: true })!;
+			const doesntfallbackmatcher = createPathsMatcher(tsconfig!, { fallback: false })!;
+			expect(doesntfallbackmatcher('@mismatch')).toStrictEqual([]);
+			const resolvedAttempts = await getTscResolution('@match', fixture.path);
+			expect([fallbackmatcher('@match'), doesntfallbackmatcher('@match')])
+				.toStrictEqual(Array.from({ length: 2 }).fill([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]));
+			const mismatchResult = await getTscResolution('@mismatch', fixture.path);
+
+			expect(fallbackmatcher('@mismatch')).toStrictEqual([
+				mismatchResult[0].filePath.slice(0, -3),
+			]);
+
+			await fixture.rm();
+		});
+
 		test('matches absolute paths', async () => {
 			const fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
