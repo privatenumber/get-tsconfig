@@ -41,7 +41,7 @@
 		}
 	},
 	"scripts": {
-		"lint": "lint --cache --node --ignore-pattern tests/fixtures .",
+		"lint": "lintroll --cache --node --ignore-pattern tests/fixtures .",
 		"build": "pkgroll --minify --target node12.20",
 		"test": "tsx tests",
 		"dev": "tsx watch --conditions=development tests",
@@ -52,15 +52,14 @@
 		"resolve-pkg-maps": "^1.0.0"
 	},
 	"devDependencies": {
-		"@pvtnbr/eslint-config": "^1.0.3",
 		"@types/node": "^18.15.10",
 		"@yarnpkg/pnp": "3.3.1",
 		"clean-pkg-json": "^1.2.0",
-		"eslint": "^8.57.0",
 		"execa": "^8.0.1",
 		"fs-fixture": "^1.2.0",
 		"is-fs-case-sensitive": "^1.0.0",
 		"jsonc-parser": "^3.2.0",
+		"lintroll": "^1.5.1",
 		"manten": "^1.1.0",
 		"pkgroll": "^2.0.1",
 		"slash": "^5.1.0",

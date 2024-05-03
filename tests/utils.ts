@@ -55,15 +55,7 @@ export const getTscResolution = async (
 ) => {
 	const filePath = path.join(fixturePath, `${randomId()}.ts`);
 
-	await Promise.all([
-		fs.writeFile(
-			filePath,
-			`import '${request}'`,
-		),
-
-		// Create empty directory with name so it looks into files in directory
-		// fs.mkdir(path.join(fixturePath, request)),
-	]);
+	await fs.writeFile(filePath, `import '${request}'`);
 
 	const { stdout } = await execa(
 		tscPath,
