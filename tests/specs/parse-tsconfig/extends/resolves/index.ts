@@ -7,7 +7,7 @@ import { parseTsconfig } from '#get-tsconfig';
 export default testSuite(({ describe }) => {
 	describe('resolves', ({ test, describe, runTestSuite }) => {
 		test('handles missing extends', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.json': createTsconfigJson({
 					extends: 'missing-package',
@@ -17,13 +17,11 @@ export default testSuite(({ describe }) => {
 			expect(
 				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 			).toThrow('File \'missing-package\' not found.');
-
-			await fixture.rm();
 		});
 
 		describe('circularity', ({ test }) => {
 			test('self extend', async ({ onTestFinish }) => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						extends: './tsconfig.json',
 					}),
@@ -38,12 +36,10 @@ export default testSuite(({ describe }) => {
 				expect(
 					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 				).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			test('recursive', async ({ onTestFinish }) => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'base.json': createTsconfigJson({
 						extends: './tsconfig.json',
 					}),
@@ -60,7 +56,7 @@ export default testSuite(({ describe }) => {
 		});
 
 		test('extends array with common base', async ({ onTestFinish }) => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'base.json': createTsconfigJson({}),
 				'tsconfig-b.json': createTsconfigJson({
 					extends: './base.json',

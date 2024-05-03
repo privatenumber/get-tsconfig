@@ -7,7 +7,7 @@ import { parseTsconfig } from '#get-tsconfig';
 export default testSuite(({ describe }) => {
 	describe('absolute path', ({ test }) => {
 		test('absolute path', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
@@ -25,12 +25,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('no extension', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
@@ -48,12 +46,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('arbitrary extension', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'dep/tsconfig.tsx': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
@@ -71,8 +67,6 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 	});
 });

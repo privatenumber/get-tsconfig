@@ -76,7 +76,7 @@ export default testSuite(({ describe }) => {
 		describe('error handling', ({ test }) => {
 			test('should throw on relative path', async () => {
 				const tsconfig: TsConfigJsonResolved = {};
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
@@ -87,15 +87,13 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(() => matches('index.ts')).toThrow('Path must be absolute');
-
-				await fixture.rm();
 			});
 
 			test('should not match path outside of directory', async () => {
 				const tsconfig: TsConfigJsonResolved = {};
 
 				const tsconfigSubpath = 'some-dir/tsconfig.json';
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					[tsconfigSubpath]: createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
@@ -110,8 +108,6 @@ export default testSuite(({ describe }) => {
 				});
 
 				expect(matches('/index.ts')).toBe(undefined);
-
-				await fixture.rm();
 			});
 		});
 
@@ -121,7 +117,7 @@ export default testSuite(({ describe }) => {
 					files: ['index.ts'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 					'no-match.ts': '',
@@ -141,8 +137,6 @@ export default testSuite(({ describe }) => {
 
 				assertFilesMatch(matches, tsFiles);
 				expect(matches(path.join(fixture.path, 'no-match.ts'))).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('files outside of project', async () => {
@@ -150,7 +144,7 @@ export default testSuite(({ describe }) => {
 					files: ['../index.ts'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'project/tsconfig.json': createTsconfigJson(tsconfig),
 					'index.ts': '',
 				});
@@ -168,8 +162,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('files takes precedence over extensions', async () => {
@@ -177,7 +169,7 @@ export default testSuite(({ describe }) => {
 					files: ['some-dir/index.js'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.js': '',
 				});
@@ -195,8 +187,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('files takes precedence over exclude', async () => {
@@ -205,7 +195,7 @@ export default testSuite(({ describe }) => {
 					exclude: ['some-dir/index.ts'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.ts': '',
 				});
@@ -223,8 +213,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 		});
 
@@ -232,7 +220,7 @@ export default testSuite(({ describe }) => {
 			test('default include matches all TS files', async () => {
 				const tsconfig: TsConfigJsonResolved = {};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-directory': testFiles,
 				});
@@ -247,8 +235,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('specific directories', async () => {
@@ -262,7 +248,7 @@ export default testSuite(({ describe }) => {
 					],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					directory: testFiles,
 					'ends-with-slash': testFiles,
@@ -281,8 +267,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('include matches nested directories', async () => {
@@ -290,7 +274,7 @@ export default testSuite(({ describe }) => {
 					include: ['dir-a'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-a/dir-b/dir-c': testFiles,
 				});
@@ -305,8 +289,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('should not match directory with prefix', async () => {
@@ -314,7 +296,7 @@ export default testSuite(({ describe }) => {
 					include: ['dir-a'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-abc': testFiles,
 				});
@@ -331,8 +313,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, 'dir-abc/ts.ts'),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('relative parent directory', async () => {
@@ -340,7 +320,7 @@ export default testSuite(({ describe }) => {
 					include: ['../src'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'src/a.ts': '',
 					'project/tsconfig.json': createTsconfigJson(tsconfig),
 				});
@@ -359,8 +339,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			describe('hidden files', ({ test }) => {
@@ -368,7 +346,7 @@ export default testSuite(({ describe }) => {
 					const directoryName = 'some-dir';
 					const tsconfig: TsConfigJsonResolved = {};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
@@ -386,15 +364,13 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, directoryName, '.index.ts'),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 
 				test('should not match hidden directory by default', async () => {
 					const directoryName = '.hidden-dir';
 					const tsconfig: TsConfigJsonResolved = {};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
@@ -410,8 +386,6 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, directoryName, 'index.ts'),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 
 				test('explicit directory name without star should not match', async () => {
@@ -421,7 +395,7 @@ export default testSuite(({ describe }) => {
 						include: [directoryName],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
@@ -437,8 +411,6 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, directoryName, 'index.ts'),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 
 				test('explicit directory name with star should match', async () => {
@@ -448,7 +420,7 @@ export default testSuite(({ describe }) => {
 						include: [`${directoryName}/*`],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
@@ -464,7 +436,6 @@ export default testSuite(({ describe }) => {
 						}),
 						tsFiles,
 					);
-					await fixture.rm();
 				});
 
 				test('explicit hidden glob should match hidden directory', async () => {
@@ -474,7 +445,7 @@ export default testSuite(({ describe }) => {
 						include: ['.*/*'],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: testFiles,
 					});
@@ -490,7 +461,6 @@ export default testSuite(({ describe }) => {
 						}),
 						tsFiles,
 					);
-					await fixture.rm();
 				});
 
 				test('explicit hidden glob should match hidden files', async () => {
@@ -500,7 +470,7 @@ export default testSuite(({ describe }) => {
 						include: ['**/.*'],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						[directoryName]: Object.fromEntries(
 							fileNames.map(fileName => [`.${fileName}`, '']),
@@ -518,7 +488,6 @@ export default testSuite(({ describe }) => {
 						}),
 						tsFiles,
 					);
-					await fixture.rm();
 				});
 			});
 
@@ -528,7 +497,7 @@ export default testSuite(({ describe }) => {
 						const directoryName = `${directory}/some-pkg`;
 						const tsconfig: TsConfigJsonResolved = {};
 
-						const fixture = await createFixture({
+						await using fixture = await createFixture({
 							'tsconfig.json': createTsconfigJson(tsconfig),
 							[directoryName]: testFiles,
 						});
@@ -544,8 +513,6 @@ export default testSuite(({ describe }) => {
 						expect(matches(
 							path.join(fixture.path, directoryName, 'index.ts'),
 						)).toBe(undefined);
-
-						await fixture.rm();
 					});
 
 					test('explictly include', async () => {
@@ -553,7 +520,7 @@ export default testSuite(({ describe }) => {
 							include: [directory],
 						};
 
-						const fixture = await createFixture({
+						await using fixture = await createFixture({
 							'tsconfig.json': createTsconfigJson(tsconfig),
 							[`${directory}/some-pkg`]: testFiles,
 						});
@@ -569,13 +536,12 @@ export default testSuite(({ describe }) => {
 							}),
 							tsFiles,
 						);
-						await fixture.rm();
 					});
 
 					test(`project in ${directory}`, async () => {
 						const tsconfig: TsConfigJsonResolved = {};
 
-						const fixture = await createFixture({
+						await using fixture = await createFixture({
 							[directory]: {
 								'tsconfig.json': createTsconfigJson(tsconfig),
 								'some-dir': testFiles,
@@ -593,7 +559,6 @@ export default testSuite(({ describe }) => {
 							}),
 							tsFiles,
 						);
-						await fixture.rm();
 					});
 				});
 			}
@@ -653,7 +618,7 @@ export default testSuite(({ describe }) => {
 						],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
@@ -677,8 +642,6 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, 'some-dir/nested-dir/d.ts'),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 
 				describe('*', ({ test }) => {
@@ -687,7 +650,7 @@ export default testSuite(({ describe }) => {
 							include: ['*'],
 						};
 
-						const fixture = await createFixture({
+						await using fixture = await createFixture({
 							'tsconfig.json': createTsconfigJson(tsconfig),
 							'a.ts': '',
 						});
@@ -706,8 +669,6 @@ export default testSuite(({ describe }) => {
 							}),
 							tsFiles,
 						);
-
-						await fixture.rm();
 					});
 
 					test('multiple', async () => {
@@ -718,7 +679,7 @@ export default testSuite(({ describe }) => {
 							],
 						};
 
-						const fixture = await createFixture({
+						await using fixture = await createFixture({
 							'tsconfig.json': createTsconfigJson(tsconfig),
 							'some-dir': {
 								'a.ts': '',
@@ -746,8 +707,6 @@ export default testSuite(({ describe }) => {
 						expect(matches(
 							path.join(fixture.path, 'some-dir/nested-dir/d.ts'),
 						)).toBe(undefined);
-
-						await fixture.rm();
 					});
 				});
 
@@ -756,7 +715,7 @@ export default testSuite(({ describe }) => {
 						include: ['some-dir/**/*'],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
@@ -782,7 +741,6 @@ export default testSuite(({ describe }) => {
 						}),
 						tsFiles,
 					);
-					await fixture.rm();
 				});
 			});
 		});
@@ -798,7 +756,7 @@ export default testSuite(({ describe }) => {
 					files: [filePath],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -816,8 +774,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('explicit include', async () => {
@@ -828,7 +784,7 @@ export default testSuite(({ describe }) => {
 					include: [filePath],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -846,8 +802,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('empty exclude', async () => {
@@ -858,7 +812,7 @@ export default testSuite(({ describe }) => {
 					exclude: [],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -875,8 +829,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, filePath),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('empty exclude with directory include', async () => {
@@ -888,7 +840,7 @@ export default testSuite(({ describe }) => {
 					exclude: [],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -905,8 +857,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, filePath),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 		});
 
@@ -932,7 +882,7 @@ export default testSuite(({ describe }) => {
 						},
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						...directories,
 					});
@@ -950,8 +900,6 @@ export default testSuite(({ describe }) => {
 						const absoluteFilePath = path.join(fixture.path, filePath);
 						expect(matches(absoluteFilePath)).toBe(undefined);
 					}
-
-					await fixture.rm();
 				});
 
 				test('overwritable', async () => {
@@ -963,7 +911,7 @@ export default testSuite(({ describe }) => {
 						exclude: [],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						...directories,
 					});
@@ -984,8 +932,6 @@ export default testSuite(({ describe }) => {
 						const absoluteFilePath = path.join(fixture.path, filePath);
 						expect(matches(absoluteFilePath)).toBeTruthy();
 					}
-
-					await fixture.rm();
 				});
 			});
 
@@ -995,7 +941,7 @@ export default testSuite(({ describe }) => {
 					exclude: ['some-dir'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'some-dir/index.ts': '',
 				});
@@ -1012,8 +958,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, 'some-dir/index.ts'),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('should not ignore directory with prefix', async () => {
@@ -1021,7 +965,7 @@ export default testSuite(({ describe }) => {
 					exclude: ['dir-prefix'],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					'dir-prefixabc': testFiles,
 				});
@@ -1037,8 +981,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			describe('case sensitivity', ({ test }) => {
@@ -1096,7 +1038,7 @@ export default testSuite(({ describe }) => {
 						],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
@@ -1127,8 +1069,6 @@ export default testSuite(({ describe }) => {
 					)).toBe(undefined);
 
 					assertFilesMatch(matches, tsFiles);
-
-					await fixture.rm();
 				});
 
 				test('*', async () => {
@@ -1139,7 +1079,7 @@ export default testSuite(({ describe }) => {
 						],
 					};
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						'some-dir': {
 							'a.ts': '',
@@ -1170,8 +1110,6 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, 'some-dir/qwwweeerrrt.ts'),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 
 				test('**/', async () => {
@@ -1185,7 +1123,7 @@ export default testSuite(({ describe }) => {
 						'some-dir/nested-dir/c.ts',
 					];
 
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
 						...Object.fromEntries(
 							files.map(fileName => [fileName, '']),
@@ -1212,8 +1150,6 @@ export default testSuite(({ describe }) => {
 					expect(matches(
 						path.join(fixture.path, files[2]),
 					)).toBe(undefined);
-
-					await fixture.rm();
 				});
 			});
 		});
@@ -1223,7 +1159,7 @@ export default testSuite(({ describe }) => {
 				const tsconfig: TsConfigJsonResolved = {};
 
 				const jsFilePath = 'index.js';
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[jsFilePath]: '',
 				});
@@ -1240,8 +1176,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, jsFilePath),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('should match with allowJs', async () => {
@@ -1252,7 +1186,7 @@ export default testSuite(({ describe }) => {
 				};
 
 				const jsFilePath = 'index.js';
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[jsFilePath]: '',
 				});
@@ -1271,8 +1205,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 
 			test('shouldnt match .js even if explicitly in "includes"', async () => {
@@ -1281,7 +1213,7 @@ export default testSuite(({ describe }) => {
 					include: [filePath],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -1297,8 +1229,6 @@ export default testSuite(({ describe }) => {
 				expect(matches(
 					path.join(fixture.path, filePath),
 				)).toBe(undefined);
-
-				await fixture.rm();
 			});
 
 			test('matches .js if explicitly in "files"', async () => {
@@ -1307,7 +1237,7 @@ export default testSuite(({ describe }) => {
 					files: [filePath],
 				};
 
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
 					[filePath]: '',
 				});
@@ -1327,8 +1257,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 		});
 
@@ -1346,7 +1274,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			test('should match', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							allowJs: true,
@@ -1377,8 +1305,6 @@ export default testSuite(({ describe }) => {
 					}),
 					tsFiles,
 				);
-
-				await fixture.rm();
 			});
 		});
 	});

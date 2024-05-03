@@ -7,7 +7,7 @@ import { parseTsconfig } from '#get-tsconfig';
 export default testSuite(({ describe }) => {
 	describe('relative path', ({ test }) => {
 		test('extensionless file', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				asdf: createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
@@ -28,12 +28,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('prefers exact match (extensionless file)', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				asdf: createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
@@ -60,12 +58,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('arbitrary extension', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'asdf.ts': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
@@ -86,12 +82,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('parent directory', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
@@ -115,12 +109,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(testDirectory, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('shoud not resolve directory', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'directory/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
@@ -134,12 +126,10 @@ export default testSuite(({ describe }) => {
 			expect(
 				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 			).toThrow('File \'./directory\' not found.');
-
-			await fixture.rm();
 		});
 
 		test('shoud not resolve directory even with package.json#tsconfig', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				directory: {
 					'package.json': createPackageJson({
 						tsconfig: './tsconfig.json',
@@ -158,12 +148,10 @@ export default testSuite(({ describe }) => {
 			expect(
 				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 			).toThrow('File \'./directory\' not found.');
-
-			await fixture.rm();
 		});
 
 		test('outDir in extends', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'a/dep.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react-native',
@@ -187,8 +175,6 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 	});
 });

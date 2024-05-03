@@ -31,7 +31,7 @@ export default testSuite(({ describe }) => {
 		});
 
 		test('from directory path', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
 			});
 
@@ -40,12 +40,10 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, 'tsconfig.json')),
 				config: { compilerOptions },
 			});
-
-			await fixture.rm();
 		});
 
 		test('from index.js path', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
 			});
 
@@ -54,13 +52,11 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, 'tsconfig.json')),
 				config: { compilerOptions },
 			});
-
-			await fixture.rm();
 		});
 
 		test('custom name', async () => {
 			const customName = 'tsconfig-custom-name.json';
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				[customName]: tsconfigJson,
 			});
 
@@ -69,12 +65,10 @@ export default testSuite(({ describe }) => {
 				path: slash(path.join(fixture.path, customName)),
 				config: { compilerOptions },
 			});
-
-			await fixture.rm();
 		});
 
 		test('cache', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
 			});
 
@@ -92,8 +86,6 @@ export default testSuite(({ describe }) => {
 
 			const tsconfigCacheHit = getTsconfig(fixture.path, 'tsconfig.json', cache);
 			expect(tsconfigCacheHit).toStrictEqual(expectedResult);
-
-			await fixture.rm();
 		});
 	});
 });

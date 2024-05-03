@@ -8,7 +8,7 @@ import { parseTsconfig } from '#get-tsconfig';
 export default testSuite(({ describe }) => {
 	describe('node_modules', ({ describe, test }) => {
 		test('prefers file over package', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				node_modules: {
 					'dep.json': createTsconfigJson({
 						compilerOptions: {
@@ -32,13 +32,11 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		describe('extends dependency', ({ test }) => {
 			test('implicit tsconfig.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							main: './index.js',
@@ -62,12 +60,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('without package.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
@@ -85,12 +81,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('ignores invalid package.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': 'invalid json',
 						'some-config.json': createTsconfigJson({
@@ -116,12 +110,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('ignores invalid package.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': 'invalid json',
 						'tsconfig.json': createTsconfigJson({
@@ -141,12 +133,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('empty package.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': '',
 						'custom.json': createTsconfigJson({
@@ -171,12 +161,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('empty object package.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': '{}',
 						'custom.json': createTsconfigJson({
@@ -201,14 +189,12 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 		});
 
 		describe('dependency file', ({ test }) => {
 			test('direct tsconfig.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/some-file.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
@@ -226,12 +212,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('implicit .json extension', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/react-native.json': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
@@ -249,12 +233,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('prefers implicit .json over directory', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/config-package/lib/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							jsx: 'react-jsxdev',
@@ -276,12 +258,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('extensionless file should not work', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/tsconfig': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
@@ -299,12 +279,10 @@ export default testSuite(({ describe }) => {
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			test('arbitrary extension should not work', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/tsconfig.ts': createTsconfigJson({
 						compilerOptions: {
 							strict: true,
@@ -322,13 +300,11 @@ export default testSuite(({ describe }) => {
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 		});
 
 		test('directory named "tsconfig.json"', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'node_modules/dep/tsconfig.json/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
@@ -346,12 +322,10 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		test('extends dependency package far', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'node_modules/dep/tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						strict: true,
@@ -372,13 +346,11 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(path.join(fixturePath, 'tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-			await fixture.rm();
 		});
 
 		describe('package.json#tsconfig', ({ test }) => {
 			test('package.json#tsconfig', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							tsconfig: './some-config.json',
@@ -408,12 +380,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('reads nested package.json#tsconfig', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/some-directory': {
 						'package.json': createPackageJson({
 							// This is ignored because its not at root
@@ -447,8 +417,6 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 		});
 
@@ -472,7 +440,7 @@ export default testSuite(({ describe }) => {
 
 		describe('package.json exports', ({ test, describe }) => {
 			test('main', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: './some-config.json',
@@ -502,12 +470,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('subpath', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: { './config': './some-config.json' },
@@ -537,13 +503,11 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			describe('conditions', ({ test }) => {
 				test('require', async () => {
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
@@ -575,12 +539,10 @@ export default testSuite(({ describe }) => {
 
 					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-					await fixture.rm();
 				});
 
 				test('types', async () => {
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
@@ -612,12 +574,10 @@ export default testSuite(({ describe }) => {
 
 					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-					await fixture.rm();
 				});
 
 				test('missing condition should fail', async () => {
-					const fixture = await createFixture({
+					await using fixture = await createFixture({
 						'node_modules/dep': {
 							'package.json': createPackageJson({
 								exports: {
@@ -651,13 +611,11 @@ export default testSuite(({ describe }) => {
 					expect(
 						() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 					).toThrow(errorMessage);
-
-					await fixture.rm();
 				});
 			});
 
 			test('missing subpath should fail', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: {
@@ -691,13 +649,11 @@ export default testSuite(({ describe }) => {
 				expect(
 					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 				).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			// Seems like a TypeScript bug
 			test('null exports should resolve tsconfig.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: null,
@@ -720,12 +676,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('null exports should resolve tsconfig.json in directory', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: null,
@@ -748,12 +702,10 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 
 			test('path block should not resolve tsconfig.json', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep': {
 						'package.json': createPackageJson({
 							exports: {
@@ -780,12 +732,10 @@ export default testSuite(({ describe }) => {
 				expect(
 					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
 				).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			test('package.json ignored in nested directory', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'node_modules/dep/a': {
 						'package.json': createPackageJson({
 							exports: {
@@ -809,8 +759,6 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
-
-				await fixture.rm();
 			});
 		});
 	});

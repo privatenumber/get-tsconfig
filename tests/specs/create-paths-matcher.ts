@@ -14,7 +14,7 @@ export default testSuite(({ describe }) => {
 	describe('paths', ({ describe, test }) => {
 		describe('error cases', ({ test }) => {
 			test('no baseUrl or paths should be fine', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {},
 					}),
@@ -23,12 +23,10 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(createPathsMatcher(tsconfig!)).toBeNull();
-
-				await fixture.rm();
 			});
 
 			test('no baseUrl nor relative paths', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
@@ -51,12 +49,10 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			test('no baseUrl nor relative paths in extends', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'some-dir2/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
@@ -85,12 +81,10 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow(errorMessage);
-
-				await fixture.rm();
 			});
 
 			test('multiple * in pattern', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
@@ -103,12 +97,10 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Pattern \'a/*/*\' can have at most one \'*\' character.');
-
-				await fixture.rm();
 			});
 
 			test('multiple * in substitution', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
@@ -121,12 +113,10 @@ export default testSuite(({ describe }) => {
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
 				expect(() => createPathsMatcher(tsconfig!)).toThrow('Substitution \'*/*\' in pattern \'a/*\' can have at most one \'*\' character.');
-
-				await fixture.rm();
 			});
 
 			test('no match', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							paths: {
@@ -143,14 +133,12 @@ export default testSuite(({ describe }) => {
 
 				expect(matcher).not.toBeNull();
 				expect(matcher('specifier')).toStrictEqual([]);
-
-				await fixture.rm();
 			});
 		});
 
 		describe('baseUrl', ({ test }) => {
 			test('baseUrl', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							baseUrl: '.',
@@ -168,12 +156,10 @@ export default testSuite(({ describe }) => {
 				expect(matcher('exactMatch')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 
 			test('inherited from extends', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'src/lib/file': '',
 					'some-dir/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
@@ -203,12 +189,10 @@ export default testSuite(({ describe }) => {
 				expect(matcher('$lib')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 
 			test('absolute path', async () => {
-				const fixture = await createFixture();
+				await using fixture = await createFixture();
 				await fixture.writeFile(
 					'tsconfig.json',
 					createTsconfigJson({
@@ -228,13 +212,11 @@ export default testSuite(({ describe }) => {
 				expect(matcher('exactMatch')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 		});
 
 		test('exact match', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -254,13 +236,11 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		// #17
 		test('exact match with parent path', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -280,12 +260,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('exact match with literal wildcard', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'b/file': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
@@ -306,12 +284,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('prefix match', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'prefixed/specifier': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
@@ -332,12 +308,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('prefix-specifier')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('suffix match', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'suffixed/specifier': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
@@ -358,12 +332,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('specifier-suffix')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('doesnt match current directory', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -380,12 +352,10 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('.')).toStrictEqual([]);
-
-			await fixture.rm();
 		});
 
 		test('doesnt match parent directory', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -402,12 +372,10 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('..')).toStrictEqual([]);
-
-			await fixture.rm();
 		});
 
 		test('doesnt match relative paths', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -424,12 +392,10 @@ export default testSuite(({ describe }) => {
 
 			expect(tsconfig).not.toBeNull();
 			expect(matcher('./relative')).toStrictEqual([]);
-
-			await fixture.rm();
 		});
 
 		test('matches absolute paths', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -449,12 +415,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('/absolute')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('matches absolute target paths', async () => {
-			const fixture = await createFixture();
+			await using fixture = await createFixture();
 
 			await fixture.writeFile(
 				'tsconfig.json',
@@ -478,12 +442,10 @@ export default testSuite(({ describe }) => {
 			expect(matcher('dir')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		test('matches path that starts with .', async () => {
-			const fixture = await createFixture({
+			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						paths: {
@@ -503,13 +465,11 @@ export default testSuite(({ describe }) => {
 			expect(matcher('.src')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
-
-			await fixture.rm();
 		});
 
 		describe('extends w/ no baseUrl', ({ test }) => {
 			test('extended config should resolve relative to self', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					tsconfigs: {
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -536,12 +496,10 @@ export default testSuite(({ describe }) => {
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 
 			test('extended config should implicitly resolve paths from self', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					tsconfigs: {
 						'tsconfig.json': createTsconfigJson({
 							compilerOptions: {
@@ -568,12 +526,10 @@ export default testSuite(({ describe }) => {
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 
 			test('extended config should implicitly resolve paths from self - complex', async () => {
-				const fixture = await createFixture({
+				await using fixture = await createFixture({
 					'file.ts': '',
 					'some-dir2/tsconfig.json': createTsconfigJson({
 						compilerOptions: {
@@ -600,8 +556,6 @@ export default testSuite(({ describe }) => {
 				expect(matcher('@')).toStrictEqual([
 					resolvedAttempts[0].filePath.slice(0, -3),
 				]);
-
-				await fixture.rm();
 			});
 		});
 	});
