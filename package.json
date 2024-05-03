@@ -43,7 +43,7 @@
 	"scripts": {
 		"lint": "lint --cache --node --ignore-pattern tests/fixtures .",
 		"build": "pkgroll --minify --target node12.20",
-		"test": "pnpm build && tsx tests",
+		"test": "tsx tests",
 		"dev": "tsx watch --conditions=development tests",
 		"type-check": "tsc --noEmit",
 		"prepack": "pnpm build && clean-pkg-json"
