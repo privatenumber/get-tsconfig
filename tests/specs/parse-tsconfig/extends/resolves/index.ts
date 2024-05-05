@@ -84,5 +84,6 @@ export default testSuite(({ describe }) => {
 		runTestSuite(import('./relative-path.spec.js'));
 		runTestSuite(import('./absolute-path.spec.js'));
 		runTestSuite(import('./node-modules.spec.js'));
+		runTestSuite(import('./symbolic-link.spec.js'));
 	});
 });

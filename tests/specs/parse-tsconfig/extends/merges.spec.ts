@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
@@ -220,6 +221,39 @@ export default testSuite(({ describe }) => {
 
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
+
+			test('inherits from symlinked configs', async () => {
+				await using fixture = await createFixture({
+					'symlink-source': {
+						'tsconfig.base.json': createTsconfigJson({
+							include: ['../src/*'],
+						}),
+					},
+					project: {
+						src: {
+							'a.ts': '',
+							'b.ts': '',
+							'c.ts': '',
+						},
+						'tsconfig.json': createTsconfigJson({
+							extends: './symlink/tsconfig.base.json',
+						}),
+					},
+				});
+
+				await fs.symlink(fixture.getPath('symlink-source'), fixture.getPath('project/symlink'));
+
+				const expectedTsconfig = await getTscTsconfig(path.join(fixture.path, 'project'));
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'project', 'tsconfig.json'));
+
+				expect({
+					...tsconfig,
+					// See https://github.com/privatenumber/get-tsconfig/issues/73
+					include: tsconfig.include?.map(includePath => `symlink/../${includePath}`),
+				}).toStrictEqual(expectedTsconfig);
+			});
 		});
 
 		describe('baseUrl', ({ test }) => {
@@ -307,6 +341,32 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('resolves parent baseUrl path defined in symlinked config', async () => {
+				await using fixture = await createFixture({
+					'symlink-source': {
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								baseUrl: '..',
+							},
+						}),
+					},
+					project: {
+						'tsconfig.json': createTsconfigJson({
+							extends: './symlink/tsconfig.json',
+						}),
+						'a.ts': '',
+					},
+				});
+
+				await fs.symlink(fixture.getPath('symlink-source'), fixture.getPath('project/symlink'));
+
+				const expectedTsconfig = await getTscTsconfig(path.join(fixture.path, 'project'));
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'project', 'tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 		});
