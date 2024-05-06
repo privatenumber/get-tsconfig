@@ -1,4 +1,11 @@
-# get-tsconfig [![Latest version](https://badgen.net/npm/v/get-tsconfig)](https://npm.im/get-tsconfig) [![npm downloads](https://badgen.net/npm/dm/get-tsconfig)](https://npm.im/get-tsconfig)
+<p align="center">
+	<img width="160" src=".github/logo.webp">
+</p>
+<h1 align="center">
+	<sup>get-tsconfig</sup>
+	<br>
+	<a href="https://npm.im/get-tsconfig"><img src="https://badgen.net/npm/v/get-tsconfig"></a> <a href="https://npm.im/get-tsconfig"><img src="https://badgen.net/npm/dm/get-tsconfig"></a>
+</h1>
 
 Find and parse `tsconfig.json` files.
 
