@@ -3,7 +3,6 @@ import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { realpath } from '../utils/fs-cached.js';
 import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
 
@@ -82,13 +81,6 @@ const _parseTsconfig = (
 	cache?: Cache<string>,
 	circularExtendsTracker = new Set<string>(),
 ): TsConfigJsonResolved => {
-	let realTsconfigPath: string;
-	try {
-		realTsconfigPath = realpath(cache, tsconfigPath) as string;
-	} catch {
-		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
-	}
-
 	/**
 	 * Decided not to cache the TsConfigJsonResolved object because it's
 	 * mutable.
@@ -99,13 +91,18 @@ const _parseTsconfig = (
 	 *
 	 * By only caching fs results, we can avoid serving mutated objects
 	 */
-	let config: TsConfigJson = readJsonc(realTsconfigPath, cache) || {};
+	let config: TsConfigJson;
+	try {
+		config = readJsonc(tsconfigPath, cache) || {};
+	} catch {
+		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
+	}
 
 	if (typeof config !== 'object') {
 		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
 	}
 
-	const directoryPath = path.dirname(realTsconfigPath);
+	const directoryPath = path.dirname(tsconfigPath);
 
 	if (config.compilerOptions) {
 		const { compilerOptions } = config;

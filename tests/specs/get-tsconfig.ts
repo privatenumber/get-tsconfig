@@ -80,7 +80,7 @@ export default testSuite(({ describe }) => {
 			const cache = new Map();
 			const tsconfig = getTsconfig(fixture.path, 'tsconfig.json', cache);
 			expect(tsconfig).toStrictEqual(expectedResult);
-			expect(cache.size).toBe(3);
+			expect(cache.size).toBe(2);
 
 			await fixture.rm('tsconfig.json');
 

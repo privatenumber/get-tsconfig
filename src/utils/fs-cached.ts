@@ -35,6 +35,5 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 };
 
 export const exists = cacheFs('existsSync');
-export const realpath = cacheFs('realpathSync');
 export const readFile = cacheFs('readFileSync');
 export const stat = cacheFs('statSync');
