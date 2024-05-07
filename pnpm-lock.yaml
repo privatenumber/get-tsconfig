@@ -13,8 +13,8 @@ importers:
         version: 1.0.0
     devDependencies:
       '@types/node':
-        specifier: ^20.12.8
-        version: 20.12.8
+        specifier: ^20.12.10
+        version: 20.12.10
       '@yarnpkg/pnp':
         specifier: 3.3.1
         version: 3.3.1
@@ -25,8 +25,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       fs-fixture:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.2.0
+        version: 2.2.0
       is-fs-case-sensitive:
         specifier: ^1.0.0
         version: 1.0.0
@@ -46,11 +46,11 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       tsx:
-        specifier: ^4.8.2
-        version: 4.8.2
+        specifier: ^4.9.3
+        version: 4.9.3
       type-fest:
-        specifier: ^4.18.1
-        version: 4.18.1
+        specifier: ^4.18.2
+        version: 4.18.2
       typescript:
         specifier: ~5.2.0
         version: 5.2.2
@@ -474,8 +474,8 @@ packages:
   '@types/node@13.13.52':
     resolution: {integrity: sha512-s3nugnZumCC//n4moGGe6tkNMyYEdaDBitVjwPxXmR5lnMG5dHePinH2EdxkG3Rh1ghFHHixAG4NJhpJW1rthQ==}
 
-  '@types/node@20.12.8':
-    resolution: {integrity: sha512-NU0rJLJnshZWdE/097cdCBbyW1h4hEg0xpovcoAQYHl8dnEyp/NAOiE45pvc+Bd1Dt+2r94v2eGFpQJ4R7g+2w==}
+  '@types/node@20.12.10':
+    resolution: {integrity: sha512-Eem5pH9pmWBHoGAT8Dr5fdc5rYA+4NAovdM4EktRPVAAiJhmWWfQrA0cFhAbOsQdSfIHjAud6YdkbL69+zSKjw==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -1113,8 +1113,8 @@ packages:
   for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
 
-  fs-fixture@2.0.0:
-    resolution: {integrity: sha512-UwzKP76FyNdnQwFPaA82X/S0Qx6cQ7cEVT2FjhcDSCYhaeqJZHTRHSIcDOPCisPn2WAlVII+abhZt6T1KhNQ8w==}
+  fs-fixture@2.2.0:
+    resolution: {integrity: sha512-wHU3nW1+giccmfuvynl8T7E0KdFJB9WsC4wRiHcLTrEHRGzpMkMbceBxewryC3yNQ0umoaPlHcVJa6WuNOqMXw==}
     engines: {node: '>=18.0.0'}
 
   fs.realpath@1.0.0:
@@ -1156,6 +1156,9 @@ packages:
 
   get-tsconfig@4.7.3:
     resolution: {integrity: sha512-ZvkrzoUA0PQZM6fy6+/Hce561s+faD1rsNwhnO5FelNjyy7EMGJ3Rz1AQ8GYDWjhRs/7dBLOEJvhK8MiEJOAFg==}
+
+  get-tsconfig@4.7.4:
+    resolution: {integrity: sha512-ofbkKj+0pjXjhejr007J/fLf+sW+8H7K5GCm+msC8q3IpvgjobpyPqSRFemNyIMxklC0zeJpi7VDFna19FacvQ==}
 
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -1990,8 +1993,8 @@ packages:
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
-  tsx@4.8.2:
-    resolution: {integrity: sha512-hmmzS4U4mdy1Cnzpl/NQiPUC2k34EcNSTZYVJThYKhdqTwuBeF+4cG9KUK/PFQ7KHaAaYwqlb7QfmsE2nuj+WA==}
+  tsx@4.9.3:
+    resolution: {integrity: sha512-czVbetlILiyJZI5zGlj2kw9vFiSeyra9liPD4nG+Thh4pKTi0AmMEQ8zdV/L2xbIVKrIqif4sUNrsMAOksx9Zg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -2011,8 +2014,8 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
-  type-fest@4.18.1:
-    resolution: {integrity: sha512-qXhgeNsX15bM63h5aapNFcQid9jRF/l3ojDoDFmekDQEUufZ9U4ErVt6SjDxnHp48Ltrw616R8yNc3giJ3KvVQ==}
+  type-fest@4.18.2:
+    resolution: {integrity: sha512-+suCYpfJLAe4OXS6+PPXjW3urOS4IoP9waSiLuXfLgqZODKw/aWwASvzqE886wA0kQgGy0mIWyhd87VpqIy6Xg==}
     engines: {node: '>=16'}
 
   type-flag@3.0.0:
@@ -2255,7 +2258,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.12.8
+      '@types/node': 20.12.10
       '@types/yargs': 17.0.32
       chalk: 4.1.2
 
@@ -2457,7 +2460,7 @@ snapshots:
 
   '@types/node@13.13.52': {}
 
-  '@types/node@20.12.8':
+  '@types/node@20.12.10':
     dependencies:
       undici-types: 5.26.5
 
@@ -3383,7 +3386,7 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  fs-fixture@2.0.0: {}
+  fs-fixture@2.2.0: {}
 
   fs.realpath@1.0.0: {}
 
@@ -3425,6 +3428,10 @@ snapshots:
       get-intrinsic: 1.2.4
 
   get-tsconfig@4.7.3:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
+
+  get-tsconfig@4.7.4:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
@@ -3716,7 +3723,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.12.8
+      '@types/node': 20.12.10
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -3803,7 +3810,7 @@ snapshots:
       get-tsconfig: 4.7.3
       globals: 15.1.0
       resolve-pkg-maps: 1.0.0
-      tsx: 4.8.2
+      tsx: 4.9.3
       vue-eslint-parser: 9.4.2(eslint@8.57.0)
       yaml-eslint-parser: 1.2.2
     transitivePeerDependencies:
@@ -4347,10 +4354,10 @@ snapshots:
 
   tslib@2.6.2: {}
 
-  tsx@4.8.2:
+  tsx@4.9.3:
     dependencies:
       esbuild: 0.20.2
-      get-tsconfig: 4.7.3
+      get-tsconfig: 4.7.4
     optionalDependencies:
       fsevents: 2.3.3
 
@@ -4364,7 +4371,7 @@ snapshots:
 
   type-fest@0.8.1: {}
 
-  type-fest@4.18.1: {}
+  type-fest@4.18.2: {}
 
   type-flag@3.0.0: {}
 

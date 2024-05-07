@@ -1,4 +1,3 @@
-import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson, getTscTsconfig } from '../../../../utils.js';
@@ -14,16 +13,16 @@ export default testSuite(({ describe }) => {
 						jsx: 'react',
 					},
 				}),
+				'tsconfig.json': ({ getPath }) => createTsconfigJson({
+					extends: getPath('dep/tsconfig.json'),
+				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', createTsconfigJson({
-				extends: path.join(fixture.path, 'dep/tsconfig.json'),
-			}));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -35,16 +34,16 @@ export default testSuite(({ describe }) => {
 						jsx: 'react',
 					},
 				}),
+				'tsconfig.json': ({ getPath }) => createTsconfigJson({
+					extends: getPath('dep/tsconfig'),
+				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', createTsconfigJson({
-				extends: path.join(fixture.path, 'dep/tsconfig'),
-			}));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -56,16 +55,16 @@ export default testSuite(({ describe }) => {
 						jsx: 'react',
 					},
 				}),
+				'tsconfig.json': ({ getPath }) => createTsconfigJson({
+					extends: getPath('dep/tsconfig.tsx'),
+				}),
 				'file.ts': '',
 			});
-			await fixture.writeFile('tsconfig.json', createTsconfigJson({
-				extends: path.join(fixture.path, 'dep/tsconfig.tsx'),
-			}));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 	});

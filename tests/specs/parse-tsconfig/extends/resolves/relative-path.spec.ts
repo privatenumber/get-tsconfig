@@ -26,7 +26,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -56,7 +56,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -80,7 +80,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -103,7 +103,7 @@ export default testSuite(({ describe }) => {
 				},
 			});
 
-			const testDirectory = `${fixture.path}/tests/`;
+			const testDirectory = fixture.getPath('tests/');
 			const expectedTsconfig = await getTscTsconfig(testDirectory);
 			delete expectedTsconfig.files;
 
@@ -124,7 +124,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			expect(
-				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow('File \'./directory\' not found.');
 		});
 
@@ -146,7 +146,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			expect(
-				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow('File \'./directory\' not found.');
 		});
 
@@ -173,7 +173,7 @@ export default testSuite(({ describe }) => {
 			 */
 			expectedTsconfig.exclude = ['a/dist'];
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 	});

@@ -37,7 +37,7 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toStrictEqual({
-				path: slash(path.join(fixture.path, 'tsconfig.json')),
+				path: slash(fixture.getPath('tsconfig.json')),
 				config: { compilerOptions },
 			});
 		});
@@ -47,9 +47,9 @@ export default testSuite(({ describe }) => {
 				'tsconfig.json': tsconfigJson,
 			});
 
-			const tsconfig = getTsconfig(path.join(fixture.path, 'index.js'));
+			const tsconfig = getTsconfig(fixture.getPath('index.js'));
 			expect(tsconfig).toStrictEqual({
-				path: slash(path.join(fixture.path, 'tsconfig.json')),
+				path: slash(fixture.getPath('tsconfig.json')),
 				config: { compilerOptions },
 			});
 		});
@@ -73,7 +73,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			const expectedResult = {
-				path: slash(path.join(fixture.path, 'tsconfig.json')),
+				path: slash(fixture.getPath('tsconfig.json')),
 				config: { compilerOptions },
 			};
 

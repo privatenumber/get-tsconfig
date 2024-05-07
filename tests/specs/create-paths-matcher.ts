@@ -1,4 +1,3 @@
-import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import type { ExecaError } from 'execa';
@@ -192,15 +191,13 @@ export default testSuite(({ describe }) => {
 			});
 
 			test('absolute path', async () => {
-				await using fixture = await createFixture();
-				await fixture.writeFile(
-					'tsconfig.json',
-					createTsconfigJson({
+				await using fixture = await createFixture({
+					'tsconfig.json': ({ fixturePath }) => createTsconfigJson({
 						compilerOptions: {
-							baseUrl: fixture.path,
+							baseUrl: fixturePath,
 						},
 					}),
-				);
+				});
 
 				const tsconfig = getTsconfig(fixture.path);
 				expect(tsconfig).not.toBeNull();
@@ -418,19 +415,16 @@ export default testSuite(({ describe }) => {
 		});
 
 		test('matches absolute target paths', async () => {
-			await using fixture = await createFixture();
-
-			await fixture.writeFile(
-				'tsconfig.json',
-				createTsconfigJson({
+			await using fixture = await createFixture({
+				'tsconfig.json': ({ fixturePath, getPath }) => createTsconfigJson({
 					compilerOptions: {
-						baseUrl: fixture.path,
+						baseUrl: fixturePath,
 						paths: {
-							dir: [path.join(fixture.path, 'dir')],
+							dir: [getPath('dir')],
 						},
 					},
 				}),
-			);
+			});
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).not.toBeNull();

@@ -1,4 +1,3 @@
-import fs from 'fs/promises';
 import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
@@ -30,9 +29,8 @@ export default testSuite(({ describe }) => {
 					},
 				}),
 				'file.ts': '',
+				'tsconfig.symlink.json': ({ symlink }) => symlink('./tsconfig.symlink-source.json'),
 			});
-
-			await fs.symlink(fixture.getPath('tsconfig.symlink-source.json'), fixture.getPath('tsconfig.symlink.json'));
 
 			await validate(fixture.path);
 		});
@@ -54,9 +52,8 @@ export default testSuite(({ describe }) => {
 					},
 				}),
 				'file.ts': '',
+				symlink: ({ symlink }) => symlink('./symlink-source'),
 			});
-
-			await fs.symlink(fixture.getPath('symlink-source'), fixture.getPath('symlink'));
 
 			await validate(fixture.path);
 		});
@@ -79,10 +76,9 @@ export default testSuite(({ describe }) => {
 						},
 					}),
 					'file.ts': '',
+					'tsconfig.json': ({ symlink }) => symlink('../symlink-source/tsconfig.main.json'),
 				},
 			});
-
-			await fs.symlink(fixture.getPath('symlink-source/tsconfig.main.json'), fixture.getPath('project/tsconfig.json'));
 
 			await validate(fixture.getPath('project'));
 		});
@@ -111,10 +107,9 @@ export default testSuite(({ describe }) => {
 						},
 					}),
 					'file.ts': '',
+					symlink: ({ symlink }) => symlink('../symlink-source'),
 				},
 			});
-
-			await fs.symlink(fixture.getPath('symlink-source'), fixture.getPath('project/symlink'));
 
 			await validate(fixture.getPath('project'));
 		});

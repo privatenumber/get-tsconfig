@@ -30,7 +30,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -58,7 +58,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -79,7 +79,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -108,7 +108,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -131,7 +131,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -159,7 +159,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -187,7 +187,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 		});
@@ -210,7 +210,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -231,7 +231,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -256,7 +256,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -278,7 +278,7 @@ export default testSuite(({ describe }) => {
 				await expect(
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
-				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
+				expect(() => parseTsconfig(fixture.getPath('tsconfig.json'))).toThrow(errorMessage);
 			});
 
 			test('arbitrary extension should not work', async () => {
@@ -299,7 +299,7 @@ export default testSuite(({ describe }) => {
 				await expect(
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
-				expect(() => parseTsconfig(path.join(fixture.path, 'tsconfig.json'))).toThrow(errorMessage);
+				expect(() => parseTsconfig(fixture.getPath('tsconfig.json'))).toThrow(errorMessage);
 			});
 		});
 
@@ -320,7 +320,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
@@ -340,7 +340,7 @@ export default testSuite(({ describe }) => {
 				},
 			});
 
-			const fixturePath = `${fixture.path}/nested/nested/nested`;
+			const fixturePath = fixture.getPath('nested/nested/nested');
 			const expectedTsconfig = await getTscTsconfig(fixturePath);
 			delete expectedTsconfig.files;
 
@@ -416,7 +416,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -453,7 +453,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 		});
@@ -506,7 +506,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -539,7 +539,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -575,7 +575,7 @@ export default testSuite(({ describe }) => {
 					const expectedTsconfig = await getTscTsconfig(fixture.path);
 					delete expectedTsconfig.files;
 
-					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
 				});
 
@@ -610,7 +610,7 @@ export default testSuite(({ describe }) => {
 					const expectedTsconfig = await getTscTsconfig(fixture.path);
 					delete expectedTsconfig.files;
 
-					const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+					const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 					expect(tsconfig).toStrictEqual(expectedTsconfig);
 				});
 
@@ -647,7 +647,7 @@ export default testSuite(({ describe }) => {
 						getTscTsconfig(fixture.path),
 					).rejects.toThrow(errorMessage);
 					expect(
-						() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+						() => parseTsconfig(fixture.getPath('tsconfig.json')),
 					).toThrow(errorMessage);
 				});
 			});
@@ -685,7 +685,7 @@ export default testSuite(({ describe }) => {
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(
-					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+					() => parseTsconfig(fixture.getPath('tsconfig.json')),
 				).toThrow(errorMessage);
 			});
 
@@ -712,7 +712,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -738,7 +738,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
@@ -768,7 +768,7 @@ export default testSuite(({ describe }) => {
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(
-					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+					() => parseTsconfig(fixture.getPath('tsconfig.json')),
 				).toThrow(errorMessage);
 			});
 
@@ -795,7 +795,7 @@ export default testSuite(({ describe }) => {
 				const expectedTsconfig = await getTscTsconfig(fixture.path);
 				delete expectedTsconfig.files;
 
-				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 		});

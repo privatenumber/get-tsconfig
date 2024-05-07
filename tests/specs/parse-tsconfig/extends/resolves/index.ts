@@ -1,4 +1,3 @@
-import path from 'path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson, getTscTsconfig } from '../../../../utils.js';
@@ -15,7 +14,7 @@ export default testSuite(({ describe }) => {
 			});
 
 			expect(
-				() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow('File \'missing-package\' not found.');
 		});
 
@@ -34,7 +33,7 @@ export default testSuite(({ describe }) => {
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
 				expect(
-					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+					() => parseTsconfig(fixture.getPath('tsconfig.json')),
 				).toThrow(errorMessage);
 			});
 
@@ -50,7 +49,7 @@ export default testSuite(({ describe }) => {
 				onTestFinish(() => fixture.rm());
 
 				expect(
-					() => parseTsconfig(path.join(fixture.path, 'tsconfig.json')),
+					() => parseTsconfig(fixture.getPath('tsconfig.json')),
 				).toThrow('Circularity detected while resolving configuration:');
 			});
 		});
@@ -77,7 +76,7 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
