@@ -144,7 +144,7 @@ export const resolveExtendsPath = (
 	}
 
 	const packagePath = findUp(
-		directoryPath,
+		path.resolve(directoryPath),
 		path.join('node_modules', packageName),
 		cache,
 	);

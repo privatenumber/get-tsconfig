@@ -254,6 +254,48 @@ export default testSuite(({ describe }) => {
 					include: tsconfig.include?.map(includePath => `symlink/../${includePath}`),
 				}).toStrictEqual(expectedTsconfig);
 			});
+
+			// https://github.com/privatenumber/get-tsconfig/issues/76
+			test('supports config files in a monorepo', async () => {
+				await using fixture = await createFixture({
+					'packages': {
+						'tsconfig': {
+							'tsconfig.base.json': createTsconfigJson({
+								compilerOptions: {
+									module: 'commonjs',
+								},
+							}),
+						},
+						'library': {
+							src: {
+								'a.ts': '',
+								'b.ts': '',
+								'c.ts': '',
+							},
+							'tsconfig.json': createTsconfigJson({
+								extends: '@monorepo/tsconfig/tsconfig.base.json',
+								include: ['src'],
+							}),
+						},
+					},
+				});
+
+				await fs.mkdir(path.join(fixture.path, 'node_modules', '@monorepo'), { recursive: true });
+				await fs.symlink(fixture.getPath('packages/tsconfig'), fixture.getPath('node_modules/@monorepo/tsconfig'));
+
+				const originalCwd = process.cwd();
+				try {
+					process.chdir(fixture.getPath('packages/library'));
+					const expectedTsconfig = await getTscTsconfig('.');
+					delete expectedTsconfig.files;
+
+					const tsconfig = parseTsconfig('./tsconfig.json');
+
+					expect(tsconfig).toStrictEqual(expectedTsconfig);
+				} finally {
+					process.chdir(originalCwd);
+				}
+			});
 		});
 
 		describe('baseUrl', ({ test }) => {
