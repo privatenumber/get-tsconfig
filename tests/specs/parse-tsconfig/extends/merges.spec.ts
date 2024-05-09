@@ -281,7 +281,11 @@ export default testSuite(({ describe }) => {
 				});
 
 				await fs.mkdir(path.join(fixture.path, 'node_modules', '@monorepo'), { recursive: true });
-				await fs.symlink(fixture.getPath('packages/tsconfig'), fixture.getPath('node_modules/@monorepo/tsconfig'));
+				await fs.symlink(
+					fixture.getPath('packages/tsconfig'),
+					fixture.getPath('node_modules/@monorepo/tsconfig'),
+					'junction',
+				);
 
 				const originalCwd = process.cwd();
 				try {
