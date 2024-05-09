@@ -258,15 +258,15 @@ export default testSuite(({ describe }) => {
 			// https://github.com/privatenumber/get-tsconfig/issues/76
 			test('supports config files in a monorepo', async () => {
 				await using fixture = await createFixture({
-					'packages': {
-						'tsconfig': {
+					packages: {
+						tsconfig: {
 							'tsconfig.base.json': createTsconfigJson({
 								compilerOptions: {
 									module: 'commonjs',
 								},
 							}),
 						},
-						'library': {
+						library: {
 							src: {
 								'a.ts': '',
 								'b.ts': '',
