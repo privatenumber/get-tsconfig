@@ -348,6 +348,44 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
+		// https://github.com/privatenumber/get-tsconfig/issues/76
+		test('resolves config in parent node_modules', async () => {
+			await using fixture = await createFixture({
+				library: {
+					src: {
+						'a.ts': '',
+						'b.ts': '',
+						'c.ts': '',
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: '@monorepo/tsconfig/tsconfig.base.json',
+						include: ['src'],
+					}),
+				},
+
+				'node_modules/@monorepo/tsconfig': {
+					'tsconfig.base.json': createTsconfigJson({
+						compilerOptions: {
+							module: 'commonjs',
+						},
+					}),
+				},
+			});
+
+			const originalCwd = process.cwd();
+			try {
+				process.chdir(fixture.getPath('library'));
+				const expectedTsconfig = await getTscTsconfig('.');
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig('./tsconfig.json');
+
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			} finally {
+				process.chdir(originalCwd);
+			}
+		});
+
 		describe('package.json#tsconfig', ({ test }) => {
 			test('package.json#tsconfig', async () => {
 				await using fixture = await createFixture({
