@@ -6,12 +6,15 @@ import { readJsonc } from '../utils/read-jsonc.js';
 import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
 
+class TsconfigError extends Error {}
+
 const resolveExtends = (
 	extendsPath: string,
-	fromDirectoryPath: string,
+	tsconfigPath: string,
 	circularExtendsTracker: Set<string>,
 	cache?: Cache<string>,
 ) => {
+	const fromDirectoryPath = path.dirname(tsconfigPath);
 	const resolvedExtendsPath = resolveExtendsPath(
 		extendsPath,
 		fromDirectoryPath,
@@ -19,11 +22,11 @@ const resolveExtends = (
 	);
 
 	if (!resolvedExtendsPath) {
-		throw new Error(`File '${extendsPath}' not found.`);
+		throw new TsconfigError(`${path.relative(process.cwd(), tsconfigPath)}: File '${extendsPath}' not found.`);
 	}
 
 	if (circularExtendsTracker.has(resolvedExtendsPath)) {
-		throw new Error(`Circularity detected while resolving configuration: ${resolvedExtendsPath}`);
+		throw new TsconfigError(`Circularity detected while resolving configuration: ${resolvedExtendsPath}`);
 	}
 
 	circularExtendsTracker.add(resolvedExtendsPath);
@@ -95,7 +98,7 @@ const _parseTsconfig = (
 	try {
 		config = readJsonc(tsconfigPath, cache) || {};
 	} catch {
-		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
+		throw new TsconfigError(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
 	}
 
 	if (typeof config !== 'object') {
@@ -129,7 +132,7 @@ const _parseTsconfig = (
 		for (const extendsPath of extendsPathList.reverse()) {
 			const extendsConfig = resolveExtends(
 				extendsPath,
-				directoryPath,
+				tsconfigPath,
 				new Set(circularExtendsTracker),
 				cache,
 			);

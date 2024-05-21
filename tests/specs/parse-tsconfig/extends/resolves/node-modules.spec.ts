@@ -274,11 +274,21 @@ export default testSuite(({ describe }) => {
 					'file.ts': '',
 				});
 
-				const errorMessage = 'File \'dep/tsconfig\' not found';
+				const errorMessage = /tsconfig\.json.+File 'dep\/tsconfig' not found/;
+
 				await expect(
 					getTscTsconfig(fixture.path),
 				).rejects.toThrow(errorMessage);
-				expect(() => parseTsconfig(fixture.getPath('tsconfig.json'))).toThrow(errorMessage);
+
+				expect(() => {
+					const originalCwd = process.cwd();
+					try {
+						process.chdir(fixture.path);
+						parseTsconfig(fixture.getPath('tsconfig.json'));
+					} finally {
+						process.chdir(originalCwd);
+					}
+				}).toThrow(errorMessage);
 			});
 
 			test('arbitrary extension should not work', async () => {
