@@ -1,7 +1,1426 @@
-"use strict";var p=require("path"),V=require("fs"),ge=require("module"),ke=require("resolve-pkg-maps");function y(e){return e.startsWith("\\\\?\\")?e:e.replace(/\\/g,"/")}const S=e=>{const t=V[e];return(i,...n)=>{const s=`${e}:${n.join(":")}`;let l=i==null?void 0:i.get(s);return l===void 0&&(l=Reflect.apply(t,V,n),i==null||i.set(s,l)),l}},B=S("existsSync"),be=S("readFileSync"),x=S("statSync"),K=(e,t,i)=>{for(;;){const n=p.posix.join(e,t);if(B(i,n))return n;const s=p.dirname(e);if(s===e)return;e=s}},M=/^\.{1,2}(\/.*)?$/,W=e=>{const t=y(e);return M.test(t)?t:`./${t}`};function we(e,t=!1){const i=e.length;let n=0,s="",l=0,o=16,u=0,c=0,g=0,T=0,f=0;function _(r,m){let a=0,$=0;for(;a<r||!m;){let A=e.charCodeAt(n);if(A>=48&&A<=57)$=$*16+A-48;else if(A>=65&&A<=70)$=$*16+A-65+10;else if(A>=97&&A<=102)$=$*16+A-97+10;else break;n++,a++}return a<r&&($=-1),$}function w(r){n=r,s="",l=0,o=16,f=0}function v(){let r=n;if(e.charCodeAt(n)===48)n++;else for(n++;n<e.length&&U(e.charCodeAt(n));)n++;if(n<e.length&&e.charCodeAt(n)===46)if(n++,n<e.length&&U(e.charCodeAt(n)))for(n++;n<e.length&&U(e.charCodeAt(n));)n++;else return f=3,e.substring(r,n);let m=n;if(n<e.length&&(e.charCodeAt(n)===69||e.charCodeAt(n)===101))if(n++,(n<e.length&&e.charCodeAt(n)===43||e.charCodeAt(n)===45)&&n++,n<e.length&&U(e.charCodeAt(n))){for(n++;n<e.length&&U(e.charCodeAt(n));)n++;m=n}else f=3;return e.substring(r,m)}function b(){let r="",m=n;for(;;){if(n>=i){r+=e.substring(m,n),f=2;break}const a=e.charCodeAt(n);if(a===34){r+=e.substring(m,n),n++;break}if(a===92){if(r+=e.substring(m,n),n++,n>=i){f=2;break}switch(e.charCodeAt(n++)){case 34:r+='"';break;case 92:r+="\\";break;case 47:r+="/";break;case 98:r+="\b";break;case 102:r+="\f";break;case 110:r+=`
-`;break;case 114:r+="\r";break;case 116:r+="	";break;case 117:const A=_(4,!0);A>=0?r+=String.fromCharCode(A):f=4;break;default:f=5}m=n;continue}if(a>=0&&a<=31)if(N(a)){r+=e.substring(m,n),f=2;break}else f=6;n++}return r}function j(){if(s="",f=0,l=n,c=u,T=g,n>=i)return l=i,o=17;let r=e.charCodeAt(n);if(J(r)){do n++,s+=String.fromCharCode(r),r=e.charCodeAt(n);while(J(r));return o=15}if(N(r))return n++,s+=String.fromCharCode(r),r===13&&e.charCodeAt(n)===10&&(n++,s+=`
-`),u++,g=n,o=14;switch(r){case 123:return n++,o=1;case 125:return n++,o=2;case 91:return n++,o=3;case 93:return n++,o=4;case 58:return n++,o=6;case 44:return n++,o=5;case 34:return n++,s=b(),o=10;case 47:const m=n-1;if(e.charCodeAt(n+1)===47){for(n+=2;n<i&&!N(e.charCodeAt(n));)n++;return s=e.substring(m,n),o=12}if(e.charCodeAt(n+1)===42){n+=2;const a=i-1;let $=!1;for(;n<a;){const A=e.charCodeAt(n);if(A===42&&e.charCodeAt(n+1)===47){n+=2,$=!0;break}n++,N(A)&&(A===13&&e.charCodeAt(n)===10&&n++,u++,g=n)}return $||(n++,f=1),s=e.substring(m,n),o=13}return s+=String.fromCharCode(r),n++,o=16;case 45:if(s+=String.fromCharCode(r),n++,n===i||!U(e.charCodeAt(n)))return o=16;case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:return s+=v(),o=11;default:for(;n<i&&L(r);)n++,r=e.charCodeAt(n);if(l!==n){switch(s=e.substring(l,n),s){case"true":return o=8;case"false":return o=9;case"null":return o=7}return o=16}return s+=String.fromCharCode(r),n++,o=16}}function L(r){if(J(r)||N(r))return!1;switch(r){case 125:case 93:case 123:case 91:case 34:case 58:case 44:case 47:return!1}return!0}function E(){let r;do r=j();while(r>=12&&r<=15);return r}return{setPosition:w,getPosition:()=>n,scan:t?E:j,getToken:()=>o,getTokenValue:()=>s,getTokenOffset:()=>l,getTokenLength:()=>n-l,getTokenStartLine:()=>c,getTokenStartCharacter:()=>l-T,getTokenError:()=>f}}function J(e){return e===32||e===9}function N(e){return e===10||e===13}function U(e){return e>=48&&e<=57}var C;(function(e){e[e.lineFeed=10]="lineFeed",e[e.carriageReturn=13]="carriageReturn",e[e.space=32]="space",e[e._0=48]="_0",e[e._1=49]="_1",e[e._2=50]="_2",e[e._3=51]="_3",e[e._4=52]="_4",e[e._5=53]="_5",e[e._6=54]="_6",e[e._7=55]="_7",e[e._8=56]="_8",e[e._9=57]="_9",e[e.a=97]="a",e[e.b=98]="b",e[e.c=99]="c",e[e.d=100]="d",e[e.e=101]="e",e[e.f=102]="f",e[e.g=103]="g",e[e.h=104]="h",e[e.i=105]="i",e[e.j=106]="j",e[e.k=107]="k",e[e.l=108]="l",e[e.m=109]="m",e[e.n=110]="n",e[e.o=111]="o",e[e.p=112]="p",e[e.q=113]="q",e[e.r=114]="r",e[e.s=115]="s",e[e.t=116]="t",e[e.u=117]="u",e[e.v=118]="v",e[e.w=119]="w",e[e.x=120]="x",e[e.y=121]="y",e[e.z=122]="z",e[e.A=65]="A",e[e.B=66]="B",e[e.C=67]="C",e[e.D=68]="D",e[e.E=69]="E",e[e.F=70]="F",e[e.G=71]="G",e[e.H=72]="H",e[e.I=73]="I",e[e.J=74]="J",e[e.K=75]="K",e[e.L=76]="L",e[e.M=77]="M",e[e.N=78]="N",e[e.O=79]="O",e[e.P=80]="P",e[e.Q=81]="Q",e[e.R=82]="R",e[e.S=83]="S",e[e.T=84]="T",e[e.U=85]="U",e[e.V=86]="V",e[e.W=87]="W",e[e.X=88]="X",e[e.Y=89]="Y",e[e.Z=90]="Z",e[e.asterisk=42]="asterisk",e[e.backslash=92]="backslash",e[e.closeBrace=125]="closeBrace",e[e.closeBracket=93]="closeBracket",e[e.colon=58]="colon",e[e.comma=44]="comma",e[e.dot=46]="dot",e[e.doubleQuote=34]="doubleQuote",e[e.minus=45]="minus",e[e.openBrace=123]="openBrace",e[e.openBracket=91]="openBracket",e[e.plus=43]="plus",e[e.slash=47]="slash",e[e.formFeed=12]="formFeed",e[e.tab=9]="tab"})(C||(C={})),new Array(20).fill(0).map((e,t)=>" ".repeat(t));const F=200;new Array(F).fill(0).map((e,t)=>`
-`+" ".repeat(t)),new Array(F).fill(0).map((e,t)=>"\r"+" ".repeat(t)),new Array(F).fill(0).map((e,t)=>`\r
-`+" ".repeat(t)),new Array(F).fill(0).map((e,t)=>`
-`+"	".repeat(t)),new Array(F).fill(0).map((e,t)=>"\r"+"	".repeat(t)),new Array(F).fill(0).map((e,t)=>`\r
-`+"	".repeat(t));var D;(function(e){e.DEFAULT={allowTrailingComma:!1}})(D||(D={}));function ve(e,t=[],i=D.DEFAULT){let n=null,s=[];const l=[];function o(c){Array.isArray(s)?s.push(c):n!==null&&(s[n]=c)}return Te(e,{onObjectBegin:()=>{const c={};o(c),l.push(s),s=c,n=null},onObjectProperty:c=>{n=c},onObjectEnd:()=>{s=l.pop()},onArrayBegin:()=>{const c=[];o(c),l.push(s),s=c,n=null},onArrayEnd:()=>{s=l.pop()},onLiteralValue:o,onError:(c,g,T)=>{t.push({error:c,offset:g,length:T})}},i),s[0]}function Te(e,t,i=D.DEFAULT){const n=we(e,!1),s=[];function l(k){return k?()=>k(n.getTokenOffset(),n.getTokenLength(),n.getTokenStartLine(),n.getTokenStartCharacter()):()=>!0}function o(k){return k?()=>k(n.getTokenOffset(),n.getTokenLength(),n.getTokenStartLine(),n.getTokenStartCharacter(),()=>s.slice()):()=>!0}function u(k){return k?O=>k(O,n.getTokenOffset(),n.getTokenLength(),n.getTokenStartLine(),n.getTokenStartCharacter()):()=>!0}function c(k){return k?O=>k(O,n.getTokenOffset(),n.getTokenLength(),n.getTokenStartLine(),n.getTokenStartCharacter(),()=>s.slice()):()=>!0}const g=o(t.onObjectBegin),T=c(t.onObjectProperty),f=l(t.onObjectEnd),_=o(t.onArrayBegin),w=l(t.onArrayEnd),v=c(t.onLiteralValue),b=u(t.onSeparator),j=l(t.onComment),L=u(t.onError),E=i&&i.disallowComments,r=i&&i.allowTrailingComma;function m(){for(;;){const k=n.scan();switch(n.getTokenError()){case 4:a(14);break;case 5:a(15);break;case 3:a(13);break;case 1:E||a(11);break;case 2:a(12);break;case 6:a(16);break}switch(k){case 12:case 13:E?a(10):j();break;case 16:a(1);break;case 15:case 14:break;default:return k}}}function a(k,O=[],Z=[]){if(L(k),O.length+Z.length>0){let P=n.getToken();for(;P!==17;){if(O.indexOf(P)!==-1){m();break}else if(Z.indexOf(P)!==-1)break;P=m()}}}function $(k){const O=n.getTokenValue();return k?v(O):(T(O),s.push(O)),m(),!0}function A(){switch(n.getToken()){case 11:const k=n.getTokenValue();let O=Number(k);isNaN(O)&&(a(2),O=0),v(O);break;case 7:v(null);break;case 8:v(!0);break;case 9:v(!1);break;default:return!1}return m(),!0}function pe(){return n.getToken()!==10?(a(3,[],[2,5]),!1):($(!1),n.getToken()===6?(b(":"),m(),h()||a(4,[],[2,5])):a(5,[],[2,5]),s.pop(),!0)}function ae(){g(),m();let k=!1;for(;n.getToken()!==2&&n.getToken()!==17;){if(n.getToken()===5){if(k||a(4,[],[]),b(","),m(),n.getToken()===2&&r)break}else k&&a(6,[],[]);pe()||a(4,[],[2,5]),k=!0}return f(),n.getToken()!==2?a(7,[2],[]):m(),!0}function me(){_(),m();let k=!0,O=!1;for(;n.getToken()!==4&&n.getToken()!==17;){if(n.getToken()===5){if(O||a(4,[],[]),b(","),m(),n.getToken()===4&&r)break}else O&&a(6,[],[]);k?(s.push(0),k=!1):s[s.length-1]++,h()||a(4,[],[4,5]),O=!0}return w(),k||s.pop(),n.getToken()!==4?a(8,[4],[]):m(),!0}function h(){switch(n.getToken()){case 3:return me();case 1:return ae();case 10:return $(!0);default:return A()}}return m(),n.getToken()===17?i.allowEmptyContent?!0:(a(4,[],[]),!1):h()?(n.getToken()!==17&&a(9,[],[]),!0):(a(4,[],[]),!1)}var ee;(function(e){e[e.None=0]="None",e[e.UnexpectedEndOfComment=1]="UnexpectedEndOfComment",e[e.UnexpectedEndOfString=2]="UnexpectedEndOfString",e[e.UnexpectedEndOfNumber=3]="UnexpectedEndOfNumber",e[e.InvalidUnicode=4]="InvalidUnicode",e[e.InvalidEscapeCharacter=5]="InvalidEscapeCharacter",e[e.InvalidCharacter=6]="InvalidCharacter"})(ee||(ee={}));var ne;(function(e){e[e.OpenBraceToken=1]="OpenBraceToken",e[e.CloseBraceToken=2]="CloseBraceToken",e[e.OpenBracketToken=3]="OpenBracketToken",e[e.CloseBracketToken=4]="CloseBracketToken",e[e.CommaToken=5]="CommaToken",e[e.ColonToken=6]="ColonToken",e[e.NullKeyword=7]="NullKeyword",e[e.TrueKeyword=8]="TrueKeyword",e[e.FalseKeyword=9]="FalseKeyword",e[e.StringLiteral=10]="StringLiteral",e[e.NumericLiteral=11]="NumericLiteral",e[e.LineCommentTrivia=12]="LineCommentTrivia",e[e.BlockCommentTrivia=13]="BlockCommentTrivia",e[e.LineBreakTrivia=14]="LineBreakTrivia",e[e.Trivia=15]="Trivia",e[e.Unknown=16]="Unknown",e[e.EOF=17]="EOF"})(ne||(ne={}));const Ae=ve;var te;(function(e){e[e.InvalidSymbol=1]="InvalidSymbol",e[e.InvalidNumberFormat=2]="InvalidNumberFormat",e[e.PropertyNameExpected=3]="PropertyNameExpected",e[e.ValueExpected=4]="ValueExpected",e[e.ColonExpected=5]="ColonExpected",e[e.CommaExpected=6]="CommaExpected",e[e.CloseBraceExpected=7]="CloseBraceExpected",e[e.CloseBracketExpected=8]="CloseBracketExpected",e[e.EndOfFileExpected=9]="EndOfFileExpected",e[e.InvalidCommentToken=10]="InvalidCommentToken",e[e.UnexpectedEndOfComment=11]="UnexpectedEndOfComment",e[e.UnexpectedEndOfString=12]="UnexpectedEndOfString",e[e.UnexpectedEndOfNumber=13]="UnexpectedEndOfNumber",e[e.InvalidUnicode=14]="InvalidUnicode",e[e.InvalidEscapeCharacter=15]="InvalidEscapeCharacter",e[e.InvalidCharacter=16]="InvalidCharacter"})(te||(te={}));const ie=(e,t)=>Ae(be(t,e,"utf8")),R=Symbol("implicitBaseUrl"),Oe=()=>{const{findPnpApi:e}=ge;return e&&e(process.cwd())},G=(e,t,i,n)=>{const s=`resolveFromPackageJsonPath:${e}:${t}:${i}`;if(n!=null&&n.has(s))return n.get(s);const l=ie(e,n);if(!l)return;let o=t||"tsconfig.json";if(!i&&l.exports)try{const[u]=ke.resolveExports(l.exports,t,["require","types"]);o=u}catch{return!1}else!t&&l.tsconfig&&(o=l.tsconfig);return o=p.join(e,"..",o),n==null||n.set(s,o),o},z="package.json",Q="tsconfig.json",je=(e,t,i)=>{let n=e;if(e===".."&&(n=p.join(n,Q)),e[0]==="."&&(n=p.resolve(t,n)),p.isAbsolute(n)){if(B(i,n)){if(x(i,n).isFile())return n}else if(!n.endsWith(".json")){const w=`${n}.json`;if(B(i,w))return w}return}const[s,...l]=e.split("/"),o=s[0]==="@"?`${s}/${l.shift()}`:s,u=l.join("/"),c=Oe();if(c){const{resolveRequest:w}=c;try{if(o===e){const v=w(p.join(o,z),t);if(v){const b=G(v,u,!1,i);if(b&&B(i,b))return b}}else{let v;try{v=w(e,t,{extensions:[".json"]})}catch{v=w(p.join(e,Q),t)}if(v)return v}}catch{}}const g=K(p.resolve(t),p.join("node_modules",o),i);if(!g||!x(i,g).isDirectory())return;const T=p.join(g,z);if(B(i,T)){const w=G(T,u,!1,i);if(w===!1)return;if(w&&B(i,w)&&x(i,w).isFile())return w}const f=p.join(g,u),_=f.endsWith(".json");if(!_){const w=`${f}.json`;if(B(i,w))return w}if(B(i,f)){if(x(i,f).isDirectory()){const w=p.join(f,z);if(B(i,w)){const b=G(w,"",!0,i);if(b&&B(i,b))return b}const v=p.join(f,Q);if(B(i,v))return v}else if(_)return f}};class H extends Error{}const $e=(e,t,i,n)=>{const s=p.dirname(t),l=je(e,s,n);if(!l)throw new H(`${p.relative(process.cwd(),t)}: File '${e}' not found.`);if(i.has(l))throw new H(`Circularity detected while resolving configuration: ${l}`);i.add(l);const o=p.dirname(l),u=se(l,n,i);delete u.references;const{compilerOptions:c}=u;if(c){const g=["baseUrl","outDir"];for(const T of g){const f=c[T];f&&(c[T]=y(p.relative(s,p.join(o,f)))||"./")}}return u.files&&(u.files=u.files.map(g=>y(p.relative(s,p.join(o,g))))),u.include&&(u.include=u.include.map(g=>y(p.relative(s,p.join(o,g))))),u.exclude&&(u.exclude=u.exclude.map(g=>y(p.relative(s,p.join(o,g))))),u},se=(e,t,i=new Set)=>{let n;try{n=ie(e,t)||{}}catch{throw new H(`Cannot resolve tsconfig at path: ${e}`)}if(typeof n!="object")throw new SyntaxError(`Failed to parse tsconfig at: ${e}`);const s=p.dirname(e);if(n.compilerOptions){const{compilerOptions:l}=n;l.paths&&!l.baseUrl&&(l[R]=s)}if(n.extends){const l=Array.isArray(n.extends)?n.extends:[n.extends];delete n.extends;for(const o of l.reverse()){const u=$e(o,e,new Set(i),t),c={...u,...n,compilerOptions:{...u.compilerOptions,...n.compilerOptions}};u.watchOptions&&(c.watchOptions={...u.watchOptions,...n.watchOptions}),n=c}}if(n.compilerOptions){const{compilerOptions:l}=n,o=["baseUrl","rootDir"];for(const c of o){const g=l[c];if(g){const T=p.resolve(s,g),f=W(p.relative(s,T));l[c]=f}}const{outDir:u}=l;u&&(Array.isArray(n.exclude)||(n.exclude=[]),n.exclude.includes(u)||n.exclude.push(u),l.outDir=W(u))}else n.compilerOptions={};if(n.files&&(n.files=n.files.map(W)),n.include&&(n.include=n.include.map(y)),n.watchOptions){const{watchOptions:l}=n;l.excludeDirectories&&(l.excludeDirectories=l.excludeDirectories.map(o=>y(p.resolve(s,o))))}return n},le=(e,t=new Map)=>se(e,t),ye=(e=process.cwd(),t="tsconfig.json",i=new Map)=>{const n=K(y(e),t,i);if(!n)return null;const s=le(n,i);return{path:n,config:s}},Be=/\*/g,oe=(e,t)=>{const i=e.match(Be);if(i&&i.length>1)throw new Error(t)},_e=e=>{if(e.includes("*")){const[t,i]=e.split("*");return{prefix:t,suffix:i}}return e},Le=({prefix:e,suffix:t},i)=>i.startsWith(e)&&i.endsWith(t),Ee=(e,t,i)=>Object.entries(e).map(([n,s])=>(oe(n,`Pattern '${n}' can have at most one '*' character.`),{pattern:_e(n),substitutions:s.map(l=>{if(oe(l,`Substitution '${l}' in pattern '${n}' can have at most one '*' character.`),!t&&!M.test(l))throw new Error("Non-relative paths are not allowed when 'baseUrl' is not set. Did you forget a leading './'?");return p.resolve(i,l)})})),Ue=e=>{if(!e.config.compilerOptions)return null;const{baseUrl:t,paths:i}=e.config.compilerOptions,n=R in e.config.compilerOptions&&e.config.compilerOptions[R];if(!t&&!i)return null;const s=p.resolve(p.dirname(e.path),t||n||"."),l=i?Ee(i,t,s):[];return o=>{if(M.test(o))return[];const u=[];for(const f of l){if(f.pattern===o)return f.substitutions.map(y);typeof f.pattern!="string"&&u.push(f)}let c,g=-1;for(const f of u)Le(f.pattern,o)&&f.pattern.prefix.length>g&&(g=f.pattern.prefix.length,c=f);if(!c)return t?[y(p.join(s,o))]:[];const T=o.slice(c.pattern.prefix.length,o.length-c.pattern.suffix.length);return c.substitutions.map(f=>y(f.replace("*",T)))}},re=e=>{let t="";for(let i=0;i<e.length;i+=1){const n=e[i],s=n.toUpperCase();t+=n===s?n.toLowerCase():s}return t},Fe=65,Ne=97,Pe=()=>Math.floor(Math.random()*26),xe=e=>Array.from({length:e},()=>String.fromCodePoint(Pe()+(Math.random()>.5?Fe:Ne))).join(""),De=(e=V)=>{const t=process.execPath;if(e.existsSync(t))return!e.existsSync(re(t));const i=`/${xe(10)}`;e.writeFileSync(i,"");const n=!e.existsSync(re(i));return e.unlinkSync(i),n},{join:I}=p.posix,q={ts:[".ts",".tsx",".d.ts"],cts:[".cts",".d.cts"],mts:[".mts",".d.mts"]},Ie=e=>{const t=[...q.ts],i=[...q.cts],n=[...q.mts];return e!=null&&e.allowJs&&(t.push(".js",".jsx"),i.push(".cjs"),n.push(".mjs")),[...t,...i,...n]},de=e=>{const t=[];if(!e)return t;const{outDir:i,declarationDir:n}=e;return i&&t.push(i),n&&t.push(n),t},ue=e=>e.replaceAll(/[.*+?^${}()|[\]\\]/g,"\\$&"),he=["node_modules","bower_components","jspm_packages"],X=`(?!(${he.join("|")})(/|$))`,Ve=/(?:^|\/)[^.*?]+$/,ce="**/*",d="[^/]",Y="[^./]",fe=process.platform==="win32",Se=({config:e,path:t},i=De())=>{if("extends"in e)throw new Error("tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.");if(!p.isAbsolute(t))throw new Error("The tsconfig path must be absolute");fe&&(t=y(t));const n=p.dirname(t),{files:s,include:l,exclude:o,compilerOptions:u}=e,c=s==null?void 0:s.map(b=>I(n,b)),g=Ie(u),T=i?"":"i",_=(o||de(u)).map(b=>{const j=I(n,b),L=ue(j).replaceAll("\\*\\*/","(.+/)?").replaceAll("\\*",`${d}*`).replaceAll("\\?",d);return new RegExp(`^${L}($|/)`,T)}),w=s||l?l:[ce],v=w?w.map(b=>{let j=I(n,b);Ve.test(j)&&(j=I(j,ce));const L=ue(j).replaceAll("/\\*\\*",`(/${X}${Y}${d}*)*?`).replaceAll(/(\/)?\\\*/g,(E,r)=>{const m=`(${Y}|(\\.(?!min\\.js$))?)*`;return r?`/${X}${Y}${m}`:m}).replaceAll(/(\/)?\\\?/g,(E,r)=>{const m=d;return r?`/${X}${m}`:m});return new RegExp(`^${L}$`,T)}):void 0;return b=>{if(!p.isAbsolute(b))throw new Error("filePath must be absolute");if(fe&&(b=y(b)),c!=null&&c.includes(b))return e;if(!(!g.some(j=>b.endsWith(j))||_.some(j=>j.test(b)))&&v&&v.some(j=>j.test(b)))return e}};exports.createFilesMatcher=Se,exports.createPathsMatcher=Ue,exports.getTsconfig=ye,exports.parseTsconfig=le;
+'use strict';
+
+var path = require('path');
+var fs = require('fs');
+var Module = require('module');
+var resolvePkgMaps = require('resolve-pkg-maps');
+
+function slash(path) {
+	const isExtendedLengthPath = path.startsWith('\\\\?\\');
+
+	if (isExtendedLengthPath) {
+		return path;
+	}
+
+	return path.replace(/\\/g, '/');
+}
+
+const cacheFs = (name) => {
+  const method = fs[name];
+  return (cache, ...args) => {
+    const cacheKey = `${name}:${args.join(":")}`;
+    let result = cache == null ? void 0 : cache.get(cacheKey);
+    if (result === void 0) {
+      result = Reflect.apply(method, fs, args);
+      cache == null ? void 0 : cache.set(cacheKey, result);
+    }
+    return result;
+  };
+};
+const exists = cacheFs("existsSync");
+const readFile = cacheFs("readFileSync");
+const stat = cacheFs("statSync");
+
+const findUp = (searchPath, fileName, cache) => {
+  while (true) {
+    const configPath = path.posix.join(searchPath, fileName);
+    if (exists(cache, configPath)) {
+      return configPath;
+    }
+    const parentPath = path.dirname(searchPath);
+    if (parentPath === searchPath) {
+      return;
+    }
+    searchPath = parentPath;
+  }
+};
+
+const isRelativePathPattern = /^\.{1,2}(\/.*)?$/;
+
+const normalizePath = (filePath) => {
+  const normalizedPath = slash(filePath);
+  return isRelativePathPattern.test(normalizedPath) ? normalizedPath : `./${normalizedPath}`;
+};
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/**
+ * Creates a JSON scanner on the given text.
+ * If ignoreTrivia is set, whitespaces or comments are ignored.
+ */
+function createScanner(text, ignoreTrivia = false) {
+    const len = text.length;
+    let pos = 0, value = '', tokenOffset = 0, token = 16 /* SyntaxKind.Unknown */, lineNumber = 0, lineStartOffset = 0, tokenLineStartOffset = 0, prevTokenLineStartOffset = 0, scanError = 0 /* ScanError.None */;
+    function scanHexDigits(count, exact) {
+        let digits = 0;
+        let value = 0;
+        while (digits < count || !exact) {
+            let ch = text.charCodeAt(pos);
+            if (ch >= 48 /* CharacterCodes._0 */ && ch <= 57 /* CharacterCodes._9 */) {
+                value = value * 16 + ch - 48 /* CharacterCodes._0 */;
+            }
+            else if (ch >= 65 /* CharacterCodes.A */ && ch <= 70 /* CharacterCodes.F */) {
+                value = value * 16 + ch - 65 /* CharacterCodes.A */ + 10;
+            }
+            else if (ch >= 97 /* CharacterCodes.a */ && ch <= 102 /* CharacterCodes.f */) {
+                value = value * 16 + ch - 97 /* CharacterCodes.a */ + 10;
+            }
+            else {
+                break;
+            }
+            pos++;
+            digits++;
+        }
+        if (digits < count) {
+            value = -1;
+        }
+        return value;
+    }
+    function setPosition(newPosition) {
+        pos = newPosition;
+        value = '';
+        tokenOffset = 0;
+        token = 16 /* SyntaxKind.Unknown */;
+        scanError = 0 /* ScanError.None */;
+    }
+    function scanNumber() {
+        let start = pos;
+        if (text.charCodeAt(pos) === 48 /* CharacterCodes._0 */) {
+            pos++;
+        }
+        else {
+            pos++;
+            while (pos < text.length && isDigit(text.charCodeAt(pos))) {
+                pos++;
+            }
+        }
+        if (pos < text.length && text.charCodeAt(pos) === 46 /* CharacterCodes.dot */) {
+            pos++;
+            if (pos < text.length && isDigit(text.charCodeAt(pos))) {
+                pos++;
+                while (pos < text.length && isDigit(text.charCodeAt(pos))) {
+                    pos++;
+                }
+            }
+            else {
+                scanError = 3 /* ScanError.UnexpectedEndOfNumber */;
+                return text.substring(start, pos);
+            }
+        }
+        let end = pos;
+        if (pos < text.length && (text.charCodeAt(pos) === 69 /* CharacterCodes.E */ || text.charCodeAt(pos) === 101 /* CharacterCodes.e */)) {
+            pos++;
+            if (pos < text.length && text.charCodeAt(pos) === 43 /* CharacterCodes.plus */ || text.charCodeAt(pos) === 45 /* CharacterCodes.minus */) {
+                pos++;
+            }
+            if (pos < text.length && isDigit(text.charCodeAt(pos))) {
+                pos++;
+                while (pos < text.length && isDigit(text.charCodeAt(pos))) {
+                    pos++;
+                }
+                end = pos;
+            }
+            else {
+                scanError = 3 /* ScanError.UnexpectedEndOfNumber */;
+            }
+        }
+        return text.substring(start, end);
+    }
+    function scanString() {
+        let result = '', start = pos;
+        while (true) {
+            if (pos >= len) {
+                result += text.substring(start, pos);
+                scanError = 2 /* ScanError.UnexpectedEndOfString */;
+                break;
+            }
+            const ch = text.charCodeAt(pos);
+            if (ch === 34 /* CharacterCodes.doubleQuote */) {
+                result += text.substring(start, pos);
+                pos++;
+                break;
+            }
+            if (ch === 92 /* CharacterCodes.backslash */) {
+                result += text.substring(start, pos);
+                pos++;
+                if (pos >= len) {
+                    scanError = 2 /* ScanError.UnexpectedEndOfString */;
+                    break;
+                }
+                const ch2 = text.charCodeAt(pos++);
+                switch (ch2) {
+                    case 34 /* CharacterCodes.doubleQuote */:
+                        result += '\"';
+                        break;
+                    case 92 /* CharacterCodes.backslash */:
+                        result += '\\';
+                        break;
+                    case 47 /* CharacterCodes.slash */:
+                        result += '/';
+                        break;
+                    case 98 /* CharacterCodes.b */:
+                        result += '\b';
+                        break;
+                    case 102 /* CharacterCodes.f */:
+                        result += '\f';
+                        break;
+                    case 110 /* CharacterCodes.n */:
+                        result += '\n';
+                        break;
+                    case 114 /* CharacterCodes.r */:
+                        result += '\r';
+                        break;
+                    case 116 /* CharacterCodes.t */:
+                        result += '\t';
+                        break;
+                    case 117 /* CharacterCodes.u */:
+                        const ch3 = scanHexDigits(4, true);
+                        if (ch3 >= 0) {
+                            result += String.fromCharCode(ch3);
+                        }
+                        else {
+                            scanError = 4 /* ScanError.InvalidUnicode */;
+                        }
+                        break;
+                    default:
+                        scanError = 5 /* ScanError.InvalidEscapeCharacter */;
+                }
+                start = pos;
+                continue;
+            }
+            if (ch >= 0 && ch <= 0x1f) {
+                if (isLineBreak(ch)) {
+                    result += text.substring(start, pos);
+                    scanError = 2 /* ScanError.UnexpectedEndOfString */;
+                    break;
+                }
+                else {
+                    scanError = 6 /* ScanError.InvalidCharacter */;
+                    // mark as error but continue with string
+                }
+            }
+            pos++;
+        }
+        return result;
+    }
+    function scanNext() {
+        value = '';
+        scanError = 0 /* ScanError.None */;
+        tokenOffset = pos;
+        lineStartOffset = lineNumber;
+        prevTokenLineStartOffset = tokenLineStartOffset;
+        if (pos >= len) {
+            // at the end
+            tokenOffset = len;
+            return token = 17 /* SyntaxKind.EOF */;
+        }
+        let code = text.charCodeAt(pos);
+        // trivia: whitespace
+        if (isWhiteSpace(code)) {
+            do {
+                pos++;
+                value += String.fromCharCode(code);
+                code = text.charCodeAt(pos);
+            } while (isWhiteSpace(code));
+            return token = 15 /* SyntaxKind.Trivia */;
+        }
+        // trivia: newlines
+        if (isLineBreak(code)) {
+            pos++;
+            value += String.fromCharCode(code);
+            if (code === 13 /* CharacterCodes.carriageReturn */ && text.charCodeAt(pos) === 10 /* CharacterCodes.lineFeed */) {
+                pos++;
+                value += '\n';
+            }
+            lineNumber++;
+            tokenLineStartOffset = pos;
+            return token = 14 /* SyntaxKind.LineBreakTrivia */;
+        }
+        switch (code) {
+            // tokens: []{}:,
+            case 123 /* CharacterCodes.openBrace */:
+                pos++;
+                return token = 1 /* SyntaxKind.OpenBraceToken */;
+            case 125 /* CharacterCodes.closeBrace */:
+                pos++;
+                return token = 2 /* SyntaxKind.CloseBraceToken */;
+            case 91 /* CharacterCodes.openBracket */:
+                pos++;
+                return token = 3 /* SyntaxKind.OpenBracketToken */;
+            case 93 /* CharacterCodes.closeBracket */:
+                pos++;
+                return token = 4 /* SyntaxKind.CloseBracketToken */;
+            case 58 /* CharacterCodes.colon */:
+                pos++;
+                return token = 6 /* SyntaxKind.ColonToken */;
+            case 44 /* CharacterCodes.comma */:
+                pos++;
+                return token = 5 /* SyntaxKind.CommaToken */;
+            // strings
+            case 34 /* CharacterCodes.doubleQuote */:
+                pos++;
+                value = scanString();
+                return token = 10 /* SyntaxKind.StringLiteral */;
+            // comments
+            case 47 /* CharacterCodes.slash */:
+                const start = pos - 1;
+                // Single-line comment
+                if (text.charCodeAt(pos + 1) === 47 /* CharacterCodes.slash */) {
+                    pos += 2;
+                    while (pos < len) {
+                        if (isLineBreak(text.charCodeAt(pos))) {
+                            break;
+                        }
+                        pos++;
+                    }
+                    value = text.substring(start, pos);
+                    return token = 12 /* SyntaxKind.LineCommentTrivia */;
+                }
+                // Multi-line comment
+                if (text.charCodeAt(pos + 1) === 42 /* CharacterCodes.asterisk */) {
+                    pos += 2;
+                    const safeLength = len - 1; // For lookahead.
+                    let commentClosed = false;
+                    while (pos < safeLength) {
+                        const ch = text.charCodeAt(pos);
+                        if (ch === 42 /* CharacterCodes.asterisk */ && text.charCodeAt(pos + 1) === 47 /* CharacterCodes.slash */) {
+                            pos += 2;
+                            commentClosed = true;
+                            break;
+                        }
+                        pos++;
+                        if (isLineBreak(ch)) {
+                            if (ch === 13 /* CharacterCodes.carriageReturn */ && text.charCodeAt(pos) === 10 /* CharacterCodes.lineFeed */) {
+                                pos++;
+                            }
+                            lineNumber++;
+                            tokenLineStartOffset = pos;
+                        }
+                    }
+                    if (!commentClosed) {
+                        pos++;
+                        scanError = 1 /* ScanError.UnexpectedEndOfComment */;
+                    }
+                    value = text.substring(start, pos);
+                    return token = 13 /* SyntaxKind.BlockCommentTrivia */;
+                }
+                // just a single slash
+                value += String.fromCharCode(code);
+                pos++;
+                return token = 16 /* SyntaxKind.Unknown */;
+            // numbers
+            case 45 /* CharacterCodes.minus */:
+                value += String.fromCharCode(code);
+                pos++;
+                if (pos === len || !isDigit(text.charCodeAt(pos))) {
+                    return token = 16 /* SyntaxKind.Unknown */;
+                }
+            // found a minus, followed by a number so
+            // we fall through to proceed with scanning
+            // numbers
+            case 48 /* CharacterCodes._0 */:
+            case 49 /* CharacterCodes._1 */:
+            case 50 /* CharacterCodes._2 */:
+            case 51 /* CharacterCodes._3 */:
+            case 52 /* CharacterCodes._4 */:
+            case 53 /* CharacterCodes._5 */:
+            case 54 /* CharacterCodes._6 */:
+            case 55 /* CharacterCodes._7 */:
+            case 56 /* CharacterCodes._8 */:
+            case 57 /* CharacterCodes._9 */:
+                value += scanNumber();
+                return token = 11 /* SyntaxKind.NumericLiteral */;
+            // literals and unknown symbols
+            default:
+                // is a literal? Read the full word.
+                while (pos < len && isUnknownContentCharacter(code)) {
+                    pos++;
+                    code = text.charCodeAt(pos);
+                }
+                if (tokenOffset !== pos) {
+                    value = text.substring(tokenOffset, pos);
+                    // keywords: true, false, null
+                    switch (value) {
+                        case 'true': return token = 8 /* SyntaxKind.TrueKeyword */;
+                        case 'false': return token = 9 /* SyntaxKind.FalseKeyword */;
+                        case 'null': return token = 7 /* SyntaxKind.NullKeyword */;
+                    }
+                    return token = 16 /* SyntaxKind.Unknown */;
+                }
+                // some
+                value += String.fromCharCode(code);
+                pos++;
+                return token = 16 /* SyntaxKind.Unknown */;
+        }
+    }
+    function isUnknownContentCharacter(code) {
+        if (isWhiteSpace(code) || isLineBreak(code)) {
+            return false;
+        }
+        switch (code) {
+            case 125 /* CharacterCodes.closeBrace */:
+            case 93 /* CharacterCodes.closeBracket */:
+            case 123 /* CharacterCodes.openBrace */:
+            case 91 /* CharacterCodes.openBracket */:
+            case 34 /* CharacterCodes.doubleQuote */:
+            case 58 /* CharacterCodes.colon */:
+            case 44 /* CharacterCodes.comma */:
+            case 47 /* CharacterCodes.slash */:
+                return false;
+        }
+        return true;
+    }
+    function scanNextNonTrivia() {
+        let result;
+        do {
+            result = scanNext();
+        } while (result >= 12 /* SyntaxKind.LineCommentTrivia */ && result <= 15 /* SyntaxKind.Trivia */);
+        return result;
+    }
+    return {
+        setPosition: setPosition,
+        getPosition: () => pos,
+        scan: ignoreTrivia ? scanNextNonTrivia : scanNext,
+        getToken: () => token,
+        getTokenValue: () => value,
+        getTokenOffset: () => tokenOffset,
+        getTokenLength: () => pos - tokenOffset,
+        getTokenStartLine: () => lineStartOffset,
+        getTokenStartCharacter: () => tokenOffset - prevTokenLineStartOffset,
+        getTokenError: () => scanError,
+    };
+}
+function isWhiteSpace(ch) {
+    return ch === 32 /* CharacterCodes.space */ || ch === 9 /* CharacterCodes.tab */;
+}
+function isLineBreak(ch) {
+    return ch === 10 /* CharacterCodes.lineFeed */ || ch === 13 /* CharacterCodes.carriageReturn */;
+}
+function isDigit(ch) {
+    return ch >= 48 /* CharacterCodes._0 */ && ch <= 57 /* CharacterCodes._9 */;
+}
+var CharacterCodes;
+(function (CharacterCodes) {
+    CharacterCodes[CharacterCodes["lineFeed"] = 10] = "lineFeed";
+    CharacterCodes[CharacterCodes["carriageReturn"] = 13] = "carriageReturn";
+    CharacterCodes[CharacterCodes["space"] = 32] = "space";
+    CharacterCodes[CharacterCodes["_0"] = 48] = "_0";
+    CharacterCodes[CharacterCodes["_1"] = 49] = "_1";
+    CharacterCodes[CharacterCodes["_2"] = 50] = "_2";
+    CharacterCodes[CharacterCodes["_3"] = 51] = "_3";
+    CharacterCodes[CharacterCodes["_4"] = 52] = "_4";
+    CharacterCodes[CharacterCodes["_5"] = 53] = "_5";
+    CharacterCodes[CharacterCodes["_6"] = 54] = "_6";
+    CharacterCodes[CharacterCodes["_7"] = 55] = "_7";
+    CharacterCodes[CharacterCodes["_8"] = 56] = "_8";
+    CharacterCodes[CharacterCodes["_9"] = 57] = "_9";
+    CharacterCodes[CharacterCodes["a"] = 97] = "a";
+    CharacterCodes[CharacterCodes["b"] = 98] = "b";
+    CharacterCodes[CharacterCodes["c"] = 99] = "c";
+    CharacterCodes[CharacterCodes["d"] = 100] = "d";
+    CharacterCodes[CharacterCodes["e"] = 101] = "e";
+    CharacterCodes[CharacterCodes["f"] = 102] = "f";
+    CharacterCodes[CharacterCodes["g"] = 103] = "g";
+    CharacterCodes[CharacterCodes["h"] = 104] = "h";
+    CharacterCodes[CharacterCodes["i"] = 105] = "i";
+    CharacterCodes[CharacterCodes["j"] = 106] = "j";
+    CharacterCodes[CharacterCodes["k"] = 107] = "k";
+    CharacterCodes[CharacterCodes["l"] = 108] = "l";
+    CharacterCodes[CharacterCodes["m"] = 109] = "m";
+    CharacterCodes[CharacterCodes["n"] = 110] = "n";
+    CharacterCodes[CharacterCodes["o"] = 111] = "o";
+    CharacterCodes[CharacterCodes["p"] = 112] = "p";
+    CharacterCodes[CharacterCodes["q"] = 113] = "q";
+    CharacterCodes[CharacterCodes["r"] = 114] = "r";
+    CharacterCodes[CharacterCodes["s"] = 115] = "s";
+    CharacterCodes[CharacterCodes["t"] = 116] = "t";
+    CharacterCodes[CharacterCodes["u"] = 117] = "u";
+    CharacterCodes[CharacterCodes["v"] = 118] = "v";
+    CharacterCodes[CharacterCodes["w"] = 119] = "w";
+    CharacterCodes[CharacterCodes["x"] = 120] = "x";
+    CharacterCodes[CharacterCodes["y"] = 121] = "y";
+    CharacterCodes[CharacterCodes["z"] = 122] = "z";
+    CharacterCodes[CharacterCodes["A"] = 65] = "A";
+    CharacterCodes[CharacterCodes["B"] = 66] = "B";
+    CharacterCodes[CharacterCodes["C"] = 67] = "C";
+    CharacterCodes[CharacterCodes["D"] = 68] = "D";
+    CharacterCodes[CharacterCodes["E"] = 69] = "E";
+    CharacterCodes[CharacterCodes["F"] = 70] = "F";
+    CharacterCodes[CharacterCodes["G"] = 71] = "G";
+    CharacterCodes[CharacterCodes["H"] = 72] = "H";
+    CharacterCodes[CharacterCodes["I"] = 73] = "I";
+    CharacterCodes[CharacterCodes["J"] = 74] = "J";
+    CharacterCodes[CharacterCodes["K"] = 75] = "K";
+    CharacterCodes[CharacterCodes["L"] = 76] = "L";
+    CharacterCodes[CharacterCodes["M"] = 77] = "M";
+    CharacterCodes[CharacterCodes["N"] = 78] = "N";
+    CharacterCodes[CharacterCodes["O"] = 79] = "O";
+    CharacterCodes[CharacterCodes["P"] = 80] = "P";
+    CharacterCodes[CharacterCodes["Q"] = 81] = "Q";
+    CharacterCodes[CharacterCodes["R"] = 82] = "R";
+    CharacterCodes[CharacterCodes["S"] = 83] = "S";
+    CharacterCodes[CharacterCodes["T"] = 84] = "T";
+    CharacterCodes[CharacterCodes["U"] = 85] = "U";
+    CharacterCodes[CharacterCodes["V"] = 86] = "V";
+    CharacterCodes[CharacterCodes["W"] = 87] = "W";
+    CharacterCodes[CharacterCodes["X"] = 88] = "X";
+    CharacterCodes[CharacterCodes["Y"] = 89] = "Y";
+    CharacterCodes[CharacterCodes["Z"] = 90] = "Z";
+    CharacterCodes[CharacterCodes["asterisk"] = 42] = "asterisk";
+    CharacterCodes[CharacterCodes["backslash"] = 92] = "backslash";
+    CharacterCodes[CharacterCodes["closeBrace"] = 125] = "closeBrace";
+    CharacterCodes[CharacterCodes["closeBracket"] = 93] = "closeBracket";
+    CharacterCodes[CharacterCodes["colon"] = 58] = "colon";
+    CharacterCodes[CharacterCodes["comma"] = 44] = "comma";
+    CharacterCodes[CharacterCodes["dot"] = 46] = "dot";
+    CharacterCodes[CharacterCodes["doubleQuote"] = 34] = "doubleQuote";
+    CharacterCodes[CharacterCodes["minus"] = 45] = "minus";
+    CharacterCodes[CharacterCodes["openBrace"] = 123] = "openBrace";
+    CharacterCodes[CharacterCodes["openBracket"] = 91] = "openBracket";
+    CharacterCodes[CharacterCodes["plus"] = 43] = "plus";
+    CharacterCodes[CharacterCodes["slash"] = 47] = "slash";
+    CharacterCodes[CharacterCodes["formFeed"] = 12] = "formFeed";
+    CharacterCodes[CharacterCodes["tab"] = 9] = "tab";
+})(CharacterCodes || (CharacterCodes = {}));
+
+new Array(20).fill(0).map((_, index) => {
+    return ' '.repeat(index);
+});
+const maxCachedValues = 200;
+({
+    ' ': {
+        '\n': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\n' + ' '.repeat(index);
+        }),
+        '\r': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\r' + ' '.repeat(index);
+        }),
+        '\r\n': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\r\n' + ' '.repeat(index);
+        }),
+    },
+    '\t': {
+        '\n': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\n' + '\t'.repeat(index);
+        }),
+        '\r': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\r' + '\t'.repeat(index);
+        }),
+        '\r\n': new Array(maxCachedValues).fill(0).map((_, index) => {
+            return '\r\n' + '\t'.repeat(index);
+        }),
+    }
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var ParseOptions;
+(function (ParseOptions) {
+    ParseOptions.DEFAULT = {
+        allowTrailingComma: false
+    };
+})(ParseOptions || (ParseOptions = {}));
+/**
+ * Parses the given text and returns the object the JSON content represents. On invalid input, the parser tries to be as fault tolerant as possible, but still return a result.
+ * Therefore always check the errors list to find out if the input was valid.
+ */
+function parse$1(text, errors = [], options = ParseOptions.DEFAULT) {
+    let currentProperty = null;
+    let currentParent = [];
+    const previousParents = [];
+    function onValue(value) {
+        if (Array.isArray(currentParent)) {
+            currentParent.push(value);
+        }
+        else if (currentProperty !== null) {
+            currentParent[currentProperty] = value;
+        }
+    }
+    const visitor = {
+        onObjectBegin: () => {
+            const object = {};
+            onValue(object);
+            previousParents.push(currentParent);
+            currentParent = object;
+            currentProperty = null;
+        },
+        onObjectProperty: (name) => {
+            currentProperty = name;
+        },
+        onObjectEnd: () => {
+            currentParent = previousParents.pop();
+        },
+        onArrayBegin: () => {
+            const array = [];
+            onValue(array);
+            previousParents.push(currentParent);
+            currentParent = array;
+            currentProperty = null;
+        },
+        onArrayEnd: () => {
+            currentParent = previousParents.pop();
+        },
+        onLiteralValue: onValue,
+        onError: (error, offset, length) => {
+            errors.push({ error, offset, length });
+        }
+    };
+    visit(text, visitor, options);
+    return currentParent[0];
+}
+/**
+ * Parses the given text and invokes the visitor functions for each object, array and literal reached.
+ */
+function visit(text, visitor, options = ParseOptions.DEFAULT) {
+    const _scanner = createScanner(text, false);
+    // Important: Only pass copies of this to visitor functions to prevent accidental modification, and
+    // to not affect visitor functions which stored a reference to a previous JSONPath
+    const _jsonPath = [];
+    function toNoArgVisit(visitFunction) {
+        return visitFunction ? () => visitFunction(_scanner.getTokenOffset(), _scanner.getTokenLength(), _scanner.getTokenStartLine(), _scanner.getTokenStartCharacter()) : () => true;
+    }
+    function toNoArgVisitWithPath(visitFunction) {
+        return visitFunction ? () => visitFunction(_scanner.getTokenOffset(), _scanner.getTokenLength(), _scanner.getTokenStartLine(), _scanner.getTokenStartCharacter(), () => _jsonPath.slice()) : () => true;
+    }
+    function toOneArgVisit(visitFunction) {
+        return visitFunction ? (arg) => visitFunction(arg, _scanner.getTokenOffset(), _scanner.getTokenLength(), _scanner.getTokenStartLine(), _scanner.getTokenStartCharacter()) : () => true;
+    }
+    function toOneArgVisitWithPath(visitFunction) {
+        return visitFunction ? (arg) => visitFunction(arg, _scanner.getTokenOffset(), _scanner.getTokenLength(), _scanner.getTokenStartLine(), _scanner.getTokenStartCharacter(), () => _jsonPath.slice()) : () => true;
+    }
+    const onObjectBegin = toNoArgVisitWithPath(visitor.onObjectBegin), onObjectProperty = toOneArgVisitWithPath(visitor.onObjectProperty), onObjectEnd = toNoArgVisit(visitor.onObjectEnd), onArrayBegin = toNoArgVisitWithPath(visitor.onArrayBegin), onArrayEnd = toNoArgVisit(visitor.onArrayEnd), onLiteralValue = toOneArgVisitWithPath(visitor.onLiteralValue), onSeparator = toOneArgVisit(visitor.onSeparator), onComment = toNoArgVisit(visitor.onComment), onError = toOneArgVisit(visitor.onError);
+    const disallowComments = options && options.disallowComments;
+    const allowTrailingComma = options && options.allowTrailingComma;
+    function scanNext() {
+        while (true) {
+            const token = _scanner.scan();
+            switch (_scanner.getTokenError()) {
+                case 4 /* ScanError.InvalidUnicode */:
+                    handleError(14 /* ParseErrorCode.InvalidUnicode */);
+                    break;
+                case 5 /* ScanError.InvalidEscapeCharacter */:
+                    handleError(15 /* ParseErrorCode.InvalidEscapeCharacter */);
+                    break;
+                case 3 /* ScanError.UnexpectedEndOfNumber */:
+                    handleError(13 /* ParseErrorCode.UnexpectedEndOfNumber */);
+                    break;
+                case 1 /* ScanError.UnexpectedEndOfComment */:
+                    if (!disallowComments) {
+                        handleError(11 /* ParseErrorCode.UnexpectedEndOfComment */);
+                    }
+                    break;
+                case 2 /* ScanError.UnexpectedEndOfString */:
+                    handleError(12 /* ParseErrorCode.UnexpectedEndOfString */);
+                    break;
+                case 6 /* ScanError.InvalidCharacter */:
+                    handleError(16 /* ParseErrorCode.InvalidCharacter */);
+                    break;
+            }
+            switch (token) {
+                case 12 /* SyntaxKind.LineCommentTrivia */:
+                case 13 /* SyntaxKind.BlockCommentTrivia */:
+                    if (disallowComments) {
+                        handleError(10 /* ParseErrorCode.InvalidCommentToken */);
+                    }
+                    else {
+                        onComment();
+                    }
+                    break;
+                case 16 /* SyntaxKind.Unknown */:
+                    handleError(1 /* ParseErrorCode.InvalidSymbol */);
+                    break;
+                case 15 /* SyntaxKind.Trivia */:
+                case 14 /* SyntaxKind.LineBreakTrivia */:
+                    break;
+                default:
+                    return token;
+            }
+        }
+    }
+    function handleError(error, skipUntilAfter = [], skipUntil = []) {
+        onError(error);
+        if (skipUntilAfter.length + skipUntil.length > 0) {
+            let token = _scanner.getToken();
+            while (token !== 17 /* SyntaxKind.EOF */) {
+                if (skipUntilAfter.indexOf(token) !== -1) {
+                    scanNext();
+                    break;
+                }
+                else if (skipUntil.indexOf(token) !== -1) {
+                    break;
+                }
+                token = scanNext();
+            }
+        }
+    }
+    function parseString(isValue) {
+        const value = _scanner.getTokenValue();
+        if (isValue) {
+            onLiteralValue(value);
+        }
+        else {
+            onObjectProperty(value);
+            // add property name afterwards
+            _jsonPath.push(value);
+        }
+        scanNext();
+        return true;
+    }
+    function parseLiteral() {
+        switch (_scanner.getToken()) {
+            case 11 /* SyntaxKind.NumericLiteral */:
+                const tokenValue = _scanner.getTokenValue();
+                let value = Number(tokenValue);
+                if (isNaN(value)) {
+                    handleError(2 /* ParseErrorCode.InvalidNumberFormat */);
+                    value = 0;
+                }
+                onLiteralValue(value);
+                break;
+            case 7 /* SyntaxKind.NullKeyword */:
+                onLiteralValue(null);
+                break;
+            case 8 /* SyntaxKind.TrueKeyword */:
+                onLiteralValue(true);
+                break;
+            case 9 /* SyntaxKind.FalseKeyword */:
+                onLiteralValue(false);
+                break;
+            default:
+                return false;
+        }
+        scanNext();
+        return true;
+    }
+    function parseProperty() {
+        if (_scanner.getToken() !== 10 /* SyntaxKind.StringLiteral */) {
+            handleError(3 /* ParseErrorCode.PropertyNameExpected */, [], [2 /* SyntaxKind.CloseBraceToken */, 5 /* SyntaxKind.CommaToken */]);
+            return false;
+        }
+        parseString(false);
+        if (_scanner.getToken() === 6 /* SyntaxKind.ColonToken */) {
+            onSeparator(':');
+            scanNext(); // consume colon
+            if (!parseValue()) {
+                handleError(4 /* ParseErrorCode.ValueExpected */, [], [2 /* SyntaxKind.CloseBraceToken */, 5 /* SyntaxKind.CommaToken */]);
+            }
+        }
+        else {
+            handleError(5 /* ParseErrorCode.ColonExpected */, [], [2 /* SyntaxKind.CloseBraceToken */, 5 /* SyntaxKind.CommaToken */]);
+        }
+        _jsonPath.pop(); // remove processed property name
+        return true;
+    }
+    function parseObject() {
+        onObjectBegin();
+        scanNext(); // consume open brace
+        let needsComma = false;
+        while (_scanner.getToken() !== 2 /* SyntaxKind.CloseBraceToken */ && _scanner.getToken() !== 17 /* SyntaxKind.EOF */) {
+            if (_scanner.getToken() === 5 /* SyntaxKind.CommaToken */) {
+                if (!needsComma) {
+                    handleError(4 /* ParseErrorCode.ValueExpected */, [], []);
+                }
+                onSeparator(',');
+                scanNext(); // consume comma
+                if (_scanner.getToken() === 2 /* SyntaxKind.CloseBraceToken */ && allowTrailingComma) {
+                    break;
+                }
+            }
+            else if (needsComma) {
+                handleError(6 /* ParseErrorCode.CommaExpected */, [], []);
+            }
+            if (!parseProperty()) {
+                handleError(4 /* ParseErrorCode.ValueExpected */, [], [2 /* SyntaxKind.CloseBraceToken */, 5 /* SyntaxKind.CommaToken */]);
+            }
+            needsComma = true;
+        }
+        onObjectEnd();
+        if (_scanner.getToken() !== 2 /* SyntaxKind.CloseBraceToken */) {
+            handleError(7 /* ParseErrorCode.CloseBraceExpected */, [2 /* SyntaxKind.CloseBraceToken */], []);
+        }
+        else {
+            scanNext(); // consume close brace
+        }
+        return true;
+    }
+    function parseArray() {
+        onArrayBegin();
+        scanNext(); // consume open bracket
+        let isFirstElement = true;
+        let needsComma = false;
+        while (_scanner.getToken() !== 4 /* SyntaxKind.CloseBracketToken */ && _scanner.getToken() !== 17 /* SyntaxKind.EOF */) {
+            if (_scanner.getToken() === 5 /* SyntaxKind.CommaToken */) {
+                if (!needsComma) {
+                    handleError(4 /* ParseErrorCode.ValueExpected */, [], []);
+                }
+                onSeparator(',');
+                scanNext(); // consume comma
+                if (_scanner.getToken() === 4 /* SyntaxKind.CloseBracketToken */ && allowTrailingComma) {
+                    break;
+                }
+            }
+            else if (needsComma) {
+                handleError(6 /* ParseErrorCode.CommaExpected */, [], []);
+            }
+            if (isFirstElement) {
+                _jsonPath.push(0);
+                isFirstElement = false;
+            }
+            else {
+                _jsonPath[_jsonPath.length - 1]++;
+            }
+            if (!parseValue()) {
+                handleError(4 /* ParseErrorCode.ValueExpected */, [], [4 /* SyntaxKind.CloseBracketToken */, 5 /* SyntaxKind.CommaToken */]);
+            }
+            needsComma = true;
+        }
+        onArrayEnd();
+        if (!isFirstElement) {
+            _jsonPath.pop(); // remove array index
+        }
+        if (_scanner.getToken() !== 4 /* SyntaxKind.CloseBracketToken */) {
+            handleError(8 /* ParseErrorCode.CloseBracketExpected */, [4 /* SyntaxKind.CloseBracketToken */], []);
+        }
+        else {
+            scanNext(); // consume close bracket
+        }
+        return true;
+    }
+    function parseValue() {
+        switch (_scanner.getToken()) {
+            case 3 /* SyntaxKind.OpenBracketToken */:
+                return parseArray();
+            case 1 /* SyntaxKind.OpenBraceToken */:
+                return parseObject();
+            case 10 /* SyntaxKind.StringLiteral */:
+                return parseString(true);
+            default:
+                return parseLiteral();
+        }
+    }
+    scanNext();
+    if (_scanner.getToken() === 17 /* SyntaxKind.EOF */) {
+        if (options.allowEmptyContent) {
+            return true;
+        }
+        handleError(4 /* ParseErrorCode.ValueExpected */, [], []);
+        return false;
+    }
+    if (!parseValue()) {
+        handleError(4 /* ParseErrorCode.ValueExpected */, [], []);
+        return false;
+    }
+    if (_scanner.getToken() !== 17 /* SyntaxKind.EOF */) {
+        handleError(9 /* ParseErrorCode.EndOfFileExpected */, [], []);
+    }
+    return true;
+}
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var ScanError;
+(function (ScanError) {
+    ScanError[ScanError["None"] = 0] = "None";
+    ScanError[ScanError["UnexpectedEndOfComment"] = 1] = "UnexpectedEndOfComment";
+    ScanError[ScanError["UnexpectedEndOfString"] = 2] = "UnexpectedEndOfString";
+    ScanError[ScanError["UnexpectedEndOfNumber"] = 3] = "UnexpectedEndOfNumber";
+    ScanError[ScanError["InvalidUnicode"] = 4] = "InvalidUnicode";
+    ScanError[ScanError["InvalidEscapeCharacter"] = 5] = "InvalidEscapeCharacter";
+    ScanError[ScanError["InvalidCharacter"] = 6] = "InvalidCharacter";
+})(ScanError || (ScanError = {}));
+var SyntaxKind;
+(function (SyntaxKind) {
+    SyntaxKind[SyntaxKind["OpenBraceToken"] = 1] = "OpenBraceToken";
+    SyntaxKind[SyntaxKind["CloseBraceToken"] = 2] = "CloseBraceToken";
+    SyntaxKind[SyntaxKind["OpenBracketToken"] = 3] = "OpenBracketToken";
+    SyntaxKind[SyntaxKind["CloseBracketToken"] = 4] = "CloseBracketToken";
+    SyntaxKind[SyntaxKind["CommaToken"] = 5] = "CommaToken";
+    SyntaxKind[SyntaxKind["ColonToken"] = 6] = "ColonToken";
+    SyntaxKind[SyntaxKind["NullKeyword"] = 7] = "NullKeyword";
+    SyntaxKind[SyntaxKind["TrueKeyword"] = 8] = "TrueKeyword";
+    SyntaxKind[SyntaxKind["FalseKeyword"] = 9] = "FalseKeyword";
+    SyntaxKind[SyntaxKind["StringLiteral"] = 10] = "StringLiteral";
+    SyntaxKind[SyntaxKind["NumericLiteral"] = 11] = "NumericLiteral";
+    SyntaxKind[SyntaxKind["LineCommentTrivia"] = 12] = "LineCommentTrivia";
+    SyntaxKind[SyntaxKind["BlockCommentTrivia"] = 13] = "BlockCommentTrivia";
+    SyntaxKind[SyntaxKind["LineBreakTrivia"] = 14] = "LineBreakTrivia";
+    SyntaxKind[SyntaxKind["Trivia"] = 15] = "Trivia";
+    SyntaxKind[SyntaxKind["Unknown"] = 16] = "Unknown";
+    SyntaxKind[SyntaxKind["EOF"] = 17] = "EOF";
+})(SyntaxKind || (SyntaxKind = {}));
+/**
+ * Parses the given text and returns the object the JSON content represents. On invalid input, the parser tries to be as fault tolerant as possible, but still return a result.
+ * Therefore, always check the errors list to find out if the input was valid.
+ */
+const parse = parse$1;
+var ParseErrorCode;
+(function (ParseErrorCode) {
+    ParseErrorCode[ParseErrorCode["InvalidSymbol"] = 1] = "InvalidSymbol";
+    ParseErrorCode[ParseErrorCode["InvalidNumberFormat"] = 2] = "InvalidNumberFormat";
+    ParseErrorCode[ParseErrorCode["PropertyNameExpected"] = 3] = "PropertyNameExpected";
+    ParseErrorCode[ParseErrorCode["ValueExpected"] = 4] = "ValueExpected";
+    ParseErrorCode[ParseErrorCode["ColonExpected"] = 5] = "ColonExpected";
+    ParseErrorCode[ParseErrorCode["CommaExpected"] = 6] = "CommaExpected";
+    ParseErrorCode[ParseErrorCode["CloseBraceExpected"] = 7] = "CloseBraceExpected";
+    ParseErrorCode[ParseErrorCode["CloseBracketExpected"] = 8] = "CloseBracketExpected";
+    ParseErrorCode[ParseErrorCode["EndOfFileExpected"] = 9] = "EndOfFileExpected";
+    ParseErrorCode[ParseErrorCode["InvalidCommentToken"] = 10] = "InvalidCommentToken";
+    ParseErrorCode[ParseErrorCode["UnexpectedEndOfComment"] = 11] = "UnexpectedEndOfComment";
+    ParseErrorCode[ParseErrorCode["UnexpectedEndOfString"] = 12] = "UnexpectedEndOfString";
+    ParseErrorCode[ParseErrorCode["UnexpectedEndOfNumber"] = 13] = "UnexpectedEndOfNumber";
+    ParseErrorCode[ParseErrorCode["InvalidUnicode"] = 14] = "InvalidUnicode";
+    ParseErrorCode[ParseErrorCode["InvalidEscapeCharacter"] = 15] = "InvalidEscapeCharacter";
+    ParseErrorCode[ParseErrorCode["InvalidCharacter"] = 16] = "InvalidCharacter";
+})(ParseErrorCode || (ParseErrorCode = {}));
+
+const readJsonc = (jsonPath, cache) => parse(readFile(cache, jsonPath, "utf8"));
+
+const implicitBaseUrlSymbol = Symbol("implicitBaseUrl");
+
+const getPnpApi = () => {
+  const { findPnpApi } = Module;
+  return findPnpApi && findPnpApi(process.cwd());
+};
+const resolveFromPackageJsonPath = (packageJsonPath, subpath, ignoreExports, cache) => {
+  const cacheKey = `resolveFromPackageJsonPath:${packageJsonPath}:${subpath}:${ignoreExports}`;
+  if (cache == null ? void 0 : cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+  const packageJson = readJsonc(packageJsonPath, cache);
+  if (!packageJson) {
+    return;
+  }
+  let resolvedPath = subpath || "tsconfig.json";
+  if (!ignoreExports && packageJson.exports) {
+    try {
+      const [resolvedExport] = resolvePkgMaps.resolveExports(packageJson.exports, subpath, ["require", "types"]);
+      resolvedPath = resolvedExport;
+    } catch {
+      return false;
+    }
+  } else if (!subpath && packageJson.tsconfig) {
+    resolvedPath = packageJson.tsconfig;
+  }
+  resolvedPath = path.join(
+    packageJsonPath,
+    "..",
+    resolvedPath
+  );
+  cache == null ? void 0 : cache.set(cacheKey, resolvedPath);
+  return resolvedPath;
+};
+const PACKAGE_JSON = "package.json";
+const TS_CONFIG_JSON = "tsconfig.json";
+const resolveExtendsPath = (requestedPath, directoryPath, cache) => {
+  let filePath = requestedPath;
+  if (requestedPath === "..") {
+    filePath = path.join(filePath, TS_CONFIG_JSON);
+  }
+  if (requestedPath[0] === ".") {
+    filePath = path.resolve(directoryPath, filePath);
+  }
+  if (path.isAbsolute(filePath)) {
+    if (exists(cache, filePath)) {
+      if (stat(cache, filePath).isFile()) {
+        return filePath;
+      }
+    } else if (!filePath.endsWith(".json")) {
+      const jsonPath = `${filePath}.json`;
+      if (exists(cache, jsonPath)) {
+        return jsonPath;
+      }
+    }
+    return;
+  }
+  const [orgOrName, ...remaining] = requestedPath.split("/");
+  const packageName = orgOrName[0] === "@" ? `${orgOrName}/${remaining.shift()}` : orgOrName;
+  const subpath = remaining.join("/");
+  const pnpApi = getPnpApi();
+  if (pnpApi) {
+    const { resolveRequest: resolveWithPnp } = pnpApi;
+    try {
+      if (packageName === requestedPath) {
+        const packageJsonPath2 = resolveWithPnp(
+          path.join(packageName, PACKAGE_JSON),
+          directoryPath
+        );
+        if (packageJsonPath2) {
+          const resolvedPath = resolveFromPackageJsonPath(
+            packageJsonPath2,
+            subpath,
+            false,
+            cache
+          );
+          if (resolvedPath && exists(cache, resolvedPath)) {
+            return resolvedPath;
+          }
+        }
+      } else {
+        let resolved;
+        try {
+          resolved = resolveWithPnp(
+            requestedPath,
+            directoryPath,
+            { extensions: [".json"] }
+          );
+        } catch {
+          resolved = resolveWithPnp(
+            path.join(requestedPath, TS_CONFIG_JSON),
+            directoryPath
+          );
+        }
+        if (resolved) {
+          return resolved;
+        }
+      }
+    } catch {
+    }
+  }
+  const packagePath = findUp(
+    path.resolve(directoryPath),
+    path.join("node_modules", packageName),
+    cache
+  );
+  if (!packagePath || !stat(cache, packagePath).isDirectory()) {
+    return;
+  }
+  const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
+  if (exists(cache, packageJsonPath)) {
+    const resolvedPath = resolveFromPackageJsonPath(
+      packageJsonPath,
+      subpath,
+      false,
+      cache
+    );
+    if (resolvedPath === false) {
+      return;
+    }
+    if (resolvedPath && exists(cache, resolvedPath) && stat(cache, resolvedPath).isFile()) {
+      return resolvedPath;
+    }
+  }
+  const fullPackagePath = path.join(packagePath, subpath);
+  const jsonExtension = fullPackagePath.endsWith(".json");
+  if (!jsonExtension) {
+    const fullPackagePathWithJson = `${fullPackagePath}.json`;
+    if (exists(cache, fullPackagePathWithJson)) {
+      return fullPackagePathWithJson;
+    }
+  }
+  if (!exists(cache, fullPackagePath)) {
+    return;
+  }
+  if (stat(cache, fullPackagePath).isDirectory()) {
+    const fullPackageJsonPath = path.join(fullPackagePath, PACKAGE_JSON);
+    if (exists(cache, fullPackageJsonPath)) {
+      const resolvedPath = resolveFromPackageJsonPath(
+        fullPackageJsonPath,
+        "",
+        true,
+        cache
+      );
+      if (resolvedPath && exists(cache, resolvedPath)) {
+        return resolvedPath;
+      }
+    }
+    const tsconfigPath = path.join(fullPackagePath, TS_CONFIG_JSON);
+    if (exists(cache, tsconfigPath)) {
+      return tsconfigPath;
+    }
+  } else if (jsonExtension) {
+    return fullPackagePath;
+  }
+};
+
+class TsconfigError extends Error {
+}
+const resolveExtends = (extendsPath, tsconfigPath, circularExtendsTracker, cache) => {
+  const fromDirectoryPath = path.dirname(tsconfigPath);
+  const resolvedExtendsPath = resolveExtendsPath(
+    extendsPath,
+    fromDirectoryPath,
+    cache
+  );
+  if (!resolvedExtendsPath) {
+    throw new TsconfigError(`${path.relative(process.cwd(), tsconfigPath)}: File '${extendsPath}' not found.`);
+  }
+  if (circularExtendsTracker.has(resolvedExtendsPath)) {
+    throw new TsconfigError(`Circularity detected while resolving configuration: ${resolvedExtendsPath}`);
+  }
+  circularExtendsTracker.add(resolvedExtendsPath);
+  const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
+  const extendsConfig = _parseTsconfig(resolvedExtendsPath, cache, circularExtendsTracker);
+  delete extendsConfig.references;
+  const { compilerOptions } = extendsConfig;
+  if (compilerOptions) {
+    const resolvePaths = ["baseUrl", "outDir"];
+    for (const property of resolvePaths) {
+      const unresolvedPath = compilerOptions[property];
+      if (unresolvedPath) {
+        compilerOptions[property] = slash(path.relative(
+          fromDirectoryPath,
+          path.join(extendsDirectoryPath, unresolvedPath)
+        )) || "./";
+      }
+    }
+  }
+  if (extendsConfig.files) {
+    extendsConfig.files = extendsConfig.files.map(
+      (file) => slash(path.relative(
+        fromDirectoryPath,
+        path.join(extendsDirectoryPath, file)
+      ))
+    );
+  }
+  if (extendsConfig.include) {
+    extendsConfig.include = extendsConfig.include.map(
+      (file) => slash(path.relative(
+        fromDirectoryPath,
+        path.join(extendsDirectoryPath, file)
+      ))
+    );
+  }
+  if (extendsConfig.exclude) {
+    extendsConfig.exclude = extendsConfig.exclude.map(
+      (file) => slash(path.relative(
+        fromDirectoryPath,
+        path.join(extendsDirectoryPath, file)
+      ))
+    );
+  }
+  return extendsConfig;
+};
+const _parseTsconfig = (tsconfigPath, cache, circularExtendsTracker = /* @__PURE__ */ new Set()) => {
+  let config;
+  try {
+    config = readJsonc(tsconfigPath, cache) || {};
+  } catch {
+    throw new TsconfigError(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
+  }
+  if (typeof config !== "object") {
+    throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
+  }
+  const directoryPath = path.dirname(tsconfigPath);
+  if (config.compilerOptions) {
+    const { compilerOptions } = config;
+    if (compilerOptions.paths && !compilerOptions.baseUrl) {
+      compilerOptions[implicitBaseUrlSymbol] = directoryPath;
+    }
+  }
+  if (config.extends) {
+    const extendsPathList = Array.isArray(config.extends) ? config.extends : [config.extends];
+    delete config.extends;
+    for (const extendsPath of extendsPathList.reverse()) {
+      const extendsConfig = resolveExtends(
+        extendsPath,
+        tsconfigPath,
+        new Set(circularExtendsTracker),
+        cache
+      );
+      const merged = {
+        ...extendsConfig,
+        ...config,
+        compilerOptions: {
+          ...extendsConfig.compilerOptions,
+          ...config.compilerOptions
+        }
+      };
+      if (extendsConfig.watchOptions) {
+        merged.watchOptions = {
+          ...extendsConfig.watchOptions,
+          ...config.watchOptions
+        };
+      }
+      config = merged;
+    }
+  }
+  if (config.compilerOptions) {
+    const { compilerOptions } = config;
+    const normalizedPaths = [
+      "baseUrl",
+      "rootDir"
+    ];
+    for (const property of normalizedPaths) {
+      const unresolvedPath = compilerOptions[property];
+      if (unresolvedPath) {
+        const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
+        const relativeBaseUrl = normalizePath(path.relative(
+          directoryPath,
+          resolvedBaseUrl
+        ));
+        compilerOptions[property] = relativeBaseUrl;
+      }
+    }
+    const { outDir } = compilerOptions;
+    if (outDir) {
+      if (!Array.isArray(config.exclude)) {
+        config.exclude = [];
+      }
+      if (!config.exclude.includes(outDir)) {
+        config.exclude.push(outDir);
+      }
+      compilerOptions.outDir = normalizePath(outDir);
+    }
+  } else {
+    config.compilerOptions = {};
+  }
+  if (config.files) {
+    config.files = config.files.map(normalizePath);
+  }
+  if (config.include) {
+    config.include = config.include.map(slash);
+  }
+  if (config.watchOptions) {
+    const { watchOptions } = config;
+    if (watchOptions.excludeDirectories) {
+      watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
+        (excludePath) => slash(path.resolve(directoryPath, excludePath))
+      );
+    }
+  }
+  return config;
+};
+const parseTsconfig = (tsconfigPath, cache = /* @__PURE__ */ new Map()) => _parseTsconfig(tsconfigPath, cache);
+
+const getTsconfig = (searchPath = process.cwd(), configName = "tsconfig.json", cache = /* @__PURE__ */ new Map()) => {
+  const configFile = findUp(
+    slash(searchPath),
+    configName,
+    cache
+  );
+  if (!configFile) {
+    return null;
+  }
+  const config = parseTsconfig(configFile, cache);
+  return {
+    path: configFile,
+    config
+  };
+};
+
+const starPattern = /\*/g;
+const assertStarCount = (pattern, errorMessage) => {
+  const starCount = pattern.match(starPattern);
+  if (starCount && starCount.length > 1) {
+    throw new Error(errorMessage);
+  }
+};
+const parsePattern = (pattern) => {
+  if (pattern.includes("*")) {
+    const [prefix, suffix] = pattern.split("*");
+    return {
+      prefix,
+      suffix
+    };
+  }
+  return pattern;
+};
+const isPatternMatch = ({ prefix, suffix }, candidate) => candidate.startsWith(prefix) && candidate.endsWith(suffix);
+
+const parsePaths = (paths, baseUrl, absoluteBaseUrl) => Object.entries(paths).map(([pattern, substitutions]) => {
+  assertStarCount(pattern, `Pattern '${pattern}' can have at most one '*' character.`);
+  return {
+    pattern: parsePattern(pattern),
+    substitutions: substitutions.map((substitution) => {
+      assertStarCount(
+        substitution,
+        `Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`
+      );
+      if (!baseUrl && !isRelativePathPattern.test(substitution)) {
+        throw new Error("Non-relative paths are not allowed when 'baseUrl' is not set. Did you forget a leading './'?");
+      }
+      return path.resolve(absoluteBaseUrl, substitution);
+    })
+  };
+});
+const createPathsMatcher = (tsconfig) => {
+  if (!tsconfig.config.compilerOptions) {
+    return null;
+  }
+  const { baseUrl, paths } = tsconfig.config.compilerOptions;
+  const implicitBaseUrl = implicitBaseUrlSymbol in tsconfig.config.compilerOptions && tsconfig.config.compilerOptions[implicitBaseUrlSymbol];
+  if (!baseUrl && !paths) {
+    return null;
+  }
+  const resolvedBaseUrl = path.resolve(
+    path.dirname(tsconfig.path),
+    baseUrl || implicitBaseUrl || "."
+  );
+  const pathEntries = paths ? parsePaths(paths, baseUrl, resolvedBaseUrl) : [];
+  return (specifier) => {
+    if (isRelativePathPattern.test(specifier)) {
+      return [];
+    }
+    const patternPathEntries = [];
+    for (const pathEntry of pathEntries) {
+      if (pathEntry.pattern === specifier) {
+        return pathEntry.substitutions.map(slash);
+      }
+      if (typeof pathEntry.pattern !== "string") {
+        patternPathEntries.push(pathEntry);
+      }
+    }
+    let matchedValue;
+    let longestMatchPrefixLength = -1;
+    for (const pathEntry of patternPathEntries) {
+      if (isPatternMatch(pathEntry.pattern, specifier) && pathEntry.pattern.prefix.length > longestMatchPrefixLength) {
+        longestMatchPrefixLength = pathEntry.pattern.prefix.length;
+        matchedValue = pathEntry;
+      }
+    }
+    if (!matchedValue) {
+      return baseUrl ? [slash(path.join(resolvedBaseUrl, specifier))] : [];
+    }
+    const matchedPath = specifier.slice(
+      matchedValue.pattern.prefix.length,
+      specifier.length - matchedValue.pattern.suffix.length
+    );
+    return matchedValue.substitutions.map(
+      (substitution) => slash(substitution.replace("*", matchedPath))
+    );
+  };
+};
+
+const s=e=>{let o="";for(let t=0;t<e.length;t+=1){const r=e[t],n=r.toUpperCase();o+=r===n?r.toLowerCase():n;}return o},c=65,a=97,m=()=>Math.floor(Math.random()*26),S=e=>Array.from({length:e},()=>String.fromCodePoint(m()+(Math.random()>.5?c:a))).join(""),l=(e=fs)=>{const o=process.execPath;if(e.existsSync(o))return !e.existsSync(s(o));const t=`/${S(10)}`;e.writeFileSync(t,"");const r=!e.existsSync(s(t));return e.unlinkSync(t),r};
+
+const { join: pathJoin } = path.posix;
+const baseExtensions = {
+  ts: [".ts", ".tsx", ".d.ts"],
+  cts: [".cts", ".d.cts"],
+  mts: [".mts", ".d.mts"]
+};
+const getSupportedExtensions = (compilerOptions) => {
+  const ts = [...baseExtensions.ts];
+  const cts = [...baseExtensions.cts];
+  const mts = [...baseExtensions.mts];
+  if (compilerOptions == null ? void 0 : compilerOptions.allowJs) {
+    ts.push(".js", ".jsx");
+    cts.push(".cjs");
+    mts.push(".mjs");
+  }
+  return [
+    ...ts,
+    ...cts,
+    ...mts
+  ];
+};
+const getDefaultExcludeSpec = (compilerOptions) => {
+  const excludesSpec = [];
+  if (!compilerOptions) {
+    return excludesSpec;
+  }
+  const { outDir, declarationDir } = compilerOptions;
+  if (outDir) {
+    excludesSpec.push(outDir);
+  }
+  if (declarationDir) {
+    excludesSpec.push(declarationDir);
+  }
+  return excludesSpec;
+};
+const escapeForRegexp = (string) => string.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const dependencyDirectories = ["node_modules", "bower_components", "jspm_packages"];
+const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join("|")})(/|$))`;
+const isImplicitGlobPattern = /(?:^|\/)[^.*?]+$/;
+const matchAllGlob = "**/*";
+const anyCharacter = "[^/]";
+const noPeriodOrSlash = "[^./]";
+const isWindows = process.platform === "win32";
+const createFilesMatcher = ({
+  config,
+  path: tsconfigPath
+}, caseSensitivePaths = l()) => {
+  if ("extends" in config) {
+    throw new Error("tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.");
+  }
+  if (!path.isAbsolute(tsconfigPath)) {
+    throw new Error("The tsconfig path must be absolute");
+  }
+  if (isWindows) {
+    tsconfigPath = slash(tsconfigPath);
+  }
+  const projectDirectory = path.dirname(tsconfigPath);
+  const {
+    files,
+    include,
+    exclude,
+    compilerOptions
+  } = config;
+  const filesList = files == null ? void 0 : files.map((file) => pathJoin(projectDirectory, file));
+  const extensions = getSupportedExtensions(compilerOptions);
+  const regexpFlags = caseSensitivePaths ? "" : "i";
+  const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
+  const excludePatterns = excludeSpec.map((filePath) => {
+    const projectFilePath = pathJoin(projectDirectory, filePath);
+    const projectFilePathPattern = escapeForRegexp(projectFilePath).replaceAll("\\*\\*/", "(.+/)?").replaceAll("\\*", `${anyCharacter}*`).replaceAll("\\?", anyCharacter);
+    return new RegExp(
+      `^${projectFilePathPattern}($|/)`,
+      regexpFlags
+    );
+  });
+  const includeSpec = files || include ? include : [matchAllGlob];
+  const includePatterns = includeSpec ? includeSpec.map((filePath) => {
+    let projectFilePath = pathJoin(projectDirectory, filePath);
+    if (isImplicitGlobPattern.test(projectFilePath)) {
+      projectFilePath = pathJoin(projectFilePath, matchAllGlob);
+    }
+    const projectFilePathPattern = escapeForRegexp(projectFilePath).replaceAll("/\\*\\*", `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`).replaceAll(/(\/)?\\\*/g, (_, hasSlash) => {
+      const pattern = `(${noPeriodOrSlash}|(\\.(?!min\\.js$))?)*`;
+      if (hasSlash) {
+        return `/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${pattern}`;
+      }
+      return pattern;
+    }).replaceAll(/(\/)?\\\?/g, (_, hasSlash) => {
+      const pattern = anyCharacter;
+      if (hasSlash) {
+        return `/${implicitExcludePathRegexPattern}${pattern}`;
+      }
+      return pattern;
+    });
+    return new RegExp(
+      `^${projectFilePathPattern}$`,
+      regexpFlags
+    );
+  }) : void 0;
+  return (filePath) => {
+    if (!path.isAbsolute(filePath)) {
+      throw new Error("filePath must be absolute");
+    }
+    if (isWindows) {
+      filePath = slash(filePath);
+    }
+    if (filesList == null ? void 0 : filesList.includes(filePath)) {
+      return config;
+    }
+    if (
+      // Invalid extension (case sensitive)
+      !extensions.some((extension) => filePath.endsWith(extension)) || excludePatterns.some((pattern) => pattern.test(filePath))
+    ) {
+      return;
+    }
+    if (includePatterns && includePatterns.some((pattern) => pattern.test(filePath))) {
+      return config;
+    }
+  };
+};
+
+exports.createFilesMatcher = createFilesMatcher;
+exports.createPathsMatcher = createPathsMatcher;
+exports.getTsconfig = getTsconfig;
+exports.parseTsconfig = parseTsconfig;
