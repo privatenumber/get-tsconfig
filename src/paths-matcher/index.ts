@@ -41,18 +41,20 @@ const parsePaths = (
 export const createPathsMatcher = (
 	tsconfig: TsConfigResult,
 ) => {
-	if (!tsconfig.config.compilerOptions) {
+	const { compilerOptions } = tsconfig.config;
+	if (!compilerOptions) {
 		return null;
 	}
 
-	const { baseUrl, paths } = tsconfig.config.compilerOptions;
-	const implicitBaseUrl = (
-		implicitBaseUrlSymbol in tsconfig.config.compilerOptions
-		&& (tsconfig.config.compilerOptions[implicitBaseUrlSymbol] as string)
-	);
+	const { baseUrl, paths } = compilerOptions;
 	if (!baseUrl && !paths) {
 		return null;
 	}
+
+	const implicitBaseUrl = (
+		implicitBaseUrlSymbol in compilerOptions
+		&& (compilerOptions[implicitBaseUrlSymbol] as string)
+	);
 
 	const resolvedBaseUrl = path.resolve(
 		path.dirname(tsconfig.path),
