@@ -59,12 +59,13 @@
 		"fs-fixture": "^2.4.0",
 		"is-fs-case-sensitive": "^1.0.0",
 		"jsonc-parser": "^3.2.1",
-		"lintroll": "^1.5.2",
+		"lintroll": "^1.6.1",
 		"manten": "^1.3.0",
-		"pkgroll": "^2.0.2",
+		"pkgroll": "^2.1.1",
 		"slash": "^5.1.0",
-		"tsx": "^4.9.3",
-		"type-fest": "^4.18.2",
+		"tsx": "^4.15.7",
+		"type-fest": "^4.20.1",
 		"typescript": "~5.2.0"
-	}
+	},
+	"packageManager": "pnpm@9.2.0+sha512.98a80fd11c2e7096747762304106432b3ddc67dcf54b5a8c01c93f68a2cd5e05e6821849522a06fb76284d41a2660d5e334f2ee3bbf29183bf2e739b1dafa771"
 }
