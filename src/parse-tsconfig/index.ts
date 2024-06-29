@@ -102,7 +102,7 @@ const _parseTsconfig = (
 		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
 	}
 
-	const directoryPath = path.dirname(tsconfigPath);
+	const directoryPath = path.resolve(path.dirname(tsconfigPath));
 
 	if (config.compilerOptions) {
 		const { compilerOptions } = config;
