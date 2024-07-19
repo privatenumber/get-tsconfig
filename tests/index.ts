@@ -15,7 +15,7 @@ await describe('get-tsconfig', ({ runTestSuite }) => {
  *
  * TODO: either: 1) update code to not rely on cwd, or 2) update manten to handle parallel: false
  */
-test('paths > baseUrl > relative path', async () => {
+test('paths > prefix match > nested directory', async () => {
 	await using fixture = await createFixture({
 		'dir/tsconfig.json': createTsconfigJson({
 			compilerOptions: {
