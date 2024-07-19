@@ -9,7 +9,7 @@ export default testSuite(({ describe }) => {
 			test('non-existent path', async () => {
 				expect(
 					() => parseTsconfig('non-existent-path'),
-				).toThrow('Cannot resolve tsconfig at path: non-existent-path');
+				).toThrow('Cannot resolve tsconfig at path: ');
 			});
 
 			test('empty file', async () => {

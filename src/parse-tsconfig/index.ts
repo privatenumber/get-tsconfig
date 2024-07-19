@@ -102,7 +102,7 @@ const _parseTsconfig = (
 		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
 	}
 
-	const directoryPath = path.resolve(path.dirname(tsconfigPath));
+	const directoryPath = path.dirname(tsconfigPath);
 
 	if (config.compilerOptions) {
 		const { compilerOptions } = config;
@@ -211,4 +211,4 @@ const _parseTsconfig = (
 export const parseTsconfig = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
-): TsConfigJsonResolved => _parseTsconfig(tsconfigPath, cache);
+): TsConfigJsonResolved => _parseTsconfig(path.resolve(tsconfigPath), cache);
