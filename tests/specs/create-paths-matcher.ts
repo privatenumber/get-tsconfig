@@ -136,7 +136,7 @@ export default testSuite(({ describe }) => {
 		});
 
 		describe('baseUrl', ({ test }) => {
-			test('baseUrl', async () => {
+			test('absolute path', async () => {
 				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {

@@ -211,4 +211,4 @@ const _parseTsconfig = (
 export const parseTsconfig = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
-): TsConfigJsonResolved => _parseTsconfig(tsconfigPath, cache);
+): TsConfigJsonResolved => _parseTsconfig(path.resolve(tsconfigPath), cache);
