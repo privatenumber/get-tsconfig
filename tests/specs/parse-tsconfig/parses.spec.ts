@@ -84,7 +84,8 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
 		});
 
 		describe('baseUrl', ({ test }) => {
@@ -150,12 +151,14 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
 
 			const parsedTsconfigCached = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
 			expect(cache.size).toBe(1);
 
-			expect(parsedTsconfigCached).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(parsedTsconfigCached);
 		});
 	});
 });
