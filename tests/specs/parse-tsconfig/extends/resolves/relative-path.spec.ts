@@ -27,7 +27,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(tsconfig);
 		});
 
 		test('prefers exact match (extensionless file)', async () => {
@@ -57,7 +58,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(tsconfig);
 		});
 
 		test('arbitrary extension', async () => {
@@ -81,7 +83,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(tsconfig);
 		});
 
 		test('parent directory', async () => {
@@ -108,7 +111,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(path.join(testDirectory, 'tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
+			// TODO: TS 5.5 --showConfig returns extra default fields
+			expect(expectedTsconfig).toMatchObject(tsconfig);
 		});
 
 		test('shoud not resolve directory', async () => {
