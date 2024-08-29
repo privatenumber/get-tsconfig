@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
 import { normalizePath } from '../utils/normalize-path.js';

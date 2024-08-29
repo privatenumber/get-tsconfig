@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
@@ -56,7 +56,7 @@ const getDefaultExcludeSpec = (
 	return excludesSpec;
 };
 
-const escapeForRegexp = (string: string) => string.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeForRegexp = (string: string) => string.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 const dependencyDirectories = ['node_modules', 'bower_components', 'jspm_packages'] as const;
 const implicitExcludePathRegexPattern = `(?!(${dependencyDirectories.join('|')})(/|$))`;
@@ -129,13 +129,13 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace **/
-				.replaceAll('\\*\\*/', '(.+/)?')
+				.replaceAll(String.raw`\*\*/`, '(.+/)?')
 
 				// Replace *
-				.replaceAll('\\*', `${anyCharacter}*`)
+				.replaceAll(String.raw`\*`, `${anyCharacter}*`)
 
 				// Replace ?
-				.replaceAll('\\?', anyCharacter);
+				.replaceAll(String.raw`\?`, anyCharacter);
 
 			return new RegExp(
 				`^${projectFilePathPattern}($|/)`,
@@ -157,7 +157,7 @@ export const createFilesMatcher = (
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace /**
-				.replaceAll('/\\*\\*', `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
+				.replaceAll(String.raw`/\*\*`, `(/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${anyCharacter}*)*?`)
 
 				// Replace *
 				.replaceAll(/(\/)?\\\*/g, (_, hasSlash) => {

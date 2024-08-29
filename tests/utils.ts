@@ -1,5 +1,5 @@
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { execa } from 'execa';
 import type { TsConfigJson, PackageJson } from 'type-fest';
 

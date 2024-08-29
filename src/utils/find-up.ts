@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import type { Cache } from '../types.js';
 import { exists } from './fs-cached.js';
 

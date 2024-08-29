@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { expect, testSuite } from 'manten';
 import slash from 'slash';
 import { createFixture } from 'fs-fixture';

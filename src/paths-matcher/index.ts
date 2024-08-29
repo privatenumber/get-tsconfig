@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';

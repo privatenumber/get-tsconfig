@@ -1,5 +1,5 @@
-import path from 'path';
-import Module from 'module';
+import path from 'node:path';
+import Module from 'node:module';
 import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
