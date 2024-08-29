@@ -1,7 +1,7 @@
 import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
-import { normalizePath } from '../utils/normalize-path.js';
+import { normalizeRelativePath } from '../utils/normalize-relative-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { implicitBaseUrlSymbol } from '../utils/symbols.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
@@ -164,7 +164,7 @@ const _parseTsconfig = (
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath) {
 				const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
-				const relativeBaseUrl = normalizePath(path.relative(
+				const relativeBaseUrl = normalizeRelativePath(path.relative(
 					directoryPath,
 					resolvedBaseUrl,
 				));
@@ -181,14 +181,15 @@ const _parseTsconfig = (
 			if (!config.exclude.includes(outDir)) {
 				config.exclude.push(outDir);
 			}
-			compilerOptions.outDir = normalizePath(outDir);
+
+			compilerOptions.outDir = normalizeRelativePath(outDir);
 		}
 	} else {
 		config.compilerOptions = {};
 	}
 
 	if (config.files) {
-		config.files = config.files.map(normalizePath);
+		config.files = config.files.map(normalizeRelativePath);
 	}
 
 	if (config.include) {
