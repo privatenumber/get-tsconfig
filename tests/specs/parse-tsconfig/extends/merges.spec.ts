@@ -452,5 +452,100 @@ export default testSuite(({ describe }) => {
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
+
+		describe('${configDir}', ({ test }) => {
+			test('works in paths, include, excludes', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							outDir: '${configDir}/dist',
+							paths: {
+								'@/*': ['${configDir}/*'],
+							},
+						},
+						include: ['${configDir}/file.ts'],
+					}),
+					extended: {
+						'tsconfig.json': createTsconfigJson({
+							extends: '../tsconfig.json',
+						}),
+						'file.ts': '',
+					},
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+				delete expectedTsconfig.files;
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+				// @ts-expect-error Symbol is private
+				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('joins path', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							outDir: '${configDir}-asdf/dist',
+							paths: {
+								a: ['${configDir}_a/*'],
+								b: ['ignores/${configDir}/*'],
+							},
+						},
+						include: ['${configDir}/file.ts'],
+					}),
+					extended: {
+						'tsconfig.json': createTsconfigJson({
+							extends: '../tsconfig.json',
+						}),
+						'file.ts': '',
+					},
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+				delete expectedTsconfig.files;
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+				// @ts-expect-error Symbol is private
+				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('parent path', async () => {
+				await using fixture = await createFixture({
+					'file-b.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							outDir: '${configDir}/../dist',
+						},
+						include: ['${configDir}/../file-b.ts'],
+					}),
+					extended: {
+						'tsconfig.json': createTsconfigJson({
+							extends: '../tsconfig.json',
+						}),
+					},
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+				delete expectedTsconfig.files;
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+				// @ts-expect-error Symbol is private
+				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
 	});
 });

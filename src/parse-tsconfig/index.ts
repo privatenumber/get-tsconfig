@@ -3,8 +3,10 @@ import slash from 'slash';
 import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
 import { normalizeRelativePath } from '../utils/normalize-relative-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { implicitBaseUrlSymbol } from '../utils/symbols.js';
+import { implicitBaseUrlSymbol, configDirPlaceholder } from '../utils/constants.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
+
+const filesProperties = ['files', 'include', 'exclude'] as const;
 
 const resolveExtends = (
 	extendsPath: string,
@@ -34,43 +36,45 @@ const resolveExtends = (
 
 	const { compilerOptions } = extendsConfig;
 	if (compilerOptions) {
-		const resolvePaths = ['baseUrl', 'outDir'] as const;
-		for (const property of resolvePaths) {
-			const unresolvedPath = compilerOptions[property];
-			if (unresolvedPath) {
-				compilerOptions[property] = slash(path.relative(
+		const { baseUrl } = compilerOptions;
+		if (baseUrl) {
+			compilerOptions.baseUrl = slash(
+				path.relative(
 					fromDirectoryPath,
-					path.join(extendsDirectoryPath, unresolvedPath),
-				)) || './';
+					path.join(extendsDirectoryPath, baseUrl),
+				),
+			) || './';
+		}
+
+		let { outDir } = compilerOptions;
+		if (outDir) {
+			if (!outDir.startsWith(configDirPlaceholder)) {
+				outDir = path.relative(
+					fromDirectoryPath,
+					path.join(extendsDirectoryPath, outDir),
+				);
 			}
+
+			compilerOptions.outDir = slash(outDir) || './';
 		}
 	}
 
-	if (extendsConfig.files) {
-		extendsConfig.files = extendsConfig.files.map(
-			file => slash(path.relative(
-				fromDirectoryPath,
-				path.join(extendsDirectoryPath, file),
-			)),
-		);
-	}
+	for (const property of filesProperties) {
+		const filesList = extendsConfig[property];
+		if (filesList) {
+			extendsConfig[property] = filesList.map((file) => {
+				if (file.startsWith(configDirPlaceholder)) {
+					return file;
+				}
 
-	if (extendsConfig.include) {
-		extendsConfig.include = extendsConfig.include.map(
-			file => slash(path.relative(
-				fromDirectoryPath,
-				path.join(extendsDirectoryPath, file),
-			)),
-		);
-	}
-
-	if (extendsConfig.exclude) {
-		extendsConfig.exclude = extendsConfig.exclude.map(
-			file => slash(path.relative(
-				fromDirectoryPath,
-				path.join(extendsDirectoryPath, file),
-			)),
-		);
+				return slash(
+					path.relative(
+						fromDirectoryPath,
+						path.join(extendsDirectoryPath, file),
+					),
+				);
+			});
+		}
 	}
 
 	return extendsConfig;
@@ -172,7 +176,7 @@ const _parseTsconfig = (
 			}
 		}
 
-		const { outDir } = compilerOptions;
+		let { outDir } = compilerOptions;
 		if (outDir) {
 			if (!Array.isArray(config.exclude)) {
 				config.exclude = [];
@@ -182,18 +186,27 @@ const _parseTsconfig = (
 				config.exclude.push(outDir);
 			}
 
-			compilerOptions.outDir = normalizeRelativePath(outDir);
+			if (!outDir.startsWith(configDirPlaceholder)) {
+				outDir = normalizeRelativePath(outDir);
+			}
+			compilerOptions.outDir = outDir;
 		}
 	} else {
 		config.compilerOptions = {};
 	}
 
-	if (config.files) {
-		config.files = config.files.map(normalizeRelativePath);
-	}
-
 	if (config.include) {
 		config.include = config.include.map(slash);
+
+		if (config.files) {
+			delete config.files;
+		}
+	} else if (config.files) {
+		config.files = config.files.map(file => (
+			file.startsWith(configDirPlaceholder)
+				? file
+				: normalizeRelativePath(file)
+		));
 	}
 
 	if (config.watchOptions) {
@@ -209,7 +222,50 @@ const _parseTsconfig = (
 	return config;
 };
 
+const interpolateConfigDir = (
+	filePath: string,
+	configDir: string,
+) => {
+	if (filePath.startsWith(configDirPlaceholder)) {
+		return slash(path.join(configDir, filePath.slice(configDirPlaceholder.length)));
+	}
+};
+
 export const parseTsconfig = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
-): TsConfigJsonResolved => _parseTsconfig(path.resolve(tsconfigPath), cache);
+): TsConfigJsonResolved => {
+	const resolvedTsconfigPath = path.resolve(tsconfigPath);
+	const config = _parseTsconfig(resolvedTsconfigPath, cache);
+
+	const configDir = path.dirname(resolvedTsconfigPath);
+	if (config.compilerOptions) {
+		let { outDir } = config.compilerOptions;
+		if (outDir) {
+			const interpolated = interpolateConfigDir(outDir, configDir);
+			if (interpolated) {
+				outDir = normalizeRelativePath(path.relative(configDir, interpolated));
+				config.compilerOptions.outDir = outDir;
+			}
+		}
+
+		const { paths } = config.compilerOptions;
+		if (paths) {
+			for (const name of Object.keys(paths)) {
+				paths[name] = paths[name].map(
+					filePath => interpolateConfigDir(filePath, configDir) ?? filePath,
+				);
+			}
+		}
+	}
+
+	for (const property of filesProperties) {
+		if (config[property]) {
+			config[property] = config[property].map(
+				filePath => interpolateConfigDir(filePath, configDir) ?? filePath,
+			);
+		}
+	}
+
+	return config;
+};

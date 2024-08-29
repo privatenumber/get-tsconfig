@@ -10,3 +10,5 @@
  * can use it to resolve relative paths.
  */
 export const implicitBaseUrlSymbol = Symbol('implicitBaseUrl');
+
+export const configDirPlaceholder = '${configDir}';

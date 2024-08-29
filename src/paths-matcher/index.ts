@@ -2,7 +2,7 @@ import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
-import { implicitBaseUrlSymbol } from '../utils/symbols.js';
+import { implicitBaseUrlSymbol } from '../utils/constants.js';
 import {
 	assertStarCount,
 	parsePattern,
