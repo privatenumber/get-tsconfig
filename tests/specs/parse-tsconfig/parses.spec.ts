@@ -84,6 +84,11 @@ export default testSuite(({ describe }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
+			// TODO: TS 5.5 resolve excludes paths
+			if (expectedTsconfig.exclude) {
+				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
+			}
+
 			// TODO: TS 5.5 --showConfig returns extra default fields
 			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
 		});
@@ -150,6 +155,11 @@ export default testSuite(({ describe }) => {
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
+
+			// TODO: TS 5.5 resolve excludes paths
+			if (expectedTsconfig.exclude) {
+				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
+			}
 
 			// TODO: TS 5.5 --showConfig returns extra default fields
 			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
