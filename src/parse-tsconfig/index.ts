@@ -176,20 +176,29 @@ const _parseTsconfig = (
 			}
 		}
 
-		let { outDir } = compilerOptions;
-		if (outDir) {
-			if (!Array.isArray(config.exclude)) {
-				config.exclude = [];
-			}
+		const outputFields = [
+			'outDir',
+			'declarationDir'
+		] as const satisfies Array<keyof NonNullable<TsConfigJson['compilerOptions']>>;
 
-			if (!config.exclude.includes(outDir)) {
-				config.exclude.push(outDir);
-			}
+		for (const outputField of outputFields) {
+			let outputPath = compilerOptions[outputField];
 
-			if (!outDir.startsWith(configDirPlaceholder)) {
-				outDir = normalizeRelativePath(outDir);
+			if (outputPath) {
+				if (!Array.isArray(config.exclude)) {
+					config.exclude = [];
+				}
+
+				if (!config.exclude.includes(outputPath)) {
+					config.exclude.push(outputPath);
+				}
+
+				if (!outputPath.startsWith(configDirPlaceholder)) {
+					outputPath = normalizeRelativePath(outputPath);
+				}
+
+				compilerOptions[outputField] = outputPath;
 			}
-			compilerOptions.outDir = outDir;
 		}
 	} else {
 		config.compilerOptions = {};
