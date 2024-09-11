@@ -37,7 +37,7 @@ const resolveExtends = (
 	const { compilerOptions } = extendsConfig;
 	if (compilerOptions) {
 		const { baseUrl } = compilerOptions;
-		if (baseUrl) {
+		if (baseUrl != null && !baseUrl.startsWith(configDirPlaceholder)) {
 			compilerOptions.baseUrl = slash(
 				path.relative(
 					fromDirectoryPath,
@@ -166,7 +166,7 @@ const _parseTsconfig = (
 
 		for (const property of normalizedPaths) {
 			const unresolvedPath = compilerOptions[property];
-			if (unresolvedPath) {
+			if (unresolvedPath != null && !unresolvedPath.startsWith(configDirPlaceholder)) {
 				const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
 				const relativeBaseUrl = normalizeRelativePath(path.relative(
 					directoryPath,
@@ -222,14 +222,26 @@ const _parseTsconfig = (
 	return config;
 };
 
-const interpolateConfigDir = (
-	filePath: string,
+function interpolateConfigDir<T extends string | string[]> (
+	filePaths: T,
 	configDir: string,
-) => {
-	if (filePath.startsWith(configDirPlaceholder)) {
-		return slash(path.join(configDir, filePath.slice(configDirPlaceholder.length)));
+	postProcess?: (input: string) => string
+): T extends string ? string : string[];
+function interpolateConfigDir (
+	filePaths: string | string[],
+	configDir: string,
+	postProcess: (input: string) => string = (value) => value
+): string | string[] {
+	if (Array.isArray(filePaths)) {
+		return filePaths.map((filePath) => interpolateConfigDir(filePath, configDir, postProcess));
 	}
-};
+
+	if (filePaths.startsWith(configDirPlaceholder)) {
+		return postProcess(slash(path.join(configDir, filePaths.slice(configDirPlaceholder.length))));
+	}
+
+	return filePaths;
+}
 
 export const parseTsconfig = (
 	tsconfigPath: string,
@@ -238,14 +250,34 @@ export const parseTsconfig = (
 	const resolvedTsconfigPath = path.resolve(tsconfigPath);
 	const config = _parseTsconfig(resolvedTsconfigPath, cache);
 
+	/**
+	 * @see https://github.com/microsoft/TypeScript/issues/57485#issuecomment-2027787456
+	 * exclude paths, as it requires custom processing
+	 */
+	const compilerFieldsWithConfigDir = [
+		'outDir',
+		'declarationDir',
+		'outFile',
+		'rootDir',
+		'baseUrl',
+		'tsBuildInfoFile',
+		'rootDirs',
+		'typeRoots',
+	] as const satisfies Array<keyof NonNullable<TsConfigJson['compilerOptions']>>;
+
 	const configDir = path.dirname(resolvedTsconfigPath);
 	if (config.compilerOptions) {
-		let { outDir } = config.compilerOptions;
-		if (outDir) {
-			const interpolated = interpolateConfigDir(outDir, configDir);
-			if (interpolated) {
-				outDir = normalizeRelativePath(path.relative(configDir, interpolated));
-				config.compilerOptions.outDir = outDir;
+		for (const field of compilerFieldsWithConfigDir) {
+			const value = config.compilerOptions[field];
+
+			if (value != null) {
+				/**
+				 * I used Object.assign instead of the direct assignment to work around TS bug (it fails to infer types correctly).
+				 * @see https://github.com/microsoft/TypeScript/issues/33912
+ 				 */
+				Object.assign(config.compilerOptions, {
+					[field]: interpolateConfigDir(value, configDir, (interpolated) => normalizeRelativePath(path.relative(configDir, interpolated)))
+				});
 			}
 		}
 
