@@ -37,7 +37,7 @@ const resolveExtends = (
 	const { compilerOptions } = extendsConfig;
 	if (compilerOptions) {
 		const { baseUrl } = compilerOptions;
-		if (baseUrl != null && !baseUrl.startsWith(configDirPlaceholder)) {
+		if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
 			compilerOptions.baseUrl = slash(
 				path.relative(
 					fromDirectoryPath,
@@ -166,7 +166,7 @@ const _parseTsconfig = (
 
 		for (const property of normalizedPaths) {
 			const unresolvedPath = compilerOptions[property];
-			if (unresolvedPath != null && !unresolvedPath.startsWith(configDirPlaceholder)) {
+			if (unresolvedPath && !unresolvedPath.startsWith(configDirPlaceholder)) {
 				const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
 				const relativeBaseUrl = normalizeRelativePath(path.relative(
 					directoryPath,
@@ -222,18 +222,19 @@ const _parseTsconfig = (
 	return config;
 };
 
-function interpolateConfigDir<T extends string | string[]> (
+function interpolateConfigDir<T extends string | string[]>(
 	filePaths: T,
 	configDir: string,
 	postProcess?: (input: string) => string
 ): T extends string ? string : string[];
-function interpolateConfigDir (
+// eslint-disable-next-line pvtnbr/prefer-arrow-functions
+function interpolateConfigDir(
 	filePaths: string | string[],
 	configDir: string,
-	postProcess: (input: string) => string = (value) => value
+	postProcess: (input: string) => string = value => value,
 ): string | string[] {
 	if (Array.isArray(filePaths)) {
-		return filePaths.map((filePath) => interpolateConfigDir(filePath, configDir, postProcess));
+		return filePaths.map(filePath => interpolateConfigDir(filePath, configDir, postProcess));
 	}
 
 	if (filePaths.startsWith(configDirPlaceholder)) {
@@ -270,13 +271,18 @@ export const parseTsconfig = (
 		for (const field of compilerFieldsWithConfigDir) {
 			const value = config.compilerOptions[field];
 
-			if (value != null) {
+			if (value) {
 				/**
-				 * I used Object.assign instead of the direct assignment to work around TS bug (it fails to infer types correctly).
+				 * I used Object.assign instead of the direct assignment to work around TS bug
+				 * (it fails to infer types correctly).
 				 * @see https://github.com/microsoft/TypeScript/issues/33912
  				 */
 				Object.assign(config.compilerOptions, {
-					[field]: interpolateConfigDir(value, configDir, (interpolated) => normalizeRelativePath(path.relative(configDir, interpolated)))
+					[field]: interpolateConfigDir(
+						value,
+						configDir,
+						interpolated => normalizeRelativePath(path.relative(configDir, interpolated)),
+					),
 				});
 			}
 		}
