@@ -178,7 +178,7 @@ const _parseTsconfig = (
 
 		const outputFields = [
 			'outDir',
-			'declarationDir'
+			'declarationDir',
 		] as const satisfies Array<keyof NonNullable<TsConfigJson['compilerOptions']>>;
 
 		for (const outputField of outputFields) {
