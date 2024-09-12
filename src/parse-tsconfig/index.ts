@@ -6,7 +6,13 @@ import { readJsonc } from '../utils/read-jsonc.js';
 import { implicitBaseUrlSymbol, configDirPlaceholder } from '../utils/constants.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
 
-const filesProperties = ['files', 'include', 'exclude'] as const;
+const pathRelative = (from: string, to: string) => normalizeRelativePath(path.relative(from, to));
+
+const filesProperties = [
+	'files',
+	'include',
+	'exclude',
+] as const;
 
 const resolveExtends = (
 	extendsPath: string,
@@ -79,6 +85,11 @@ const resolveExtends = (
 
 	return extendsConfig;
 };
+
+const outputFields = [
+	'outDir',
+	'declarationDir',
+] as const;
 
 const _parseTsconfig = (
 	tsconfigPath: string,
@@ -168,18 +179,10 @@ const _parseTsconfig = (
 			const unresolvedPath = compilerOptions[property];
 			if (unresolvedPath && !unresolvedPath.startsWith(configDirPlaceholder)) {
 				const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
-				const relativeBaseUrl = normalizeRelativePath(path.relative(
-					directoryPath,
-					resolvedBaseUrl,
-				));
+				const relativeBaseUrl = pathRelative(directoryPath, resolvedBaseUrl);
 				compilerOptions[property] = relativeBaseUrl;
 			}
 		}
-
-		const outputFields = [
-			'outDir',
-			'declarationDir',
-		] as const satisfies Array<keyof NonNullable<TsConfigJson['compilerOptions']>>;
 
 		for (const outputField of outputFields) {
 			let outputPath = compilerOptions[outputField];
@@ -231,27 +234,27 @@ const _parseTsconfig = (
 	return config;
 };
 
-function interpolateConfigDir<T extends string | string[]>(
-	filePaths: T,
+const interpolateConfigDir = (
+	filePath: string,
 	configDir: string,
-	postProcess?: (input: string) => string
-): T extends string ? string : string[];
-// eslint-disable-next-line pvtnbr/prefer-arrow-functions
-function interpolateConfigDir(
-	filePaths: string | string[],
-	configDir: string,
-	postProcess: (input: string) => string = value => value,
-): string | string[] {
-	if (Array.isArray(filePaths)) {
-		return filePaths.map(filePath => interpolateConfigDir(filePath, configDir, postProcess));
+) => {
+	if (filePath.startsWith(configDirPlaceholder)) {
+		return slash(path.join(configDir, filePath.slice(configDirPlaceholder.length)));
 	}
+};
 
-	if (filePaths.startsWith(configDirPlaceholder)) {
-		return postProcess(slash(path.join(configDir, filePaths.slice(configDirPlaceholder.length))));
-	}
-
-	return filePaths;
-}
+/**
+ * @see https://github.com/microsoft/TypeScript/issues/57485#issuecomment-2027787456
+ * exclude paths, as it requires custom processing
+ */
+const compilerFieldsWithConfigDir = [
+	'outDir',
+	'declarationDir',
+	'outFile',
+	'rootDir',
+	'baseUrl',
+	'tsBuildInfoFile',
+] as const;
 
 export const parseTsconfig = (
 	tsconfigPath: string,
@@ -259,44 +262,29 @@ export const parseTsconfig = (
 ): TsConfigJsonResolved => {
 	const resolvedTsconfigPath = path.resolve(tsconfigPath);
 	const config = _parseTsconfig(resolvedTsconfigPath, cache);
-
-	/**
-	 * @see https://github.com/microsoft/TypeScript/issues/57485#issuecomment-2027787456
-	 * exclude paths, as it requires custom processing
-	 */
-	const compilerFieldsWithConfigDir = [
-		'outDir',
-		'declarationDir',
-		'outFile',
-		'rootDir',
-		'baseUrl',
-		'tsBuildInfoFile',
-		'rootDirs',
-		'typeRoots',
-	] as const satisfies Array<keyof NonNullable<TsConfigJson['compilerOptions']>>;
-
 	const configDir = path.dirname(resolvedTsconfigPath);
-	if (config.compilerOptions) {
-		for (const field of compilerFieldsWithConfigDir) {
-			const value = config.compilerOptions[field];
 
+	const { compilerOptions } = config;
+	if (compilerOptions) {
+		for (const property of compilerFieldsWithConfigDir) {
+			const value = compilerOptions[property];
 			if (value) {
-				/**
-				 * I used Object.assign instead of the direct assignment to work around TS bug
-				 * (it fails to infer types correctly).
-				 * @see https://github.com/microsoft/TypeScript/issues/33912
- 				 */
-				Object.assign(config.compilerOptions, {
-					[field]: interpolateConfigDir(
-						value,
-						configDir,
-						interpolated => normalizeRelativePath(path.relative(configDir, interpolated)),
-					),
+				const resolvedPath = interpolateConfigDir(value, configDir);
+				compilerOptions[property] = resolvedPath ? pathRelative(configDir, resolvedPath) : value;
+			}
+		}
+
+		for (const property of ['rootDirs', 'typeRoots'] as const) {
+			const value = compilerOptions[property];
+			if (value) {
+				compilerOptions[property] = value.map((v) => {
+					const resolvedPath = interpolateConfigDir(v, configDir);
+					return resolvedPath ? pathRelative(configDir, resolvedPath) : v;
 				});
 			}
 		}
 
-		const { paths } = config.compilerOptions;
+		const { paths } = compilerOptions;
 		if (paths) {
 			for (const name of Object.keys(paths)) {
 				paths[name] = paths[name].map(
@@ -307,8 +295,9 @@ export const parseTsconfig = (
 	}
 
 	for (const property of filesProperties) {
-		if (config[property]) {
-			config[property] = config[property].map(
+		const value = config[property];
+		if (value) {
+			config[property] = value.map(
 				filePath => interpolateConfigDir(filePath, configDir) ?? filePath,
 			);
 		}
