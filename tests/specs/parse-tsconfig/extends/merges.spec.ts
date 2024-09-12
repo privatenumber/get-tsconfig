@@ -192,6 +192,35 @@ export default testSuite(({ describe }) => {
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
+			test('inherits with relative path from subdirectory', async () => {
+				await using fixture = await createFixture({
+					configs: {
+						'tsconfig.base.json': createTsconfigJson({
+							include: ['../src-a/*'],
+						}),
+					},
+					'src-a': {
+						'a.ts': '',
+						'b.ts': '',
+						'c.ts': '',
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './configs/tsconfig.base.json',
+					}),
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(path.join(fixture.path, 'tsconfig.json'));
+
+				expect({
+					...tsconfig,
+					// See https://github.com/privatenumber/get-tsconfig/issues/73
+					include: tsconfig.include?.map(includePath => `configs/../${includePath}`),
+				}).toStrictEqual(expectedTsconfig);
+			});
+
 			test('gets overwritten', async () => {
 				await using fixture = await createFixture({
 					'src-a': {
