@@ -73,6 +73,7 @@ export default testSuite(({ describe }) => {
 						esModuleInterop: true,
 						declaration: true,
 						outDir: 'dist',
+						declarationDir: 'dist-declaration',
 						strict: true,
 						target: 'esnext',
 						rootDir: 'root-dir',
