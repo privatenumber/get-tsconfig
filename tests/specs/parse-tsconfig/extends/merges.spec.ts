@@ -492,6 +492,13 @@ export default testSuite(({ describe }) => {
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							outDir: '${configDir}-asdf/dist',
+							declarationDir: '${configDir}/dist/declaration',
+							outFile: '${configDir}/dist/outfile.js',
+							rootDir: '${configDir}/dist/src',
+							baseUrl: '${configDir}/dist/src',
+							tsBuildInfoFile: '${configDir}/dist/dist.tsbuildinfo',
+							rootDirs: ['${configDir}/src', '${configDir}/static'],
+							typeRoots: ['${configDir}/src/type', '${configDir}/types'],
 							paths: {
 								a: ['${configDir}_a/*'],
 								b: ['ignores/${configDir}/*'],
