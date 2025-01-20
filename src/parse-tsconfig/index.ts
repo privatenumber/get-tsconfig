@@ -256,6 +256,13 @@ const compilerFieldsWithConfigDir = [
 	'tsBuildInfoFile',
 ] as const;
 
+/**
+ * Parses a tsconfig file at a given path
+ *
+ * @param tsconfigPath - Path to the tsconfig file.
+ * @param cache - Cache for storing parsed tsconfig results (default: new `Map()`).
+ * @returns The parsed and resolved tsconfig JSON.
+ */
 export const parseTsconfig = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
