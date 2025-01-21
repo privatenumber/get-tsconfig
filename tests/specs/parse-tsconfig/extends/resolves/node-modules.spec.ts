@@ -59,8 +59,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('without package.json', async () => {
@@ -81,8 +81,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('ignores invalid package.json', async () => {
@@ -162,8 +162,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('empty object package.json', async () => {
@@ -191,8 +191,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 		});
 
@@ -215,8 +215,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('implicit .json extension', async () => {
@@ -237,8 +237,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('prefers implicit .json over directory', async () => {
@@ -327,8 +327,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(tsconfig);
+
+			expect(expectedTsconfig).toStrictEqual(tsconfig);
 		});
 
 		test('extends dependency package far', async () => {
@@ -352,8 +352,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(path.join(fixturePath, 'tsconfig.json'));
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(tsconfig);
+
+			expect(expectedTsconfig).toStrictEqual(tsconfig);
 		});
 
 		// https://github.com/privatenumber/get-tsconfig/issues/76
@@ -425,8 +425,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('reads nested package.json#tsconfig', async () => {
@@ -463,27 +463,64 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 		});
 
+		const yarnPnpDirectory = path.resolve('./tests/fixtures/yarn-pnp');
+		const pnpParseTsconfig = async (
+			tsconfigPath: string,
+		) => {
+			const { stdout, stderr } = await execaNode(
+				'./index.js',
+				[tsconfigPath],
+				{
+					nodeOptions: ['--require', './.pnp.cjs'],
+					cwd: yarnPnpDirectory,
+					reject: false,
+				},
+			);
+			try {
+				return JSON.parse(stdout);
+			} catch {
+				return stderr;
+			}
+		};
+
 		// TODO: test pnp package exports
 		test('yarn pnp', async () => {
-			const { stdout } = await execaNode('./index.js', [], {
-				nodeOptions: ['--require', './.pnp.cjs'],
-				cwd: './tests/fixtures/yarn-pnp',
-				reject: false,
+			const files = [
+				'./tsconfig.package.json',
+				'./tsconfig.package-path.json',
+				'./tsconfig.package-path-directory.json',
+				'./tsconfig.org-package.json',
+			];
+
+			const parsed = await Promise.all(files.map(file => pnpParseTsconfig(file)));
+			parsed.forEach((tsconfig) => {
+				expect(tsconfig).toStrictEqual({
+					compilerOptions: {
+						strict: true,
+						jsx: 'react',
+						noImplicitAny: true,
+						noImplicitThis: true,
+						strictNullChecks: true,
+						strictFunctionTypes: true,
+						strictBindCallApply: true,
+						strictPropertyInitialization: true,
+						strictBuiltinIteratorReturn: true,
+						alwaysStrict: true,
+						useUnknownInCatchVariables: true,
+					},
+				});
 			});
 
-			expect(stdout).toBe([
-				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
-				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
-				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
-				'{ compilerOptions: { strict: true, jsx: \'react\' } }',
-				'Error: File \'non-existent-package\' not found.',
-				'Error: File \'fs/promises\' not found.',
-			].join('\n'));
+			const missingExtends = await pnpParseTsconfig('./tsconfig.missing-extends.json');
+			expect(missingExtends).toMatch('Error: File \'non-existent-package\' not found.');
+
+			const invalidExtends = await pnpParseTsconfig('./tsconfig.invalid-extends.json');
+			expect(invalidExtends).toMatch('Error: File \'fs/promises\' not found.');
 		});
 
 		describe('package.json exports', ({ test, describe }) => {
@@ -517,8 +554,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			test('subpath', async () => {
@@ -552,8 +589,7 @@ export default testSuite(({ describe }) => {
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 
 			describe('conditions', ({ test }) => {
@@ -589,8 +625,8 @@ export default testSuite(({ describe }) => {
 					delete expectedTsconfig.files;
 
 					const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-					// TODO: TS 5.5 --showConfig returns extra default fields
-					expect(expectedTsconfig).toMatchObject(tsconfig);
+
+					expect(expectedTsconfig).toStrictEqual(tsconfig);
 				});
 
 				test('types', async () => {
@@ -625,8 +661,8 @@ export default testSuite(({ describe }) => {
 					delete expectedTsconfig.files;
 
 					const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-					// TODO: TS 5.5 --showConfig returns extra default fields
-					expect(expectedTsconfig).toMatchObject(tsconfig);
+
+					expect(expectedTsconfig).toStrictEqual(tsconfig);
 				});
 
 				test('missing condition should fail', async () => {
@@ -811,8 +847,8 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				// TODO: TS 5.5 --showConfig returns extra default fields
-				expect(expectedTsconfig).toMatchObject(tsconfig);
+
+				expect(expectedTsconfig).toStrictEqual(tsconfig);
 			});
 		});
 	});

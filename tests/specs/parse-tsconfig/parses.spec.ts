@@ -90,8 +90,7 @@ export default testSuite(({ describe }) => {
 				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
 			}
 
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
+			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
 		});
 
 		describe('baseUrl', ({ test }) => {
@@ -162,14 +161,12 @@ export default testSuite(({ describe }) => {
 				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
 			}
 
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(parsedTsconfig);
+			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
 
 			const parsedTsconfigCached = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
 			expect(cache.size).toBe(1);
 
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(parsedTsconfigCached);
+			expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached);
 		});
 	});
 });

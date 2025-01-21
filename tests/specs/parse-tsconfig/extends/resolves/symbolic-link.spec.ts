@@ -9,8 +9,8 @@ const validate = async (directoryPath: string) => {
 	delete expectedTsconfig.files;
 
 	const tsconfig = parseTsconfig(path.join(directoryPath, 'tsconfig.json'));
-	// TODO: TS 5.5 --showConfig returns extra default fields
-	expect(expectedTsconfig).toMatchObject(tsconfig);
+
+	expect(expectedTsconfig).toStrictEqual(tsconfig);
 };
 
 export default testSuite(({ describe }) => {

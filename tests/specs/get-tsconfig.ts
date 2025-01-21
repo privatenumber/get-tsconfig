@@ -2,6 +2,7 @@ import path from 'node:path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
+import { getTscTsconfig } from '../utils.js';
 import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
@@ -33,24 +34,32 @@ export default testSuite(({ describe }) => {
 		test('from directory path', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
+				'a.ts': '',
 			});
+
+			const expected = await getTscTsconfig(fixture.path);
+			delete expected.files;
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toStrictEqual({
 				path: slash(fixture.getPath('tsconfig.json')),
-				config: { compilerOptions },
+				config: expected,
 			});
 		});
 
 		test('from index.js path', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
+				'a.ts': '',
 			});
+
+			const expected = await getTscTsconfig(fixture.path);
+			delete expected.files;
 
 			const tsconfig = getTsconfig(fixture.getPath('index.js'));
 			expect(tsconfig).toStrictEqual({
 				path: slash(fixture.getPath('tsconfig.json')),
-				config: { compilerOptions },
+				config: expected,
 			});
 		});
 
@@ -58,23 +67,31 @@ export default testSuite(({ describe }) => {
 			const customName = 'tsconfig-custom-name.json';
 			await using fixture = await createFixture({
 				[customName]: tsconfigJson,
+				'a.ts': '',
 			});
+
+			const expected = await getTscTsconfig(fixture.path, customName);
+			delete expected.files;
 
 			const tsconfig = getTsconfig(fixture.path, customName);
 			expect(tsconfig).toStrictEqual({
 				path: slash(path.join(fixture.path, customName)),
-				config: { compilerOptions },
+				config: expected,
 			});
 		});
 
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
+				'a.ts': '',
 			});
+
+			const expected = await getTscTsconfig(fixture.path);
+			delete expected.files;
 
 			const expectedResult = {
 				path: slash(fixture.getPath('tsconfig.json')),
-				config: { compilerOptions },
+				config: expected,
 			};
 
 			const cache = new Map();

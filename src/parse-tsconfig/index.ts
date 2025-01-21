@@ -256,6 +256,167 @@ const compilerFieldsWithConfigDir = [
 	'tsBuildInfoFile',
 ] as const;
 
+const normalizeCompilerOptions = (
+	compilerOptions: TsConfigJson.CompilerOptions,
+) => {
+	if (compilerOptions.strict) {
+		const strictOptions = [
+			'noImplicitAny',
+			'noImplicitThis',
+			'strictNullChecks',
+			'strictFunctionTypes',
+			'strictBindCallApply',
+			'strictPropertyInitialization',
+			'strictBuiltinIteratorReturn',
+			'alwaysStrict',
+			'useUnknownInCatchVariables',
+		] as const;
+
+		for (const key of strictOptions) {
+			if (compilerOptions[key] === undefined) {
+				compilerOptions[key] = true;
+			}
+		}
+	}
+
+	if (compilerOptions.target) {
+		let target = compilerOptions.target.toLowerCase() as TsConfigJson.CompilerOptions.Target;
+
+		if (target === 'es2015') {
+			target = 'es6';
+		}
+
+		// Lower case
+		compilerOptions.target = target;
+
+		if (target === 'esnext') {
+			compilerOptions.module ??= 'es6';
+			compilerOptions.moduleResolution ??= 'classic';
+			compilerOptions.useDefineForClassFields ??= true;
+		}
+
+		if (
+			target === 'es6'
+			|| target === 'es2016'
+			|| target === 'es2017'
+			|| target === 'es2018'
+			|| target === 'es2019'
+			|| target === 'es2020'
+			|| target === 'es2021'
+			|| target === 'es2022'
+			|| target === 'es2023'
+			|| target === 'es2024'
+		) {
+			compilerOptions.module ??= 'es6';
+			compilerOptions.moduleResolution ??= 'classic';
+		}
+
+		if (
+			target === 'es2022'
+			|| target === 'es2023'
+			|| target === 'es2024'
+		) {
+			compilerOptions.useDefineForClassFields ??= true;
+		}
+	}
+
+	if (compilerOptions.module) {
+		let module = compilerOptions.module.toLowerCase() as TsConfigJson.CompilerOptions.Module;
+
+		if (module === 'es2015') {
+			module = 'es6';
+		}
+
+		compilerOptions.module = module;
+
+		if (
+			module === 'es6'
+			|| module === 'es2020'
+			|| module === 'es2022'
+			|| module === 'esnext'
+			|| module === 'none'
+			|| module === 'system'
+			|| module === 'umd'
+			|| module === 'amd'
+		) {
+			compilerOptions.moduleResolution ??= 'classic';
+		}
+
+		if (module === 'system') {
+			compilerOptions.allowSyntheticDefaultImports ??= true;
+		}
+
+		if (
+			module === 'node16'
+			|| module === 'nodenext'
+			|| module === 'preserve'
+		) {
+			compilerOptions.esModuleInterop ??= true;
+			compilerOptions.allowSyntheticDefaultImports ??= true;
+		}
+
+		if (
+			module === 'node16'
+			|| module === 'nodenext'
+		) {
+			compilerOptions.moduleDetection ??= 'force';
+			compilerOptions.useDefineForClassFields ??= true;
+		}
+
+		if (module === 'node16') {
+			compilerOptions.target ??= 'es2022';
+			compilerOptions.moduleResolution ??= 'node16';
+		}
+
+		if (module === 'nodenext') {
+			compilerOptions.target ??= 'esnext';
+			compilerOptions.moduleResolution ??= 'nodenext';
+		}
+
+		if (module === 'preserve') {
+			compilerOptions.moduleResolution ??= 'bundler';
+		}
+	}
+
+	if (compilerOptions.moduleResolution) {
+		let moduleResolution = compilerOptions.moduleResolution.toLowerCase() as
+				TsConfigJson.CompilerOptions.ModuleResolution;
+
+		if (moduleResolution === 'node') {
+			moduleResolution = 'node10';
+		}
+
+		compilerOptions.moduleResolution = moduleResolution;
+
+		if (
+			moduleResolution === 'node16'
+			|| moduleResolution === 'nodenext'
+			|| moduleResolution === 'bundler'
+		) {
+			compilerOptions.resolvePackageJsonExports ??= true;
+			compilerOptions.resolvePackageJsonImports ??= true;
+		}
+
+		if (moduleResolution === 'bundler') {
+			compilerOptions.allowSyntheticDefaultImports ??= true;
+			compilerOptions.resolveJsonModule ??= true;
+		}
+	}
+
+	if (compilerOptions.esModuleInterop) {
+		compilerOptions.allowSyntheticDefaultImports ??= true;
+	}
+
+	if (compilerOptions.verbatimModuleSyntax) {
+		compilerOptions.isolatedModules ??= true;
+		compilerOptions.preserveConstEnums ??= true;
+	}
+
+	if (compilerOptions.isolatedModules) {
+		compilerOptions.preserveConstEnums ??= true;
+	}
+};
+
 /**
  * Parses a tsconfig file at a given path
  *
@@ -299,6 +460,8 @@ export const parseTsconfig = (
 				);
 			}
 		}
+
+		normalizeCompilerOptions(compilerOptions);
 	}
 
 	for (const property of filesProperties) {

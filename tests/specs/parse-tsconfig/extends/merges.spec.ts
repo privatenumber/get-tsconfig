@@ -111,8 +111,7 @@ export default testSuite(({ describe }) => {
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(tsconfig);
+			expect(expectedTsconfig).toStrictEqual(tsconfig);
 		});
 
 		describe('files', ({ test }) => {
@@ -424,8 +423,8 @@ export default testSuite(({ describe }) => {
 			delete expectedTsconfig.files;
 
 			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			// TODO: TS 5.5 --showConfig returns extra default fields
-			expect(expectedTsconfig).toMatchObject(tsconfig);
+
+			expect(expectedTsconfig).toStrictEqual(tsconfig);
 		});
 
 		test('watchOptions', async () => {
