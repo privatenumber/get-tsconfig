@@ -93,6 +93,24 @@ export default testSuite(({ describe }) => {
 			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
 		});
 
+		test('implicit config', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						target: 'es2022',
+						module: 'preserve',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+		});
+
 		describe('baseUrl', ({ test }) => {
 			test('relative path', async () => {
 				await using fixture = await createFixture({

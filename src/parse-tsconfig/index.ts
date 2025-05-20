@@ -291,7 +291,6 @@ const normalizeCompilerOptions = (
 
 		if (target === 'esnext') {
 			compilerOptions.module ??= 'es6';
-			compilerOptions.moduleResolution ??= 'classic';
 			compilerOptions.useDefineForClassFields ??= true;
 		}
 
@@ -308,7 +307,6 @@ const normalizeCompilerOptions = (
 			|| target === 'es2024'
 		) {
 			compilerOptions.module ??= 'es6';
-			compilerOptions.moduleResolution ??= 'classic';
 		}
 
 		if (
