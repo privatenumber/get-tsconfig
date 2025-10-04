@@ -14,6 +14,41 @@ const filesProperties = [
 	'exclude',
 ] as const;
 
+/**
+ * Resolves a path from extended config to canonical form relative to parent config.
+ * TypeScript normalizes these paths: nested/../. → .
+ * Used for: baseUrl, outDir, rootDir, declarationDir
+ */
+const resolveAndRelativize = (
+	fromDirectoryPath: string,
+	extendsDirectoryPath: string,
+	filePath: string,
+): string => {
+	const absolutePath = path.join(extendsDirectoryPath, filePath);
+	const relativePath = path.relative(fromDirectoryPath, absolutePath);
+	return slash(relativePath) || './';
+};
+
+/**
+ * Prefixes a pattern with relative directory path without normalization.
+ * TypeScript literally prefixes: nested/../. stays as nested/../.
+ * Used for: files, include, exclude patterns
+ */
+const prefixPattern = (
+	fromDirectoryPath: string,
+	extendsDirectoryPath: string,
+	pattern: string,
+): string => {
+	const relativeDir = path.relative(fromDirectoryPath, extendsDirectoryPath);
+	if (!relativeDir) {
+		return pattern;
+	}
+
+	// Remove leading ./ from pattern to avoid double prefix like ./some-dir/./file.ts
+	const cleanPattern = pattern.startsWith('./') ? pattern.slice(2) : pattern;
+	return slash(`${relativeDir}/${cleanPattern}`);
+};
+
 const resolveExtends = (
 	extendsPath: string,
 	fromDirectoryPath: string,
@@ -44,24 +79,20 @@ const resolveExtends = (
 	if (compilerOptions) {
 		const { baseUrl } = compilerOptions;
 		if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
-			compilerOptions.baseUrl = slash(
-				path.relative(
-					fromDirectoryPath,
-					path.join(extendsDirectoryPath, baseUrl),
-				),
-			) || './';
+			compilerOptions.baseUrl = resolveAndRelativize(
+				fromDirectoryPath,
+				extendsDirectoryPath,
+				baseUrl,
+			);
 		}
 
-		let { outDir } = compilerOptions;
-		if (outDir) {
-			if (!outDir.startsWith(configDirPlaceholder)) {
-				outDir = path.relative(
-					fromDirectoryPath,
-					path.join(extendsDirectoryPath, outDir),
-				);
-			}
-
-			compilerOptions.outDir = slash(outDir) || './';
+		const { outDir } = compilerOptions;
+		if (outDir && !outDir.startsWith(configDirPlaceholder)) {
+			compilerOptions.outDir = resolveAndRelativize(
+				fromDirectoryPath,
+				extendsDirectoryPath,
+				outDir,
+			);
 		}
 	}
 
@@ -73,12 +104,7 @@ const resolveExtends = (
 					return file;
 				}
 
-				return slash(
-					path.relative(
-						fromDirectoryPath,
-						path.join(extendsDirectoryPath, file),
-					),
-				);
+				return prefixPattern(fromDirectoryPath, extendsDirectoryPath, file);
 			});
 		}
 	}

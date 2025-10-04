@@ -244,12 +244,28 @@ export default testSuite(({ describe }) => {
 				delete expectedTsconfig.files;
 
 				const tsconfig = parseTsconfig(fixture.getPath('project/tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
 
-				expect({
-					...tsconfig,
-					// See https://github.com/privatenumber/get-tsconfig/issues/73
-					include: tsconfig.include?.map(includePath => `symlink/../${includePath}`),
-				}).toStrictEqual(expectedTsconfig);
+			test('handles ../.  without normalizing', async () => {
+				await using fixture = await createFixture({
+					nested: {
+						'tsconfig.dev.json': createTsconfigJson({
+							include: ['../.'],
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './nested/tsconfig.dev.json',
+					}),
+					'a.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 		});
 
