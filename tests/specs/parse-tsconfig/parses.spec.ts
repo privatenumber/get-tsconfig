@@ -149,6 +149,60 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('rewriteRelativeImportExtensions', ({ test }) => {
+			test('sets allowImportingTsExtensions implicitly', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							rewriteRelativeImportExtensions: true,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('respects explicit allowImportingTsExtensions', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							rewriteRelativeImportExtensions: true,
+							allowImportingTsExtensions: false,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('does not set allowImportingTsExtensions when false', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							rewriteRelativeImportExtensions: false,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',

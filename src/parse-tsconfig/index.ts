@@ -439,6 +439,10 @@ const normalizeCompilerOptions = (
 	if (compilerOptions.isolatedModules) {
 		compilerOptions.preserveConstEnums ??= true;
 	}
+
+	if (compilerOptions.rewriteRelativeImportExtensions) {
+		compilerOptions.allowImportingTsExtensions ??= true;
+	}
 };
 
 /**
