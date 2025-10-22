@@ -40,7 +40,7 @@
 			"default": "./dist/index.mjs"
 		}
 	},
-	"packageManager": "pnpm@9.2.0",
+	"packageManager": "pnpm@10.19.0",
 	"scripts": {
 		"lint": "lintroll --cache --node --ignore-pattern tests/fixtures . --allow-abbreviation=dir",
 		"build": "pkgroll --minify --target node12.20",
