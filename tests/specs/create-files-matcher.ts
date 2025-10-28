@@ -4,7 +4,7 @@ import slash from 'slash';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
-import { createTsconfigJson } from '../utils.js';
+import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
 	createFilesMatcher,
 	parseTsconfig,

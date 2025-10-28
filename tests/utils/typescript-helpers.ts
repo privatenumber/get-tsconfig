@@ -1,15 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { execa } from 'execa';
-import type { TsConfigJson, PackageJson } from 'type-fest';
-
-export const createTsconfigJson = (
-	tsconfig: TsConfigJson,
-) => JSON.stringify(tsconfig);
-
-export const createPackageJson = (
-	packageJson: PackageJson,
-) => JSON.stringify(packageJson);
+import type { TsConfigJson } from 'type-fest';
 
 const randomId = () => Math.random().toString(36).slice(2);
 

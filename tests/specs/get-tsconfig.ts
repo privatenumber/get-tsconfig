@@ -2,7 +2,7 @@ import path from 'node:path';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
-import { getTscTsconfig } from '../utils.js';
+import { getTscTsconfig } from '../utils/typescript-helpers.js';
 import { getTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {

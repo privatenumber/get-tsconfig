@@ -1,7 +1,8 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import type { ExecaError } from 'execa';
-import { createTsconfigJson, getTscResolution } from '../utils.js';
+import { createTsconfigJson } from '../utils/fixture-helpers.js';
+import { getTscResolution } from '../utils/typescript-helpers.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 
 /**

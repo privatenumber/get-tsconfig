@@ -1,6 +1,7 @@
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { createTsconfigJson, getTscTsconfig } from '../../utils.js';
+import { createTsconfigJson } from '../../utils/fixture-helpers.js';
+import { getTscTsconfig } from '../../utils/typescript-helpers.js';
 import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite(({ describe }) => {
