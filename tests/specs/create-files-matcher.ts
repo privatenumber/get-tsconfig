@@ -1307,5 +1307,33 @@ export default testSuite(({ describe }) => {
 				);
 			});
 		});
+
+		describe('${configDir}', ({ test }) => {
+			test('matches files when include uses ${configDir}', async () => {
+				await using fixture = await createFixture({
+					'tsconfig.base.json': createTsconfigJson({
+						include: ['${configDir}/src'],
+					}),
+					project: {
+						'tsconfig.json': createTsconfigJson({
+							extends: '../tsconfig.base.json',
+						}),
+						'src/index.ts': '',
+					},
+				});
+
+				const tsconfigPath = fixture.getPath('project/tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles.length).toBe(1);
+
+				const config = parseTsconfig(tsconfigPath);
+				const matches = createFilesMatcher({
+					config,
+					path: tsconfigPath,
+				});
+
+				assertFilesMatch(matches, tsFiles);
+			});
+		});
 	});
 });
