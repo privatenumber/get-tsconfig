@@ -114,7 +114,10 @@ export const createFilesMatcher = (
 	const {
 		files, include, exclude, compilerOptions,
 	} = config;
-	const filesList = files?.map(file => pathJoin(projectDirectory, file));
+	const resolvePattern = (pattern: string) => (
+		path.isAbsolute(pattern) ? pattern : pathJoin(projectDirectory, pattern)
+	);
+	const filesList = files?.map(file => resolvePattern(file));
 	const extensions = getSupportedExtensions(compilerOptions);
 	const regexpFlags = caseSensitivePaths ? '' : 'i';
 
@@ -125,7 +128,7 @@ export const createFilesMatcher = (
 	const excludeSpec = exclude || getDefaultExcludeSpec(compilerOptions);
 	const excludePatterns = excludeSpec
 		.map((filePath) => {
-			const projectFilePath = pathJoin(projectDirectory, filePath);
+			const projectFilePath = resolvePattern(filePath);
 			const projectFilePathPattern = escapeForRegexp(projectFilePath)
 
 				// Replace **/
@@ -147,7 +150,7 @@ export const createFilesMatcher = (
 	const includeSpec = (files || include) ? include : [matchAllGlob];
 	const includePatterns = includeSpec
 		? includeSpec.map((filePath) => {
-			let projectFilePath = pathJoin(projectDirectory, filePath);
+			let projectFilePath = resolvePattern(filePath);
 
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
 			if (isImplicitGlobPattern.test(projectFilePath)) {
