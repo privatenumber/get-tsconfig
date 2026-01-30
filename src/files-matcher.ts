@@ -117,7 +117,7 @@ export const createFilesMatcher = (
 	const resolvePattern = (pattern: string) => (
 		path.isAbsolute(pattern) ? pattern : pathJoin(projectDirectory, pattern)
 	);
-	const filesList = files?.map(file => resolvePattern(file));
+	const filesList = files?.map(resolvePattern);
 	const extensions = getSupportedExtensions(compilerOptions);
 	const regexpFlags = caseSensitivePaths ? '' : 'i';
 
