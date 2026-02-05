@@ -204,6 +204,42 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('module node18 and node20', ({ test }) => {
+			test('module: node18 implications', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							module: 'node18',
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('module: node20 implications', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							module: 'node20',
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
