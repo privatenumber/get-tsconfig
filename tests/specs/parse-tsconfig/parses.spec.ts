@@ -204,6 +204,43 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('composite', ({ test }) => {
+			test('implies declaration and incremental', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							composite: true,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('respects explicit declaration: false', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							composite: true,
+							declaration: false,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
