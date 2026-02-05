@@ -553,5 +553,36 @@ export default testSuite(({ describe }) => {
 				]);
 			});
 		});
+
+		describe('${configDir}', ({ test }) => {
+			test('resolves paths with ${configDir}', async () => {
+				await using fixture = await createFixture({
+					'tsconfig.base.json': createTsconfigJson({
+						compilerOptions: {
+							paths: {
+								'#/*': ['${configDir}/src/*'],
+							},
+						},
+					}),
+					project: {
+						'tsconfig.json': createTsconfigJson({
+							extends: '../tsconfig.base.json',
+						}),
+						'src/index.ts': '',
+					},
+				});
+
+				const tsconfig = getTsconfig(fixture.getPath('project'));
+				expect(tsconfig).not.toBeNull();
+
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
+
+				const resolvedAttempts = await getTscResolution('#/index', fixture.getPath('project'));
+				expect(matcher('#/index')).toStrictEqual([
+					resolvedAttempts[0].filePath.slice(0, -3),
+				]);
+			});
+		});
 	});
 });
