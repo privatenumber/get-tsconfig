@@ -249,6 +249,7 @@ export default testSuite(({ describe }) => {
 				'file.tsx': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
+						// @ts-expect-error testing mixed case input
 						jsx: 'React-JSX',
 					},
 				}),
@@ -266,6 +267,7 @@ export default testSuite(({ describe }) => {
 				'file.ts': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
+						// @ts-expect-error testing mixed case input
 						moduleDetection: 'Force',
 					},
 				}),
@@ -283,6 +285,7 @@ export default testSuite(({ describe }) => {
 				'file.ts': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
+						// @ts-expect-error testing mixed case input
 						importsNotUsedAsValues: 'Preserve',
 					},
 				}),
@@ -300,6 +303,7 @@ export default testSuite(({ describe }) => {
 				'file.ts': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
+						// @ts-expect-error testing mixed case input
 						newLine: 'CRLF',
 					},
 				}),
