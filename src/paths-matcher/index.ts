@@ -25,7 +25,7 @@ const parsePaths = (
 				`Substitution '${substitution}' in pattern '${pattern}' can have at most one '*' character.`,
 			);
 
-			if (!baseUrl && !isRelativePathPattern.test(substitution)) {
+			if (!baseUrl && !isRelativePathPattern.test(substitution) && !path.isAbsolute(substitution)) {
 				throw new Error('Non-relative paths are not allowed when \'baseUrl\' is not set. Did you forget a leading \'./\'?');
 			}
 
