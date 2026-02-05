@@ -469,6 +469,23 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
+		test('watchOptions.excludeFiles', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					watchOptions: {
+						excludeFiles: ['file.ts'],
+					},
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
 		describe('${configDir}', ({ test }) => {
 			test('works in paths, include, excludes', async () => {
 				await using fixture = await createFixture({
