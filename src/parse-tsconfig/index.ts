@@ -390,7 +390,6 @@ const normalizeCompilerOptions = (
 			|| module === 'nodenext'
 		) {
 			compilerOptions.moduleDetection ??= 'force';
-			compilerOptions.useDefineForClassFields ??= true;
 		}
 
 		if (module === 'node16') {
@@ -401,6 +400,22 @@ const normalizeCompilerOptions = (
 		if (module === 'nodenext') {
 			compilerOptions.target ??= 'esnext';
 			compilerOptions.moduleResolution ??= 'nodenext';
+		}
+
+		// useDefineForClassFields is implied when effective target >= ES2022
+		if (
+			module === 'node16'
+			|| module === 'nodenext'
+		) {
+			const effectiveTarget = compilerOptions.target;
+			if (
+				effectiveTarget === 'es2022'
+				|| effectiveTarget === 'es2023'
+				|| effectiveTarget === 'es2024'
+				|| effectiveTarget === 'esnext'
+			) {
+				compilerOptions.useDefineForClassFields ??= true;
+			}
 		}
 
 		if (module === 'preserve') {

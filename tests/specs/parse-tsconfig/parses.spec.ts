@@ -211,7 +211,7 @@ export default testSuite(({ describe }) => {
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
 							target: 'es5',
-							module: 'nodenext',
+							module: 'node16',
 						},
 					}),
 				});
