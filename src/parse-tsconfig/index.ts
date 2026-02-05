@@ -433,6 +433,12 @@ const normalizeCompilerOptions = (
 		}
 	}
 
+	if (compilerOptions.lib) {
+		compilerOptions.lib = compilerOptions.lib.map(
+			library => library.toLowerCase() as TsConfigJson.CompilerOptions.Lib,
+		);
+	}
+
 	if (compilerOptions.esModuleInterop) {
 		compilerOptions.allowSyntheticDefaultImports ??= true;
 	}
