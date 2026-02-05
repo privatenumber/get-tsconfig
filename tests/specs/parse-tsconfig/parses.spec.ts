@@ -204,6 +204,25 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('lib', ({ test }) => {
+			test('normalizes to lowercase', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							lib: ['ES2020', 'DOM'],
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
