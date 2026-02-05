@@ -242,4 +242,74 @@ export default testSuite(({ describe }) => {
 			expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached);
 		});
 	});
+
+	describe('enum case normalization', ({ test }) => {
+		test('normalizes jsx to lowercase', async () => {
+			await using fixture = await createFixture({
+				'file.tsx': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'React-JSX',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('normalizes moduleDetection to lowercase', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						moduleDetection: 'Force',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('normalizes importsNotUsedAsValues to lowercase', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						importsNotUsedAsValues: 'Preserve',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('normalizes newLine to lowercase', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						newLine: 'CRLF',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
 });
