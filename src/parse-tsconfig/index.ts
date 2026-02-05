@@ -255,6 +255,12 @@ const _parseTsconfig = (
 				excludePath => slash(path.resolve(directoryPath, excludePath)),
 			);
 		}
+
+		if (watchOptions.excludeFiles) {
+			watchOptions.excludeFiles = watchOptions.excludeFiles.map(
+				excludePath => slash(path.resolve(directoryPath, excludePath)),
+			);
+		}
 	}
 
 	return config;
