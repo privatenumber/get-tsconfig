@@ -449,6 +449,11 @@ const normalizeCompilerOptions = (
 	if (compilerOptions.rewriteRelativeImportExtensions) {
 		compilerOptions.allowImportingTsExtensions ??= true;
 	}
+
+	if (compilerOptions.composite) {
+		compilerOptions.declaration ??= true;
+		compilerOptions.incremental ??= true;
+	}
 };
 
 /**
