@@ -311,6 +311,11 @@ const normalizeCompilerOptions = (
 		}
 	}
 
+	if (compilerOptions.composite) {
+		compilerOptions.declaration ??= true;
+		compilerOptions.incremental ??= true;
+	}
+
 	if (compilerOptions.target) {
 		let target = compilerOptions.target.toLowerCase() as TsConfigJson.CompilerOptions.Target;
 
