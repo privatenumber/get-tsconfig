@@ -261,6 +261,21 @@ const _parseTsconfig = (
 				excludePath => slash(path.resolve(directoryPath, excludePath)),
 			);
 		}
+
+		if (watchOptions.watchFile) {
+			watchOptions.watchFile = watchOptions.watchFile.toLowerCase() as
+				TsConfigJson.WatchOptions['watchFile'];
+		}
+
+		if (watchOptions.watchDirectory) {
+			watchOptions.watchDirectory = watchOptions.watchDirectory.toLowerCase() as
+				TsConfigJson.WatchOptions['watchDirectory'];
+		}
+
+		if (watchOptions.fallbackPolling) {
+			watchOptions.fallbackPolling = watchOptions.fallbackPolling.toLowerCase() as
+				TsConfigJson.WatchOptions['fallbackPolling'];
+		}
 	}
 
 	return config;
