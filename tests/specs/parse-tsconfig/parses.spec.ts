@@ -373,6 +373,40 @@ export default testSuite(({ describe }) => {
 				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
 			});
 
+			test('does not add outDir when exclude is inherited', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'base.json': createTsconfigJson({
+						compilerOptions: {
+							outDir: 'dist',
+						},
+						exclude: ['node_modules'],
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './base.json',
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('auto-adds outDir when exclude is not specified', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							outDir: 'dist',
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(parsedTsconfig.exclude).toStrictEqual(['dist']);
+			});
 		});
 
 		test('cache', async () => {
