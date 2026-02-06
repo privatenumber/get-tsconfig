@@ -406,6 +406,7 @@ const normalizeCompilerOptions = (
 		if (module === 'nodenext') {
 			compilerOptions.target ??= 'esnext';
 			compilerOptions.moduleResolution ??= 'nodenext';
+			compilerOptions.resolveJsonModule ??= true;
 		}
 
 		if (module === 'preserve') {
