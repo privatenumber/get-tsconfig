@@ -43,11 +43,14 @@
 	"packageManager": "pnpm@10.19.0",
 	"scripts": {
 		"lint": "lintroll --cache --node --ignore-pattern tests/fixtures . --allow-abbreviation=dir",
-		"build": "pkgroll --minify --target node12.20",
+		"build": "pkgroll --minify --target node20.20",
 		"test": "tsx tests",
 		"dev": "tsx watch --conditions=development tests",
 		"type-check": "tsc --noEmit",
 		"prepack": "pnpm build && clean-pkg-json"
+	},
+	"engines": {
+		"node": ">=20.20.0"
 	},
 	"dependencies": {
 		"resolve-pkg-maps": "^1.0.0"
