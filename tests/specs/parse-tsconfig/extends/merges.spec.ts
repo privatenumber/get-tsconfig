@@ -192,6 +192,34 @@ export default testSuite(({ describe }) => {
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
+			// #73 - include paths from extended configs in subdirectories
+			// should preserve ../  (e.g. configs/../src-a/*), not normalize
+			// Fixed in 446c458 via prefixPattern
+			test('inherits with relative path from subdirectory', async () => {
+				await using fixture = await createFixture({
+					configs: {
+						'tsconfig.base.json': createTsconfigJson({
+							include: ['../src-a/*'],
+						}),
+					},
+					'src-a': {
+						'a.ts': '',
+						'b.ts': '',
+						'c.ts': '',
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './configs/tsconfig.base.json',
+					}),
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+
 			test('gets overwritten', async () => {
 				await using fixture = await createFixture({
 					'src-a': {
