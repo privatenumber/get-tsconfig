@@ -383,6 +383,8 @@ const normalizeCompilerOptions = (
 
 		if (
 			module === 'node16'
+			|| module === 'node18'
+			|| module === 'node20'
 			|| module === 'nodenext'
 			|| module === 'preserve'
 		) {
@@ -392,6 +394,8 @@ const normalizeCompilerOptions = (
 
 		if (
 			module === 'node16'
+			|| module === 'node18'
+			|| module === 'node20'
 			|| module === 'nodenext'
 		) {
 			compilerOptions.moduleDetection ??= 'force';
@@ -400,6 +404,17 @@ const normalizeCompilerOptions = (
 		if (module === 'node16') {
 			compilerOptions.target ??= 'es2022';
 			compilerOptions.moduleResolution ??= 'node16';
+		}
+
+		if (module === 'node18') {
+			compilerOptions.target ??= 'es2022';
+			compilerOptions.moduleResolution ??= 'node16';
+		}
+
+		if (module === 'node20') {
+			compilerOptions.target ??= 'es2023';
+			compilerOptions.moduleResolution ??= 'node16';
+			compilerOptions.resolveJsonModule ??= true;
 		}
 
 		if (module === 'nodenext') {
@@ -411,6 +426,8 @@ const normalizeCompilerOptions = (
 		// useDefineForClassFields is implied when effective target >= ES2022
 		if (
 			module === 'node16'
+			|| module === 'node18'
+			|| module === 'node20'
 			|| module === 'nodenext'
 		) {
 			const effectiveTarget = compilerOptions.target;
