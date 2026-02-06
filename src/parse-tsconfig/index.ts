@@ -215,11 +215,9 @@ const _parseTsconfig = (
 
 			if (outputPath) {
 				if (!Array.isArray(config.exclude)) {
-					config.exclude = [];
-				}
-
-				if (!config.exclude.includes(outputPath)) {
-					config.exclude.push(outputPath);
+					config.exclude = outputFields
+						.map(field => compilerOptions[field])
+						.filter(Boolean) as string[];
 				}
 
 				if (!outputPath.startsWith(configDirPlaceholder)) {
