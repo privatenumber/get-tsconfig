@@ -99,7 +99,7 @@ export const createPathsMatcher = (
 
 		if (!matchedValue) {
 			return (
-				baseUrl
+				baseUrl && !paths
 					? [slash(path.join(resolvedBaseUrl, specifier))]
 					: []
 			);

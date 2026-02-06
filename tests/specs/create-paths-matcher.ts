@@ -134,6 +134,28 @@ export default testSuite(({ describe }) => {
 				expect(matcher).not.toBeNull();
 				expect(matcher('specifier')).toStrictEqual([]);
 			});
+
+			test('no match with baseUrl should not fallback', async () => {
+				await using fixture = await createFixture({
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							baseUrl: '.',
+							paths: {
+								'@/*': ['./src/*'],
+							},
+						},
+					}),
+				});
+
+				const tsconfig = getTsconfig(fixture.path);
+				expect(tsconfig).not.toBeNull();
+
+				const matcher = createPathsMatcher(tsconfig!)!;
+				expect(matcher).not.toBeNull();
+
+				// Should return empty array, not baseUrl-resolved path
+				expect(matcher('@libs/constants')).toStrictEqual([]);
+			});
 		});
 
 		describe('baseUrl', ({ test }) => {
