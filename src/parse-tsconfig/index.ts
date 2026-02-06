@@ -439,6 +439,7 @@ const normalizeCompilerOptions = (
 		}
 
 		// useDefineForClassFields is implied when effective target >= ES2022
+		// TypeScript treats es3 as "not set", falling through to module's default target
 		if (
 			module === 'node16'
 			|| module === 'node18'
@@ -447,7 +448,8 @@ const normalizeCompilerOptions = (
 		) {
 			const effectiveTarget = compilerOptions.target;
 			if (
-				effectiveTarget === 'es2022'
+				effectiveTarget === 'es3'
+				|| effectiveTarget === 'es2022'
 				|| effectiveTarget === 'es2023'
 				|| effectiveTarget === 'es2024'
 				|| effectiveTarget === 'esnext'
