@@ -471,6 +471,25 @@ const normalizeCompilerOptions = (
 		}
 	}
 
+	if (compilerOptions.jsx) {
+		compilerOptions.jsx = compilerOptions.jsx.toLowerCase() as TsConfigJson.CompilerOptions.JSX;
+	}
+
+	if (compilerOptions.moduleDetection) {
+		compilerOptions.moduleDetection = compilerOptions.moduleDetection.toLowerCase() as
+			TsConfigJson.CompilerOptions.ModuleDetection;
+	}
+
+	if (compilerOptions.importsNotUsedAsValues) {
+		compilerOptions.importsNotUsedAsValues = compilerOptions.importsNotUsedAsValues.toLowerCase() as
+			TsConfigJson.CompilerOptions.ImportsNotUsedAsValues;
+	}
+
+	if (compilerOptions.newLine) {
+		compilerOptions.newLine = compilerOptions.newLine.toLowerCase() as
+			TsConfigJson.CompilerOptions.NewLine;
+	}
+
 	if (compilerOptions.esModuleInterop) {
 		compilerOptions.allowSyntheticDefaultImports ??= true;
 	}
