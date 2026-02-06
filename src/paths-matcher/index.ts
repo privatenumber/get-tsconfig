@@ -98,8 +98,14 @@ export const createPathsMatcher = (
 		}
 
 		if (!matchedValue) {
+			/**
+			 * TypeScript falls back to baseUrl when no paths pattern matches.
+			 * These are separate resolution steps, not a fallback chain within paths.
+			 *
+			 * Reference: https://github.com/microsoft/TypeScript/blob/main/src/compiler/moduleNameResolver.ts#L1550-L1556
+			 */
 			return (
-				baseUrl && !paths
+				baseUrl
 					? [slash(path.join(resolvedBaseUrl, specifier))]
 					: []
 			);

@@ -135,7 +135,14 @@ export default testSuite(({ describe }) => {
 				expect(matcher('specifier')).toStrictEqual([]);
 			});
 
-			test('no match with baseUrl should not fallback', async () => {
+			/**
+			 * TypeScript falls back to baseUrl when no paths pattern matches.
+			 * tryLoadModuleUsingPathsIfEligible returns undefined for unmatched
+			 * patterns, then tryLoadModuleUsingBaseUrl runs as a separate step.
+			 *
+			 * Reference: https://github.com/microsoft/TypeScript/blob/main/src/compiler/moduleNameResolver.ts#L1550-L1556
+			 */
+			test('unmatched specifier falls back to baseUrl', async () => {
 				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson({
 						compilerOptions: {
@@ -153,8 +160,10 @@ export default testSuite(({ describe }) => {
 				const matcher = createPathsMatcher(tsconfig!)!;
 				expect(matcher).not.toBeNull();
 
-				// Should return empty array, not baseUrl-resolved path
-				expect(matcher('@libs/constants')).toStrictEqual([]);
+				const fixturePath = fixture.path.replaceAll('\\', '/');
+				expect(matcher('@libs/constants')).toStrictEqual([
+					`${fixturePath}@libs/constants`,
+				]);
 			});
 		});
 
