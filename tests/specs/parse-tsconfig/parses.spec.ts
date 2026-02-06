@@ -317,6 +317,25 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('checkJs', ({ test }) => {
+			test('implies allowJs', async () => {
+				await using fixture = await createFixture({
+					'file.ts': '',
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							checkJs: true,
+						},
+					}),
+				});
+
+				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',

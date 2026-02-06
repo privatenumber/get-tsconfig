@@ -493,6 +493,10 @@ const normalizeCompilerOptions = (
 			library => library.toLowerCase() as TsConfigJson.CompilerOptions.Lib,
 		);
 	}
+
+	if (compilerOptions.checkJs) {
+		compilerOptions.allowJs ??= true;
+	}
 };
 
 /**
