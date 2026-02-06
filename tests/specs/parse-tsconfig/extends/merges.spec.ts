@@ -486,6 +486,28 @@ export default testSuite(({ describe }) => {
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
+		test('watchOptions enum normalization', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					watchOptions: {
+						// @ts-expect-error testing mixed case input
+						watchFile: 'useFsEvents',
+						// @ts-expect-error testing mixed case input
+						watchDirectory: 'useFsEvents',
+						// @ts-expect-error testing mixed case input
+						fallbackPolling: 'dynamicPriority',
+					},
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
 		describe('${configDir}', ({ test }) => {
 			test('works in paths, include, excludes', async () => {
 				await using fixture = await createFixture({
