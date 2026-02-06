@@ -454,6 +454,12 @@ const normalizeCompilerOptions = (
 	if (compilerOptions.rewriteRelativeImportExtensions) {
 		compilerOptions.allowImportingTsExtensions ??= true;
 	}
+
+	if (compilerOptions.lib) {
+		compilerOptions.lib = compilerOptions.lib.map(
+			library => library.toLowerCase() as TsConfigJson.CompilerOptions.Lib,
+		);
+	}
 };
 
 /**
