@@ -21,7 +21,7 @@ const tsconfigJson = `
 export default testSuite('getTsconfig', ({ test }) => {
 	test('not found', () => {
 		const tsconfig = getTsconfig('/');
-		expect(tsconfig).toBe(null);
+		expect(tsconfig).toBeUndefined();
 	});
 
 	test('from directory path', async () => {
@@ -87,7 +87,7 @@ export default testSuite('getTsconfig', ({ test }) => {
 			new Map(),
 			true,
 		);
-		expect(tsconfig).not.toBe(null);
+		expect(tsconfig).toBeDefined();
 		expect(tsconfig!.config.compilerOptions!.strict).toBe(true);
 	});
 
@@ -104,7 +104,7 @@ export default testSuite('getTsconfig', ({ test }) => {
 		});
 
 		const tsconfig = getTsconfig(fixture.getPath('nested/src/index.ts'));
-		expect(tsconfig).not.toBe(null);
+		expect(tsconfig).toBeDefined();
 		expect(tsconfig!.config.compilerOptions).toStrictEqual({
 			jsx: 'react',
 		});
