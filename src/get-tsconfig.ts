@@ -90,18 +90,18 @@ export const findTsconfig = (
  * @param cache Cache for previous results (default: new `Map()`).
  * @param includes When true, validates that the tsconfig applies to the
  * `searchPath` file via `include`/`exclude`/`files`. Default: `false`.
- * @returns The tsconfig file path and parsed contents, or `null` if not found.
+ * @returns The tsconfig file path and parsed contents, or `undefined` if not found.
  */
 export const getTsconfig = (
 	searchPath = process.cwd(),
 	configName = 'tsconfig.json',
 	cache: Cache = new Map(),
 	includes = false,
-): TsConfigResult | null => {
+): TsConfigResult | undefined => {
 	if (!includes) {
 		const configFile = findTsconfig(searchPath, configName, cache);
 		if (!configFile) {
-			return null;
+			return;
 		}
 
 		const config = parseTsconfig(configFile, cache);
@@ -111,5 +111,5 @@ export const getTsconfig = (
 		};
 	}
 
-	return findConfigApplicable(searchPath, configName, cache) ?? null;
+	return findConfigApplicable(searchPath, configName, cache);
 };

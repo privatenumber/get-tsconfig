@@ -43,12 +43,12 @@ export const createPathsMatcher = (
 ): PathsMatcher | null => {
 	const { compilerOptions } = tsconfig.config;
 	if (!compilerOptions) {
-		return null;
+		return;
 	}
 
 	const { baseUrl, paths } = compilerOptions;
 	if (!baseUrl && !paths) {
-		return null;
+		return;
 	}
 
 	const implicitBaseUrl = (
