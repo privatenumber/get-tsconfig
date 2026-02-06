@@ -39,8 +39,8 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Test Node.js v16
-        run: pnpm --use-node-version=16.20.0 test
+      - name: Test Node.js v20
+        run: pnpm --use-node-version=20.20.0 test
 
       - name: Lint
         if: ${{ matrix.os == 'ubuntu-latest' }}
