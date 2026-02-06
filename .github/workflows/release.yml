@@ -2,12 +2,7 @@ name: Release
 
 on:
   push:
-    branches: master
-  workflow_run:
-    workflows: [Test]
-    types:
-      - completed
-    branches: master
+    branches: [master, beta]
 
 permissions:
   contents: write
@@ -18,10 +13,8 @@ permissions:
 jobs:
   release:
     name: Release
+    if: github.repository_owner == 'privatenumber'
     runs-on: ubuntu-latest
-
-    # Only run this job if the Test job passed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout
