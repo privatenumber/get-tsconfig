@@ -56,7 +56,7 @@
 		"@types/node": "^24.10.4",
 		"@yarnpkg/pnp": "3.3.8",
 		"clean-pkg-json": "^1.3.0",
-		"execa": "^8.0.1",
+		"execa": "^9.6.1",
 		"fs-fixture": "^2.9.0",
 		"is-fs-case-sensitive": "^2.0.0",
 		"jsonc-parser": "^3.3.1",
