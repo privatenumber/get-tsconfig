@@ -5,181 +5,179 @@ import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { parseTsconfig } from '#get-tsconfig';
 
-export default testSuite(({ describe }) => {
-	describe('relative path', ({ test }) => {
-		test('extensionless file', async () => {
-			await using fixture = await createFixture({
-				asdf: createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react',
-						allowJs: true,
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './asdf',
-					compilerOptions: {
-						strict: true,
-					},
-				}),
-				'file.ts': '',
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
-		});
-
-		test('prefers exact match (extensionless file)', async () => {
-			await using fixture = await createFixture({
-				asdf: createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react',
-						allowJs: true,
-					},
-				}),
-				'asdf.json': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react-native',
-						allowJs: true,
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './asdf',
-					compilerOptions: {
-						strict: true,
-					},
-				}),
-				'file.ts': '',
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
-		});
-
-		test('arbitrary extension', async () => {
-			await using fixture = await createFixture({
-				'asdf.ts': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react',
-						allowJs: true,
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './asdf.ts',
-					compilerOptions: {
-						strict: true,
-					},
-				}),
-				'file.ts': '',
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
-		});
-
-		test('parent directory', async () => {
-			await using fixture = await createFixture({
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react',
-						allowJs: true,
-					},
-				}),
-				tests: {
-					'tsconfig.json': createTsconfigJson({
-						extends: '..',
-						compilerOptions: {
-							strict: true,
-						},
-					}),
-					'file.ts': '',
+export default testSuite('relative path', ({ test }) => {
+	test('extensionless file', async () => {
+		await using fixture = await createFixture({
+			asdf: createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react',
+					allowJs: true,
 				},
-			});
-
-			const testDirectory = fixture.getPath('tests/');
-			const expectedTsconfig = await getTscTsconfig(testDirectory);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(path.join(testDirectory, 'tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './asdf',
+				compilerOptions: {
+					strict: true,
+				},
+			}),
+			'file.ts': '',
 		});
 
-		test('shoud not resolve directory', async () => {
-			await using fixture = await createFixture({
-				'directory/tsconfig.json': createTsconfigJson({
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	test('prefers exact match (extensionless file)', async () => {
+		await using fixture = await createFixture({
+			asdf: createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react',
+					allowJs: true,
+				},
+			}),
+			'asdf.json': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react-native',
+					allowJs: true,
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './asdf',
+				compilerOptions: {
+					strict: true,
+				},
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	test('arbitrary extension', async () => {
+		await using fixture = await createFixture({
+			'asdf.ts': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react',
+					allowJs: true,
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './asdf.ts',
+				compilerOptions: {
+					strict: true,
+				},
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	test('parent directory', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react',
+					allowJs: true,
+				},
+			}),
+			tests: {
+				'tsconfig.json': createTsconfigJson({
+					extends: '..',
+					compilerOptions: {
+						strict: true,
+					},
+				}),
+				'file.ts': '',
+			},
+		});
+
+		const testDirectory = fixture.getPath('tests/');
+		const expectedTsconfig = await getTscTsconfig(testDirectory);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(path.join(testDirectory, 'tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	test('shoud not resolve directory', async () => {
+		await using fixture = await createFixture({
+			'directory/tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react',
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './directory',
+			}),
+		});
+
+		expect(
+			() => parseTsconfig(fixture.getPath('tsconfig.json')),
+		).toThrow('File \'./directory\' not found.');
+	});
+
+	test('shoud not resolve directory even with package.json#tsconfig', async () => {
+		await using fixture = await createFixture({
+			directory: {
+				'package.json': createPackageJson({
+					tsconfig: './tsconfig.json',
+				}),
+				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						jsx: 'react',
 					},
 				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './directory',
-				}),
-			});
-
-			expect(
-				() => parseTsconfig(fixture.getPath('tsconfig.json')),
-			).toThrow('File \'./directory\' not found.');
+			},
+			'tsconfig.json': createTsconfigJson({
+				extends: './directory',
+			}),
 		});
 
-		test('shoud not resolve directory even with package.json#tsconfig', async () => {
-			await using fixture = await createFixture({
-				directory: {
-					'package.json': createPackageJson({
-						tsconfig: './tsconfig.json',
-					}),
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							jsx: 'react',
-						},
-					}),
+		expect(
+			() => parseTsconfig(fixture.getPath('tsconfig.json')),
+		).toThrow('File \'./directory\' not found.');
+	});
+
+	test('outDir in extends', async () => {
+		await using fixture = await createFixture({
+			'a/dep.json': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react-native',
+					outDir: 'dist',
 				},
-				'tsconfig.json': createTsconfigJson({
-					extends: './directory',
-				}),
-			});
-
-			expect(
-				() => parseTsconfig(fixture.getPath('tsconfig.json')),
-			).toThrow('File \'./directory\' not found.');
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './a/dep.json',
+			}),
+			'file.ts': '',
 		});
 
-		test('outDir in extends', async () => {
-			await using fixture = await createFixture({
-				'a/dep.json': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react-native',
-						outDir: 'dist',
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './a/dep.json',
-				}),
-				'file.ts': '',
-			});
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
 
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
+		/**
+		 * tsc should put the outDir in exclude  but doesn't happen
+		 * when it's in extended tsconfig. I think this is a bug in tsc
+		 */
+		expectedTsconfig.exclude = ['a/dist'];
 
-			/**
-			 * tsc should put the outDir in exclude  but doesn't happen
-			 * when it's in extended tsconfig. I think this is a bug in tsc
-			 */
-			expectedTsconfig.exclude = ['a/dist'];
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 });

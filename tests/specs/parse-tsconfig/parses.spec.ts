@@ -4,448 +4,446 @@ import { createTsconfigJson } from '../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../utils/typescript-helpers.js';
 import { parseTsconfig } from '#get-tsconfig';
 
-export default testSuite(({ describe }) => {
-	describe('parses tsconfig', ({ describe, test }) => {
-		describe('errors', ({ test }) => {
-			test('non-existent path', async () => {
-				expect(
-					() => parseTsconfig('non-existent-path'),
-				).toThrow('Cannot resolve tsconfig at path: ');
-			});
-
-			test('empty file', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': '',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('json invalid', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': 'asdf',
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(parsedTsconfig).toStrictEqual({
-					compilerOptions: {},
-				});
-			});
-
-			test('json non-object', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': '"asdf"',
-				});
-
-				expect(
-					() => parseTsconfig(fixture.getPath('tsconfig.json')),
-				).toThrow('Failed to parse tsconfig at');
-			});
-
-			test('json empty', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': '{}',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
+export default testSuite('parses tsconfig', ({ describe, test }) => {
+	describe('errors', ({ test }) => {
+		test('non-existent path', async () => {
+			expect(
+				() => parseTsconfig('non-existent-path'),
+			).toThrow('Cannot resolve tsconfig at path: ');
 		});
 
-		test('parses a path', async () => {
+		test('empty file', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						moduleResolution: 'node10',
-						isolatedModules: true,
-						module: 'esnext',
-						esModuleInterop: true,
-						declaration: true,
-						outDir: 'dist',
-						declarationDir: 'dist-declaration',
-						strict: true,
-						target: 'esnext',
-						rootDir: 'root-dir',
-					},
-				}),
+				'tsconfig.json': '',
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			// TODO: TS 5.5 resolve excludes paths
-			if (expectedTsconfig.exclude) {
-				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
-			}
-
-			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
 		});
 
-		test('implicit config', async () => {
+		test('json invalid', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						target: 'es2022',
-						module: 'preserve',
-					},
-				}),
+				'tsconfig.json': 'asdf',
 			});
 
 			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig).toStrictEqual({
+				compilerOptions: {},
+			});
+		});
+
+		test('json non-object', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': '"asdf"',
+			});
+
+			expect(
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			).toThrow('Failed to parse tsconfig at');
+		});
+
+		test('json empty', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': '{}',
+			});
+
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	test('parses a path', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					moduleResolution: 'node10',
+					isolatedModules: true,
+					module: 'esnext',
+					esModuleInterop: true,
+					declaration: true,
+					outDir: 'dist',
+					declarationDir: 'dist-declaration',
+					strict: true,
+					target: 'esnext',
+					rootDir: 'root-dir',
+				},
+			}),
 		});
 
-		describe('baseUrl', ({ test }) => {
-			test('relative path', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							baseUrl: '.',
-						},
-					}),
-				});
+		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
 
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		// TODO: TS 5.5 resolve excludes paths
+		if (expectedTsconfig.exclude) {
+			expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
+		}
 
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+	});
 
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('absolute path', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							baseUrl: process.platform === 'win32' ? 'C:\\' : '/',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
+	test('implicit config', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					target: 'es2022',
+					module: 'preserve',
+				},
+			}),
 		});
 
-		describe('rewriteRelativeImportExtensions', ({ test }) => {
-			test('sets allowImportingTsExtensions implicitly', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							rewriteRelativeImportExtensions: true,
-						},
-					}),
-				});
+		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
 
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+	});
 
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('respects explicit allowImportingTsExtensions', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							rewriteRelativeImportExtensions: true,
-							allowImportingTsExtensions: false,
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('does not set allowImportingTsExtensions when false', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							rewriteRelativeImportExtensions: false,
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('composite', ({ test }) => {
-			test('implies declaration and incremental', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							composite: true,
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('lib', ({ test }) => {
-			test('normalizes to lowercase', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							lib: ['ES2020', 'DOM'],
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('nodenext', ({ test }) => {
-			test('implies resolveJsonModule', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							module: 'nodenext',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('useDefineForClassFields', ({ test }) => {
-			test('not implied when target is below ES2022', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							target: 'es5',
-							module: 'node16',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('module node18 and node20', ({ test }) => {
-			test('module: node18 implications', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							module: 'node18',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('module: node20 implications', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							module: 'node20',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('checkJs', ({ test }) => {
-			test('implies allowJs', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							checkJs: true,
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('exclude', ({ test }) => {
-			test('does not add outDir when exclude is explicit', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: 'dist',
-						},
-						exclude: ['node_modules'],
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('does not add outDir when exclude is empty array', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: 'dist',
-						},
-						exclude: [],
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('does not add outDir when exclude is inherited', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'base.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: 'dist',
-						},
-						exclude: ['node_modules'],
-					}),
-					'tsconfig.json': createTsconfigJson({
-						extends: './base.json',
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('auto-adds outDir when exclude is not specified', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: 'dist',
-						},
-					}),
-				});
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(parsedTsconfig.exclude).toStrictEqual(['dist']);
-			});
-		});
-
-		test('cache', async () => {
+	describe('baseUrl', ({ test }) => {
+		test('relative path', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
 						baseUrl: '.',
-						moduleResolution: 'node10',
-						isolatedModules: true,
-						module: 'esnext',
-						esModuleInterop: true,
-						declaration: true,
-						outDir: 'dist',
-						strict: true,
-						target: 'esnext',
 					},
 				}),
 			});
 
-			const cache = new Map();
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
-			expect(cache.size).toBe(1);
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			// TODO: TS 5.5 resolve excludes paths
-			if (expectedTsconfig.exclude) {
-				expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
-			}
-
-			expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
-
-			const parsedTsconfigCached = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
-			expect(cache.size).toBe(1);
-
-			expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached);
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
 		});
+
+		test('absolute path', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: process.platform === 'win32' ? 'C:\\' : '/',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('rewriteRelativeImportExtensions', ({ test }) => {
+		test('sets allowImportingTsExtensions implicitly', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						rewriteRelativeImportExtensions: true,
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('respects explicit allowImportingTsExtensions', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						rewriteRelativeImportExtensions: true,
+						allowImportingTsExtensions: false,
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('does not set allowImportingTsExtensions when false', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						rewriteRelativeImportExtensions: false,
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('composite', ({ test }) => {
+		test('implies declaration and incremental', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						composite: true,
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('lib', ({ test }) => {
+		test('normalizes to lowercase', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						lib: ['ES2020', 'DOM'],
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('nodenext', ({ test }) => {
+		test('implies resolveJsonModule', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						module: 'nodenext',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('useDefineForClassFields', ({ test }) => {
+		test('not implied when target is below ES2022', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						target: 'es5',
+						module: 'node16',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('module node18 and node20', ({ test }) => {
+		test('module: node18 implications', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						module: 'node18',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('module: node20 implications', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						module: 'node20',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('checkJs', ({ test }) => {
+		test('implies allowJs', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						checkJs: true,
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('exclude', ({ test }) => {
+		test('does not add outDir when exclude is explicit', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+					exclude: ['node_modules'],
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('does not add outDir when exclude is empty array', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+					exclude: [],
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('does not add outDir when exclude is inherited', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'base.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+					exclude: ['node_modules'],
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './base.json',
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('auto-adds outDir when exclude is not specified', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.exclude).toStrictEqual(['dist']);
+		});
+	});
+
+	test('cache', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					baseUrl: '.',
+					moduleResolution: 'node10',
+					isolatedModules: true,
+					module: 'esnext',
+					esModuleInterop: true,
+					declaration: true,
+					outDir: 'dist',
+					strict: true,
+					target: 'esnext',
+				},
+			}),
+		});
+
+		const cache = new Map();
+		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
+		expect(cache.size).toBe(1);
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		// TODO: TS 5.5 resolve excludes paths
+		if (expectedTsconfig.exclude) {
+			expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
+		}
+
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+
+		const parsedTsconfigCached = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
+		expect(cache.size).toBe(1);
+
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached);
 	});
 
 	describe('enum case normalization', ({ test }) => {
