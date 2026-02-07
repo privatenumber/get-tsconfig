@@ -102,6 +102,23 @@ console.log(getTsconfig('.', 'jsconfig.json'))
 
 ---
 
+### findTsconfig(searchPath?, configName?, cache?)
+
+Searches for a tsconfig file by walking up the directory tree. Returns the path to the found tsconfig file, or `undefined` if not found.
+
+Unlike `getTsconfig`, this does not parse the file — it only locates it.
+
+#### Example
+
+```ts
+import { findTsconfig } from 'get-tsconfig'
+
+// Find the tsconfig.json path without parsing it
+const tsconfigPath = findTsconfig()
+```
+
+---
+
 ### parseTsconfig(tsconfigPath, cache?)
 
 Parse the tsconfig file provided. Used internally by `getTsconfig`. Returns the parsed tsconfig as `TsConfigJsonResolved`.
