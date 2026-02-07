@@ -3,7 +3,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
 import { getTscTsconfig } from '../utils/typescript-helpers.js';
-import { getTsconfig } from '#get-tsconfig';
+import { getTsconfig, findTsconfig } from '#get-tsconfig';
 
 const compilerOptions = {
 	jsx: 'react',
@@ -80,6 +80,102 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		test('includes - matches when no include or exclude is set', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					compilerOptions: { strict: true },
+				}),
+				'src/index.ts': '',
+			});
+
+			const tsconfig = getTsconfig(
+				fixture.getPath('src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfig).not.toBe(null);
+			expect(tsconfig!.config.compilerOptions!.strict).toBe(true);
+		});
+
+		test('includes - returns config that applies to file', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					compilerOptions: { strict: true },
+					include: ['src'],
+				}),
+				'src/index.ts': '',
+			});
+
+			const tsconfig = getTsconfig(
+				fixture.getPath('src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfig).not.toBe(null);
+			expect(tsconfig!.config.compilerOptions!.strict).toBe(true);
+		});
+
+		test('includes - skips config that excludes the file', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					compilerOptions: { strict: true },
+				}),
+				'nested/tsconfig.json': JSON.stringify({
+					compilerOptions: { jsx: 'react' },
+					include: ['other'],
+				}),
+				'nested/src/index.ts': '',
+			});
+
+			const tsconfig = getTsconfig(
+				fixture.getPath('nested/src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfig).not.toBe(null);
+			expect(tsconfig!.config.compilerOptions!.strict).toBe(true);
+		});
+
+		test('includes - returns null when no config applies', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					include: ['other'],
+				}),
+				'src/index.ts': '',
+			});
+
+			const tsconfig = getTsconfig(
+				fixture.getPath('src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfig).toBe(null);
+		});
+
+		test('includes - without option returns nearest config', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					compilerOptions: { strict: true },
+				}),
+				'nested/tsconfig.json': JSON.stringify({
+					compilerOptions: { jsx: 'react' },
+					include: ['other'],
+				}),
+				'nested/src/index.ts': '',
+			});
+
+			// Default behavior returns nearest, even if it doesn't apply
+			const tsconfig = getTsconfig(fixture.getPath('nested/src/index.ts'));
+			expect(tsconfig).not.toBe(null);
+			expect(tsconfig!.config.compilerOptions).toStrictEqual({
+				jsx: 'react',
+			});
+		});
+
 		test('cache', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,
@@ -103,6 +199,80 @@ export default testSuite(({ describe }) => {
 
 			const tsconfigCacheHit = getTsconfig(fixture.path, 'tsconfig.json', cache);
 			expect(tsconfigCacheHit).toStrictEqual(expectedResult);
+		});
+	});
+
+	describe('findTsconfig', ({ test }) => {
+		test('includes - returns config path that applies to file', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					include: ['src'],
+				}),
+				'src/index.ts': '',
+			});
+
+			const tsconfigPath = findTsconfig(
+				fixture.getPath('src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
+		});
+
+		test('includes - skips config that excludes the file', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					compilerOptions: { strict: true },
+				}),
+				'nested/tsconfig.json': JSON.stringify({
+					include: ['other'],
+				}),
+				'nested/src/index.ts': '',
+			});
+
+			const tsconfigPath = findTsconfig(
+				fixture.getPath('nested/src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
+		});
+
+		test('includes - works with relative searchPath', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					include: ['src'],
+				}),
+				'src/index.ts': '',
+			});
+
+			const relativePath = path.relative(process.cwd(), fixture.getPath('src/index.ts'));
+			const tsconfigPath = findTsconfig(
+				relativePath,
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
+		});
+
+		test('includes - returns undefined when no config applies', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': JSON.stringify({
+					include: ['other'],
+				}),
+				'src/index.ts': '',
+			});
+
+			const tsconfigPath = findTsconfig(
+				fixture.getPath('src/index.ts'),
+				'tsconfig.json',
+				new Map(),
+				true,
+			);
+			expect(tsconfigPath).toBeUndefined();
 		});
 	});
 });
