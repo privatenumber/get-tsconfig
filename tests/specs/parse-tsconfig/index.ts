@@ -1,6 +1,6 @@
 import { testSuite } from 'manten';
 
-export default testSuite(({ runTestSuite }) => {
+export default testSuite('parseTsconfig', ({ runTestSuite }) => {
 	runTestSuite(import('./parses.spec.js'));
 	runTestSuite(import('./extends/index.js'));
 });

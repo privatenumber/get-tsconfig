@@ -4,303 +4,323 @@ import { createTsconfigJson } from '../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../utils/typescript-helpers.js';
 import { parseTsconfig } from '#get-tsconfig';
 
-export default testSuite(({ describe }) => {
-	describe('merges', ({ describe, test }) => {
-		describe('error handling', ({ test }) => {
-			test('invalid path', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						extends: './non-existent.json',
-					}),
-				});
-
-				expect(
-					() => parseTsconfig(fixture.getPath('tsconfig.json')),
-				).toThrow('File \'./non-existent.json\' not found.');
-			});
-
-			test('invalid json', async () => {
-				await using fixture = await createFixture({
-					'file.ts': '',
-					'tsconfig.empty.json': 'require("fs")',
-					'tsconfig.json': createTsconfigJson({
-						extends: './tsconfig.empty.json',
-					}),
-				});
-
-				expect(
-					() => parseTsconfig(fixture.getPath('tsconfig.json')),
-				).toThrow('Failed to parse tsconfig at:');
-			});
-		});
-
-		test('empty file', async () => {
+export default testSuite('merges', ({ describe, test }) => {
+	describe('error handling', ({ test }) => {
+		test('invalid path', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
-				'tsconfig.empty.json': '',
+				'tsconfig.json': createTsconfigJson({
+					extends: './non-existent.json',
+				}),
+			});
+
+			expect(
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			).toThrow('File \'./non-existent.json\' not found.');
+		});
+
+		test('invalid json', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.empty.json': 'require("fs")',
 				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.empty.json',
 				}),
 			});
 
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
+			expect(
+				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			).toThrow('Failed to parse tsconfig at:');
+		});
+	});
 
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
+	test('empty file', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.empty.json': '',
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.empty.json',
+			}),
 		});
 
-		test('empty json', async () => {
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('empty json', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.empty.json': createTsconfigJson({}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.empty.json',
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('jsonc', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.base.json': `{
+				// comment
+				"compilerOptions": {
+					"jsx": "react", // dangling comma
+				},
+			}`,
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.base.json',
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('references is ignored', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.base.json': createTsconfigJson({
+				compilerOptions: {
+					strict: true,
+					jsx: 'react',
+				},
+				references: [
+					{
+						path: 'src',
+					},
+				],
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.base.json',
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	describe('files', ({ test }) => {
+		test('inherits with relative path', async () => {
 			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.empty.json': createTsconfigJson({}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.empty.json',
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		test('jsonc', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.base.json': `{
-					// comment
-					"compilerOptions": {
-						"jsx": "react", // dangling comma
-					},
-				}`,
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.base.json',
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		test('references is ignored', async () => {
-			await using fixture = await createFixture({
-				'tsconfig.base.json': createTsconfigJson({
-					compilerOptions: {
-						strict: true,
-						jsx: 'react',
-					},
-					references: [
-						{
-							path: 'src',
-						},
-					],
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.base.json',
-				}),
-				'file.ts': '',
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
-		});
-
-		describe('files', ({ test }) => {
-			test('inherits with relative path', async () => {
-				await using fixture = await createFixture({
-					'some-dir': {
-						src: {
-							'a.ts': '',
-							'b.ts': '',
-						},
-						'tsconfig.base.json': createTsconfigJson({
-							files: [
-								'src/a.ts',
-							],
-						}),
-					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './some-dir/tsconfig.base.json',
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('gets overwritten', async () => {
-				await using fixture = await createFixture({
-					'some-dir': {
-						src: {
-							'a.ts': '',
-							'b.ts': '',
-						},
-						'tsconfig.base.json': createTsconfigJson({
-							files: [
-								'src/a.ts',
-							],
-						}),
-					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './some-dir/tsconfig.base.json',
-						files: [
-							'src/b.ts',
-						],
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		describe('include', ({ test }) => {
-			test('inherits with relative path', async () => {
-				await using fixture = await createFixture({
-					'src-a': {
+				'some-dir': {
+					src: {
 						'a.ts': '',
 						'b.ts': '',
-						'c.ts': '',
-						'tsconfig.base.json': createTsconfigJson({
-							include: ['*'],
-						}),
-					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './src-a/tsconfig.base.json',
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			// #73 - include paths from extended configs in subdirectories
-			// should preserve ../  (e.g. configs/../src-a/*), not normalize
-			// Fixed in 446c458 via prefixPattern
-			test('inherits with relative path from subdirectory', async () => {
-				await using fixture = await createFixture({
-					configs: {
-						'tsconfig.base.json': createTsconfigJson({
-							include: ['../src-a/*'],
-						}),
-					},
-					'src-a': {
-						'a.ts': '',
-						'b.ts': '',
-						'c.ts': '',
-					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './configs/tsconfig.base.json',
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('gets overwritten', async () => {
-				await using fixture = await createFixture({
-					'src-a': {
-						'a.ts': '',
-						'b.ts': '',
-						'c.ts': '',
-					},
-					'src-b': {
-						'a.ts': '',
-						'b.ts': '',
-						'c.ts': '',
 					},
 					'tsconfig.base.json': createTsconfigJson({
-						include: ['src-a'],
+						files: [
+							'src/a.ts',
+						],
 					}),
-					'tsconfig.json': createTsconfigJson({
-						extends: './tsconfig.base.json',
-						include: ['src-b'],
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './some-dir/tsconfig.base.json',
+				}),
 			});
 
-			test('inherits from symlinked configs', async () => {
-				await using fixture = await createFixture({
-					'symlink-source': {
-						'tsconfig.base.json': createTsconfigJson({
-							include: ['../src/*'],
-						}),
-					},
-					project: {
-						src: {
-							'a.ts': '',
-							'b.ts': '',
-							'c.ts': '',
-						},
-						'tsconfig.json': createTsconfigJson({
-							extends: './symlink/tsconfig.base.json',
-						}),
-						symlink: ({ symlink }) => symlink('../symlink-source'),
-					},
-				});
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 
-				const expectedTsconfig = await getTscTsconfig(fixture.getPath('project'));
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('project/tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('handles ../.  without normalizing', async () => {
-				await using fixture = await createFixture({
-					nested: {
-						'tsconfig.dev.json': createTsconfigJson({
-							include: ['../.'],
-						}),
-					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './nested/tsconfig.dev.json',
-					}),
-					'a.ts': '',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
-		describe('baseUrl', ({ test }) => {
-			test('path becomes prefixed with ./', async () => {
-				await using fixture = await createFixture({
+		test('gets overwritten', async () => {
+			await using fixture = await createFixture({
+				'some-dir': {
+					src: {
+						'a.ts': '',
+						'b.ts': '',
+					},
+					'tsconfig.base.json': createTsconfigJson({
+						files: [
+							'src/a.ts',
+						],
+					}),
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './some-dir/tsconfig.base.json',
+					files: [
+						'src/b.ts',
+					],
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('include', ({ test }) => {
+		test('inherits with relative path', async () => {
+			await using fixture = await createFixture({
+				'src-a': {
+					'a.ts': '',
+					'b.ts': '',
+					'c.ts': '',
+					'tsconfig.base.json': createTsconfigJson({
+						include: ['*'],
+					}),
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './src-a/tsconfig.base.json',
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		// #73 - include paths from extended configs in subdirectories
+		// should preserve ../  (e.g. configs/../src-a/*), not normalize
+		// Fixed in 446c458 via prefixPattern
+		test('inherits with relative path from subdirectory', async () => {
+			await using fixture = await createFixture({
+				configs: {
+					'tsconfig.base.json': createTsconfigJson({
+						include: ['../src-a/*'],
+					}),
+				},
+				'src-a': {
+					'a.ts': '',
+					'b.ts': '',
+					'c.ts': '',
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './configs/tsconfig.base.json',
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('gets overwritten', async () => {
+			await using fixture = await createFixture({
+				'src-a': {
+					'a.ts': '',
+					'b.ts': '',
+					'c.ts': '',
+				},
+				'src-b': {
+					'a.ts': '',
+					'b.ts': '',
+					'c.ts': '',
+				},
+				'tsconfig.base.json': createTsconfigJson({
+					include: ['src-a'],
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './tsconfig.base.json',
+					include: ['src-b'],
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('inherits from symlinked configs', async () => {
+			await using fixture = await createFixture({
+				'symlink-source': {
+					'tsconfig.base.json': createTsconfigJson({
+						include: ['../src/*'],
+					}),
+				},
+				project: {
+					src: {
+						'a.ts': '',
+						'b.ts': '',
+						'c.ts': '',
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './symlink/tsconfig.base.json',
+					}),
+					symlink: ({ symlink }) => symlink('../symlink-source'),
+				},
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.getPath('project'));
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('project/tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('handles ../.  without normalizing', async () => {
+			await using fixture = await createFixture({
+				nested: {
+					'tsconfig.dev.json': createTsconfigJson({
+						include: ['../.'],
+					}),
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './nested/tsconfig.dev.json',
+				}),
+				'a.ts': '',
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	describe('baseUrl', ({ test }) => {
+		test('path becomes prefixed with ./', async () => {
+			await using fixture = await createFixture({
+				'src-a': {
+					'a.ts': '',
+				},
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: 'src-a',
+					},
+				}),
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('gets inherited with relative path', async () => {
+			await using fixture = await createFixture({
+				project: {
 					'src-a': {
 						'a.ts': '',
 					},
@@ -309,333 +329,311 @@ export default testSuite(({ describe }) => {
 							baseUrl: 'src-a',
 						},
 					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
+				},
+				'tsconfig.json': createTsconfigJson({
+					extends: './project/tsconfig.json',
+				}),
 			});
 
-			test('gets inherited with relative path', async () => {
-				await using fixture = await createFixture({
-					project: {
-						'src-a': {
-							'a.ts': '',
-						},
-						'tsconfig.json': createTsconfigJson({
-							compilerOptions: {
-								baseUrl: 'src-a',
-							},
-						}),
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('resolves parent baseUrl path', async () => {
+			await using fixture = await createFixture({
+				'project/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: '..',
 					},
-					'tsconfig.json': createTsconfigJson({
-						extends: './project/tsconfig.json',
-					}),
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './project/tsconfig.json',
+				}),
+				'a.ts': '',
 			});
 
-			test('resolves parent baseUrl path', async () => {
-				await using fixture = await createFixture({
-					'project/tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							baseUrl: '..',
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('resolves parent baseUrl & paths', async () => {
+			await using fixture = await createFixture({
+				'project/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: '.',
+						paths: {
+							'@/*': ['src/*'],
 						},
-					}),
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './project/tsconfig.json',
+				}),
+				'a.ts': '',
+			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('resolves parent baseUrl path defined in symlinked config', async () => {
+			await using fixture = await createFixture({
+				'symlink-source/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						baseUrl: '..',
+					},
+				}),
+				project: {
 					'tsconfig.json': createTsconfigJson({
-						extends: './project/tsconfig.json',
+						extends: './symlink/tsconfig.json',
 					}),
 					'a.ts': '',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
+					symlink: ({ symlink }) => symlink('../symlink-source'),
+				},
 			});
 
-			test('resolves parent baseUrl & paths', async () => {
-				await using fixture = await createFixture({
-					'project/tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							baseUrl: '.',
-							paths: {
-								'@/*': ['src/*'],
-							},
+			const expectedTsconfig = await getTscTsconfig(fixture.getPath('project'));
+			delete expectedTsconfig.files;
+
+			const tsconfig = parseTsconfig(fixture.getPath('project/tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+	});
+
+	test('nested extends', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'some-dir/some-dir/b': createTsconfigJson({
+				extends: '../../c.json',
+				compilerOptions: {
+					module: 'commonjs',
+				},
+			}),
+			'c.json': createTsconfigJson({
+				compileOnSave: true,
+			}),
+			'tsconfig.a.json': createTsconfigJson({
+				extends: './some-dir/some-dir/b',
+				compilerOptions: {
+					allowJs: true,
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.a.json',
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('extends array', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.a.json': createTsconfigJson({
+				compilerOptions: {
+					allowJs: true,
+					strict: true,
+					jsx: 'react',
+				},
+			}),
+			'tsconfig.b.json': createTsconfigJson({
+				compilerOptions: {
+					jsx: 'react-jsx',
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: ['./tsconfig.a.json', './tsconfig.b.json'],
+				compilerOptions: {
+					allowJs: false,
+				},
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(expectedTsconfig).toStrictEqual(tsconfig);
+	});
+
+	test('watchOptions', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.base.json': createTsconfigJson({
+				watchOptions: {
+					synchronousWatchDirectory: true,
+					excludeDirectories: ['a', 'b'],
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './tsconfig.base.json',
+				watchOptions: {
+					fallbackPolling: 'fixedinterval',
+					excludeDirectories: ['c'],
+				},
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('watchOptions.excludeFiles', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.json': createTsconfigJson({
+				watchOptions: {
+					excludeFiles: ['file.ts'],
+				},
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('watchOptions enum normalization', async () => {
+		await using fixture = await createFixture({
+			'file.ts': '',
+			'tsconfig.json': createTsconfigJson({
+				watchOptions: {
+					// @ts-expect-error testing mixed case input
+					watchFile: 'useFsEvents',
+					// @ts-expect-error testing mixed case input
+					watchDirectory: 'useFsEvents',
+					// @ts-expect-error testing mixed case input
+					fallbackPolling: 'dynamicPriority',
+				},
+			}),
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	describe('${configDir}', ({ test }) => {
+		test('works in paths, include, excludes', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: '${configDir}/dist',
+						paths: {
+							'@/*': ['${configDir}/*'],
 						},
-					}),
+					},
+					include: ['${configDir}/file.ts'],
+				}),
+				extended: {
 					'tsconfig.json': createTsconfigJson({
-						extends: './project/tsconfig.json',
+						extends: '../tsconfig.json',
 					}),
-					'a.ts': '',
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.path);
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-
-			test('resolves parent baseUrl path defined in symlinked config', async () => {
-				await using fixture = await createFixture({
-					'symlink-source/tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							baseUrl: '..',
-						},
-					}),
-					project: {
-						'tsconfig.json': createTsconfigJson({
-							extends: './symlink/tsconfig.json',
-						}),
-						'a.ts': '',
-						symlink: ({ symlink }) => symlink('../symlink-source'),
-					},
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.getPath('project'));
-				delete expectedTsconfig.files;
-
-				const tsconfig = parseTsconfig(fixture.getPath('project/tsconfig.json'));
-				expect(tsconfig).toStrictEqual(expectedTsconfig);
-			});
-		});
-
-		test('nested extends', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'some-dir/some-dir/b': createTsconfigJson({
-					extends: '../../c.json',
-					compilerOptions: {
-						module: 'commonjs',
-					},
-				}),
-				'c.json': createTsconfigJson({
-					compileOnSave: true,
-				}),
-				'tsconfig.a.json': createTsconfigJson({
-					extends: './some-dir/some-dir/b',
-					compilerOptions: {
-						allowJs: true,
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.a.json',
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		test('extends array', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.a.json': createTsconfigJson({
-					compilerOptions: {
-						allowJs: true,
-						strict: true,
-						jsx: 'react',
-					},
-				}),
-				'tsconfig.b.json': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react-jsx',
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: ['./tsconfig.a.json', './tsconfig.b.json'],
-					compilerOptions: {
-						allowJs: false,
-					},
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-
-			expect(expectedTsconfig).toStrictEqual(tsconfig);
-		});
-
-		test('watchOptions', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.base.json': createTsconfigJson({
-					watchOptions: {
-						synchronousWatchDirectory: true,
-						excludeDirectories: ['a', 'b'],
-					},
-				}),
-				'tsconfig.json': createTsconfigJson({
-					extends: './tsconfig.base.json',
-					watchOptions: {
-						fallbackPolling: 'fixedinterval',
-						excludeDirectories: ['c'],
-					},
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		test('watchOptions.excludeFiles', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.json': createTsconfigJson({
-					watchOptions: {
-						excludeFiles: ['file.ts'],
-					},
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		test('watchOptions enum normalization', async () => {
-			await using fixture = await createFixture({
-				'file.ts': '',
-				'tsconfig.json': createTsconfigJson({
-					watchOptions: {
-						// @ts-expect-error testing mixed case input
-						watchFile: 'useFsEvents',
-						// @ts-expect-error testing mixed case input
-						watchDirectory: 'useFsEvents',
-						// @ts-expect-error testing mixed case input
-						fallbackPolling: 'dynamicPriority',
-					},
-				}),
-			});
-
-			const expectedTsconfig = await getTscTsconfig(fixture.path);
-			delete expectedTsconfig.files;
-
-			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(tsconfig).toStrictEqual(expectedTsconfig);
-		});
-
-		describe('${configDir}', ({ test }) => {
-			test('works in paths, include, excludes', async () => {
-				await using fixture = await createFixture({
 					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: '${configDir}/dist',
-							paths: {
-								'@/*': ['${configDir}/*'],
-							},
-						},
-						include: ['${configDir}/file.ts'],
-					}),
-					extended: {
-						'tsconfig.json': createTsconfigJson({
-							extends: '../tsconfig.json',
-						}),
-						'file.ts': '',
-					},
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
-				delete expectedTsconfig.files;
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
-				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
-
-				// @ts-expect-error Symbol is private
-				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+				},
 			});
 
-			test('joins path', async () => {
-				await using fixture = await createFixture({
+			const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+			delete expectedTsconfig.files;
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+			const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+			// @ts-expect-error Symbol is private
+			delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('joins path', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: '${configDir}-asdf/dist',
+						declarationDir: '${configDir}/dist/declaration',
+						outFile: '${configDir}/dist/outfile.js',
+						rootDir: '${configDir}/dist/src',
+						baseUrl: '${configDir}/dist/src',
+						tsBuildInfoFile: '${configDir}/dist/dist.tsbuildinfo',
+						rootDirs: ['${configDir}/src', '${configDir}/static'],
+						typeRoots: ['${configDir}/src/type', '${configDir}/types'],
+						paths: {
+							a: ['${configDir}_a/*'],
+							b: ['ignores/${configDir}/*'],
+						},
+					},
+					include: ['${configDir}/file.ts'],
+				}),
+				extended: {
+					'tsconfig.json': createTsconfigJson({
+						extends: '../tsconfig.json',
+					}),
 					'file.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: '${configDir}-asdf/dist',
-							declarationDir: '${configDir}/dist/declaration',
-							outFile: '${configDir}/dist/outfile.js',
-							rootDir: '${configDir}/dist/src',
-							baseUrl: '${configDir}/dist/src',
-							tsBuildInfoFile: '${configDir}/dist/dist.tsbuildinfo',
-							rootDirs: ['${configDir}/src', '${configDir}/static'],
-							typeRoots: ['${configDir}/src/type', '${configDir}/types'],
-							paths: {
-								a: ['${configDir}_a/*'],
-								b: ['ignores/${configDir}/*'],
-							},
-						},
-						include: ['${configDir}/file.ts'],
-					}),
-					extended: {
-						'tsconfig.json': createTsconfigJson({
-							extends: '../tsconfig.json',
-						}),
-						'file.ts': '',
-					},
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
-				delete expectedTsconfig.files;
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
-				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
-
-				// @ts-expect-error Symbol is private
-				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+				},
 			});
 
-			test('parent path', async () => {
-				await using fixture = await createFixture({
-					'file-b.ts': '',
-					'tsconfig.json': createTsconfigJson({
-						compilerOptions: {
-							outDir: '${configDir}/../dist',
-						},
-						include: ['${configDir}/../file-b.ts'],
-					}),
-					extended: {
-						'tsconfig.json': createTsconfigJson({
-							extends: '../tsconfig.json',
-						}),
+			const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+			delete expectedTsconfig.files;
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+			const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+			// @ts-expect-error Symbol is private
+			delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+		});
+
+		test('parent path', async () => {
+			await using fixture = await createFixture({
+				'file-b.ts': '',
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: '${configDir}/../dist',
 					},
-				});
-
-				const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
-				delete expectedTsconfig.files;
-
-				const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
-				const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
-
-				// @ts-expect-error Symbol is private
-				delete parsedTsconfig.compilerOptions[implicitBaseUrl];
-
-				expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+					include: ['${configDir}/../file-b.ts'],
+				}),
+				extended: {
+					'tsconfig.json': createTsconfigJson({
+						extends: '../tsconfig.json',
+					}),
+				},
 			});
+
+			const expectedTsconfig = await getTscTsconfig(fixture.getPath('extended'));
+			delete expectedTsconfig.files;
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('extended/tsconfig.json'));
+			const [implicitBaseUrl] = Object.getOwnPropertySymbols(parsedTsconfig.compilerOptions);
+
+			// @ts-expect-error Symbol is private
+			delete parsedTsconfig.compilerOptions[implicitBaseUrl];
+
+			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
 		});
 	});
 });
