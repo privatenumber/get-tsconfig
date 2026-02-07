@@ -3,13 +3,13 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
+import { readTsconfig } from '#get-tsconfig';
 
 const validate = async (directoryPath: string) => {
 	const expectedTsconfig = await getTscTsconfig(directoryPath);
 	delete expectedTsconfig.files;
 
-	const tsconfig = parseTsconfig(path.join(directoryPath, 'tsconfig.json'));
+	const { config: tsconfig } = readTsconfig(path.join(directoryPath, 'tsconfig.json'));
 
 	expect(expectedTsconfig).toStrictEqual(tsconfig);
 };

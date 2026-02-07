@@ -1,6 +1,8 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsConfigJson, TsConfigJsonResolved, Cache } from '../types.js';
+import type {
+	TsConfigJson, TsConfigJsonResolved, TsConfigResult, Cache,
+} from '../types.js';
 import { normalizeRelativePath } from '../utils/normalize-relative-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
 import { implicitBaseUrlSymbol, configDirPlaceholder } from '../utils/constants.js';
@@ -534,16 +536,17 @@ const normalizeCompilerOptions = (
 };
 
 /**
- * Parses a tsconfig file at a given path
+ * Reads and resolves a tsconfig file at a given path
  *
  * @param tsconfigPath - Path to the tsconfig file.
  * @param cache - Cache for storing parsed tsconfig results (default: new `Map()`).
- * @returns The parsed and resolved tsconfig JSON.
+ * @returns The resolved absolute path and config. The path is the same one used
+ * internally for extends resolution.
  */
-export const parseTsconfig = (
+export const readTsconfig = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
-): TsConfigJsonResolved => {
+): TsConfigResult => {
 	const resolvedTsconfigPath = path.resolve(tsconfigPath);
 	const config = _parseTsconfig(resolvedTsconfigPath, cache);
 	const configDir = path.dirname(resolvedTsconfigPath);
@@ -589,5 +592,8 @@ export const parseTsconfig = (
 		}
 	}
 
-	return config;
+	return {
+		path: slash(resolvedTsconfigPath),
+		config,
+	};
 };

@@ -2,13 +2,13 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
+import { readTsconfig } from '#get-tsconfig';
 
 export default testSuite('parses tsconfig', ({ describe, test }) => {
 	describe('errors', ({ test }) => {
 		test('non-existent path', async () => {
 			expect(
-				() => parseTsconfig('non-existent-path'),
+				() => readTsconfig('non-existent-path'),
 			).toThrow('Cannot resolve tsconfig at path: ');
 		});
 
@@ -21,8 +21,8 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('json invalid', async () => {
@@ -31,8 +31,8 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				'tsconfig.json': 'asdf',
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(parsedTsconfig).toStrictEqual({
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.config).toStrictEqual({
 				compilerOptions: {},
 			});
 		});
@@ -44,7 +44,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			});
 
 			expect(
-				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+				() => readTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow('Failed to parse tsconfig at');
 		});
 
@@ -57,8 +57,8 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -81,7 +81,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			}),
 		});
 
-		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
@@ -90,7 +90,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
 		}
 
-		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig.config);
 	});
 
 	test('implicit config', async () => {
@@ -104,11 +104,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			}),
 		});
 
-		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig.config);
 	});
 
 	describe('baseUrl', ({ test }) => {
@@ -122,12 +122,12 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('absolute path', async () => {
@@ -140,12 +140,12 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -160,11 +160,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('respects explicit allowImportingTsExtensions', async () => {
@@ -178,11 +178,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('does not set allowImportingTsExtensions when false', async () => {
@@ -195,11 +195,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -214,11 +214,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -233,11 +233,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -252,11 +252,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -272,11 +272,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -291,11 +291,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('module: node20 implications', async () => {
@@ -308,11 +308,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -327,11 +327,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 
@@ -347,11 +347,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('does not add outDir when exclude is empty array', async () => {
@@ -365,11 +365,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('does not add outDir when exclude is inherited', async () => {
@@ -386,11 +386,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('auto-adds outDir when exclude is not specified', async () => {
@@ -403,8 +403,8 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
-			expect(parsedTsconfig.exclude).toStrictEqual(['dist']);
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.config.exclude).toStrictEqual(['dist']);
 		});
 	});
 
@@ -427,7 +427,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 
 		const cache = new Map();
-		const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
+		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'), cache);
 		expect(cache.size).toBe(1);
 
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
@@ -438,12 +438,12 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			expectedTsconfig.exclude = expectedTsconfig.exclude.map(excludePath => excludePath.split('/').pop()!);
 		}
 
-		expect(expectedTsconfig).toStrictEqual(parsedTsconfig);
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfig.config);
 
-		const parsedTsconfigCached = parseTsconfig(fixture.getPath('tsconfig.json'), cache);
+		const parsedTsconfigCached = readTsconfig(fixture.getPath('tsconfig.json'), cache);
 		expect(cache.size).toBe(1);
 
-		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached);
+		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached.config);
 	});
 
 	describe('enum case normalization', ({ test }) => {
@@ -458,11 +458,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('normalizes moduleDetection to lowercase', async () => {
@@ -476,11 +476,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('normalizes importsNotUsedAsValues to lowercase', async () => {
@@ -494,11 +494,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 
 		test('normalizes newLine to lowercase', async () => {
@@ -511,11 +511,11 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 				}),
 			});
 
-			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
 			const expectedTsconfig = await getTscTsconfig(fixture.path);
 			delete expectedTsconfig.files;
 
-			expect(parsedTsconfig).toStrictEqual(expectedTsconfig);
+			expect(parsedTsconfig.config).toStrictEqual(expectedTsconfig);
 		});
 	});
 });

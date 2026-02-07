@@ -2,7 +2,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
+import { readTsconfig } from '#get-tsconfig';
 
 export default testSuite('absolute path', ({ test }) => {
 	test('absolute path', async () => {
@@ -22,7 +22,7 @@ export default testSuite('absolute path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -44,7 +44,7 @@ export default testSuite('absolute path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -66,7 +66,7 @@ export default testSuite('absolute path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});

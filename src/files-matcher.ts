@@ -99,7 +99,7 @@ export const createFilesMatcher = (
 	caseSensitivePaths = isFsCaseSensitive(),
 ): FileMatcher => {
 	if ('extends' in config) {
-		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
+		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or readTsconfig to resolve it.');
 	}
 
 	if (!path.isAbsolute(tsconfigPath)) {

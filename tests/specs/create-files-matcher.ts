@@ -7,7 +7,7 @@ import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
 	createFilesMatcher,
-	parseTsconfig,
+	readTsconfig,
 	type TsConfigJsonResolved,
 	type FileMatcher,
 } from '#get-tsconfig';
@@ -1269,7 +1269,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 					},
 					path: '',
 				}),
-			).toThrow('tsconfig#extends must be resolved. Use getTsconfig or parseTsconfig to resolve it.');
+			).toThrow('tsconfig#extends must be resolved. Use getTsconfig or readTsconfig to resolve it.');
 		});
 
 		test('should match', async () => {
@@ -1295,13 +1295,10 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 				slash(fixture.getPath('project/b.js')),
 			]);
 
-			const tsconfig = parseTsconfig(tsconfigPath);
+			const tsconfig = readTsconfig(tsconfigPath);
 
 			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
+				createFilesMatcher(tsconfig),
 				tsFiles,
 			);
 		});
@@ -1325,11 +1322,8 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(1);
 
-			const config = parseTsconfig(tsconfigPath);
-			const matches = createFilesMatcher({
-				config,
-				path: tsconfigPath,
-			});
+			const tsconfig = readTsconfig(tsconfigPath);
+			const matches = createFilesMatcher(tsconfig);
 
 			assertFilesMatch(matches, tsFiles);
 		});

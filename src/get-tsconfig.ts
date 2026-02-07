@@ -1,7 +1,7 @@
 import path from 'node:path';
 import slash from 'slash';
 import { findUp } from './utils/find-up.js';
-import { parseTsconfig } from './parse-tsconfig/index.js';
+import { readTsconfig } from './read-tsconfig/index.js';
 import { createFilesMatcher } from './files-matcher.js';
 import type { TsConfigResult, Cache } from './types.js';
 
@@ -20,12 +20,7 @@ const findConfigApplicable = (
 		}
 
 		const absoluteConfigFile = path.resolve(configFile);
-		const config = parseTsconfig(absoluteConfigFile, cache);
-		const result: TsConfigResult = {
-			path: slash(absoluteConfigFile),
-			config,
-		};
-
+		const result = readTsconfig(absoluteConfigFile, cache);
 		const matcher = createFilesMatcher(result);
 		if (matcher(resolvedFilePath)) {
 			return result;
@@ -104,11 +99,7 @@ export const getTsconfig = (
 			return;
 		}
 
-		const config = parseTsconfig(configFile, cache);
-		return {
-			path: configFile,
-			config,
-		};
+		return readTsconfig(configFile, cache);
 	}
 
 	return findConfigApplicable(searchPath, configName, cache);
