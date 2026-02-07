@@ -5,6 +5,7 @@ import { getTscResolution } from './utils/typescript-helpers.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 
 await describe('get-tsconfig', ({ runTestSuite }) => {
+	runTestSuite(import('./specs/find-tsconfig.js'));
 	runTestSuite(import('./specs/get-tsconfig.js'));
 	runTestSuite(import('./specs/parse-tsconfig/index.js'));
 	runTestSuite(import('./specs/create-paths-matcher.js'));
