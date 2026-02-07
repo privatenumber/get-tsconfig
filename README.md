@@ -37,7 +37,7 @@ For TypeScript related tooling to correctly parse `tsconfig.json` file without d
 
 ## API
 
-### getTsconfig(searchPath?, configName?, cache?)
+### getTsconfig(searchPath?, configName?, cache?, includes?)
 
 Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`parseTsconfig`](#parsetsconfigtsconfigpath-cache) instead). Returns `null` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
 
@@ -63,7 +63,7 @@ Type: `string`
 
 Default: `process.cwd()`
 
-Accepts a path to a file or directory to search up for a `tsconfig.json` file.
+Path to a source file or directory. The directory tree is searched up for a `tsconfig.json` file. Typically a TypeScript/JavaScript file path (e.g. `./src/index.ts`), but a directory path also works if you don't have a specific file.
 
 #### configName
 Type: `string`
@@ -78,6 +78,15 @@ Type: `Map<string, any>`
 Default: `new Map()`
 
 Optional cache for fs operations.
+
+#### includes
+Type: `boolean`
+
+Default: `false`
+
+When `true` and `searchPath` is a file path, validates that the found tsconfig applies to the file (via `files`, `include`, and `exclude`). If the file isn't matched, continues searching parent directories.
+
+By default, `getTsconfig` returns the nearest tsconfig — matching `tsc` CLI behavior ([`findConfigFile()`](https://github.com/microsoft/TypeScript/blob/b19a9da2a3b8/src/compiler/program.ts#L328)). With `includes`, it checks the file is included by `include`/`files` and not excluded by `exclude` before accepting the tsconfig — matching VS Code's TypeScript Language Server behavior ([`isMatchedByConfig()`](https://github.com/microsoft/TypeScript/blob/b19a9da2a3b8/src/server/editorServices.ts#L4486)).
 
 #### Example
 
@@ -98,23 +107,30 @@ console.log(getTsconfig('./path/to/tsconfig.json'))
 
 // Search for jsconfig.json - https://code.visualstudio.com/docs/languages/jsconfig
 console.log(getTsconfig('.', 'jsconfig.json'))
+
+// Find the tsconfig that actually applies to a file (Language Server behavior)
+// Skips tsconfig files where the file is excluded or not included
+console.log(getTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true))
 ```
 
 ---
 
-### findTsconfig(searchPath?, configName?, cache?)
+### findTsconfig(searchPath?, configName?, cache?, includes?)
 
 Searches for a tsconfig file by walking up the directory tree. Returns the path to the found tsconfig file, or `undefined` if not found.
 
-Unlike `getTsconfig`, this does not parse the file — it only locates it.
+Supports the same [`includes`](#includes) option as `getTsconfig` to validate that the tsconfig applies to the `searchPath` file.
 
 #### Example
 
 ```ts
 import { findTsconfig } from 'get-tsconfig'
 
-// Find the tsconfig.json path without parsing it
-const tsconfigPath = findTsconfig()
+// Find the tsconfig.json path
+findTsconfig()
+
+// Find the tsconfig that includes the file
+findTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true)
 ```
 
 ---
