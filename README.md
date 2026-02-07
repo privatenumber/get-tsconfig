@@ -39,7 +39,7 @@ For TypeScript related tooling to correctly parse `tsconfig.json` file without d
 
 ### getTsconfig(searchPath?, configName?, cache?, includes?)
 
-Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`parseTsconfig`](#parsetsconfigtsconfigpath-cache) instead). Returns `null` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
+Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`readTsconfig`](#readtsconfigtsconfigpath-cache) instead). Returns `undefined` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
 
 Returns:
 
@@ -135,9 +135,9 @@ findTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true)
 
 ---
 
-### parseTsconfig(tsconfigPath, cache?)
+### readTsconfig(tsconfigPath, cache?)
 
-Parse the tsconfig file provided. Used internally by `getTsconfig`. Returns the parsed tsconfig as `TsConfigJsonResolved`.
+Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsconfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
 
 #### tsconfigPath
 Type: `string`
@@ -154,10 +154,10 @@ Optional cache for fs operations.
 #### Example
 
 ```ts
-import { parseTsconfig } from 'get-tsconfig'
+import { readTsconfig } from 'get-tsconfig'
 
 // Must pass in a path to an existing tsconfig.json file
-console.log(parseTsconfig('./path/to/tsconfig.custom.json'))
+const { path, config } = readTsconfig('./path/to/tsconfig.custom.json')
 ```
 
 ---

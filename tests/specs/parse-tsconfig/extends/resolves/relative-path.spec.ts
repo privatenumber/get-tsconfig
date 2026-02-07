@@ -3,7 +3,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
+import { readTsconfig } from '#get-tsconfig';
 
 export default testSuite('relative path', ({ test }) => {
 	test('extensionless file', async () => {
@@ -26,7 +26,7 @@ export default testSuite('relative path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -57,7 +57,7 @@ export default testSuite('relative path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -82,7 +82,7 @@ export default testSuite('relative path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -110,7 +110,7 @@ export default testSuite('relative path', ({ test }) => {
 		const expectedTsconfig = await getTscTsconfig(testDirectory);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(path.join(testDirectory, 'tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(path.join(testDirectory, 'tsconfig.json'));
 
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
@@ -128,7 +128,7 @@ export default testSuite('relative path', ({ test }) => {
 		});
 
 		expect(
-			() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			() => readTsconfig(fixture.getPath('tsconfig.json')),
 		).toThrow('File \'./directory\' not found.');
 	});
 
@@ -150,7 +150,7 @@ export default testSuite('relative path', ({ test }) => {
 		});
 
 		expect(
-			() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			() => readTsconfig(fixture.getPath('tsconfig.json')),
 		).toThrow('File \'./directory\' not found.');
 	});
 
@@ -177,7 +177,7 @@ export default testSuite('relative path', ({ test }) => {
 		 */
 		expectedTsconfig.exclude = ['a/dist'];
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 });

@@ -40,7 +40,7 @@ const parsePaths = (
  */
 export const createPathsMatcher = (
 	tsconfig: TsConfigResult,
-): PathsMatcher | null => {
+): PathsMatcher | undefined => {
 	const { compilerOptions } = tsconfig.config;
 	if (!compilerOptions) {
 		return;

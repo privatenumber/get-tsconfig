@@ -2,7 +2,7 @@ import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
+import { readTsconfig } from '#get-tsconfig';
 
 export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 	test('handles missing extends', async () => {
@@ -14,7 +14,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 		});
 
 		expect(
-			() => parseTsconfig(fixture.getPath('tsconfig.json')),
+			() => readTsconfig(fixture.getPath('tsconfig.json')),
 		).toThrow('File \'missing-package\' not found.');
 	});
 
@@ -33,7 +33,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 				getTscTsconfig(fixture.path),
 			).rejects.toThrow(errorMessage);
 			expect(
-				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+				() => readTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow(errorMessage);
 		});
 
@@ -49,7 +49,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 			onTestFinish(() => fixture.rm());
 
 			expect(
-				() => parseTsconfig(fixture.getPath('tsconfig.json')),
+				() => readTsconfig(fixture.getPath('tsconfig.json')),
 			).toThrow('Circularity detected while resolving configuration:');
 		});
 	});
@@ -76,7 +76,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
 		delete expectedTsconfig.files;
 
-		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
