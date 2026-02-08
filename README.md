@@ -162,7 +162,7 @@ console.log(parseTsconfig('./path/to/tsconfig.custom.json'))
 
 ---
 
-### createFileMatcher(tsconfig: TsconfigResult, caseSensitivePaths?: boolean)
+### createFilesMatcher(tsconfig: TsconfigResult, caseSensitivePaths?: boolean)
 
 Given a `tsconfig.json` file, it returns a file-matcher function that determines whether it should apply to a file path.
 
@@ -188,7 +188,7 @@ For example, if it's called with a `tsconfig.json` file that has `include`/`excl
 
 ```ts
 const tsconfig = getTsconfig()
-const fileMatcher = tsconfig && createFileMatcher(tsconfig)
+const fileMatcher = tsconfig && createFilesMatcher(tsconfig)
 
 /*
  * Returns tsconfig.json if it matches the file,
