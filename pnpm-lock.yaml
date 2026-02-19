@@ -13,8 +13,8 @@ importers:
         version: 1.0.0
     devDependencies:
       '@types/node':
-        specifier: ^24.10.4
-        version: 24.10.4
+        specifier: ^24.10.13
+        version: 24.10.13
       '@yarnpkg/pnp':
         specifier: 3.3.8
         version: 3.3.8
@@ -706,8 +706,8 @@ packages:
   '@types/node@18.19.130':
     resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
 
-  '@types/node@24.10.4':
-    resolution: {integrity: sha512-vnDVpYPMzs4wunl27jHrfmwojOGKya0xyM3sH+UE5iv5uPS6vX7UIoh6m+vQc5LGBq52HBKPIn/zcSZVzeDEZg==}
+  '@types/node@24.10.13':
+    resolution: {integrity: sha512-oH72nZRfDv9lADUBSo104Aq7gPHpQZc4BTx38r9xf9pg5LfP6EzSyH2n7qFmmxRQXh7YlUXODcYsg6PuTDSxGg==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -2842,7 +2842,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 24.10.4
+      '@types/node': 24.10.13
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -3040,7 +3040,7 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@24.10.4':
+  '@types/node@24.10.13':
     dependencies:
       undici-types: 7.16.0
 
@@ -4383,7 +4383,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 24.10.4
+      '@types/node': 24.10.13
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
