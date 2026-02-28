@@ -40,7 +40,8 @@
 		"test": "tsx tests",
 		"dev": "tsx watch --conditions=development tests",
 		"type-check": "tsc --noEmit",
-		"prepack": "pnpm build && clean-pkg-json"
+		"prepack": "pnpm build && clean-pkg-json",
+		"prepare": "skills-npm"
 	},
 	"engines": {
 		"node": ">=20.20.0"
@@ -57,8 +58,9 @@
 		"is-fs-case-sensitive": "^2.0.0",
 		"jsonc-parser": "^3.3.1",
 		"lintroll": "^1.20.1",
-		"manten": "^1.6.0",
+		"manten": "^2.0.0",
 		"pkgroll": "^2.6.1",
+		"skills-npm": "^1.0.0",
 		"slash": "^5.1.0",
 		"tsx": "^4.20.6",
 		"type-fest": "^5.1.0",

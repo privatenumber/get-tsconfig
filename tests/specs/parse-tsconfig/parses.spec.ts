@@ -1,11 +1,11 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
 
-export default testSuite('parses tsconfig', ({ describe, test }) => {
-	describe('errors', ({ test }) => {
+describe('parses tsconfig', () => {
+	describe('errors', () => {
 		test('non-existent path', async () => {
 			expect(
 				() => readTsconfig('non-existent-path'),
@@ -111,7 +111,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		expect(expectedTsconfig).toStrictEqual(parsedTsconfig.config);
 	});
 
-	describe('baseUrl', ({ test }) => {
+	describe('baseUrl', () => {
 		test('relative path', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -149,7 +149,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('rewriteRelativeImportExtensions', ({ test }) => {
+	describe('rewriteRelativeImportExtensions', () => {
 		test('sets allowImportingTsExtensions implicitly', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -203,7 +203,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('composite', ({ test }) => {
+	describe('composite', () => {
 		test('implies declaration and incremental', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -222,7 +222,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('lib', ({ test }) => {
+	describe('lib', () => {
 		test('normalizes to lowercase', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -241,7 +241,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('nodenext', ({ test }) => {
+	describe('nodenext', () => {
 		test('implies resolveJsonModule', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -260,7 +260,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('useDefineForClassFields', ({ test }) => {
+	describe('useDefineForClassFields', () => {
 		test('not implied when target is below ES2022', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -280,7 +280,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('module node18 and node20', ({ test }) => {
+	describe('module node18 and node20', () => {
 		test('module: node18 implications', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -316,7 +316,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('checkJs', ({ test }) => {
+	describe('checkJs', () => {
 		test('implies allowJs', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -335,7 +335,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		});
 	});
 
-	describe('exclude', ({ test }) => {
+	describe('exclude', () => {
 		test('does not add outDir when exclude is explicit', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -446,7 +446,7 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached.config);
 	});
 
-	describe('enum case normalization', ({ test }) => {
+	describe('enum case normalization', () => {
 		test('normalizes jsx to lowercase', async () => {
 			await using fixture = await createFixture({
 				'file.tsx': '',

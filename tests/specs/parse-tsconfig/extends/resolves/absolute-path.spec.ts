@@ -1,10 +1,10 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
 
-export default testSuite('absolute path', ({ test }) => {
+describe('absolute path', () => {
 	test('absolute path', async () => {
 		await using fixture = await createFixture({
 			'dep/tsconfig.json': createTsconfigJson({

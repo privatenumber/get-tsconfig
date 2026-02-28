@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
 import { findTsconfig } from '#get-tsconfig';
@@ -8,7 +8,7 @@ const tsconfigJson = JSON.stringify({
 	compilerOptions: { strict: true },
 });
 
-export default testSuite('findTsconfig', ({ test, describe }) => {
+describe('findTsconfig', () => {
 	test('not found', () => {
 		const tsconfigPath = findTsconfig('/');
 		expect(tsconfigPath).toBeUndefined();
@@ -58,7 +58,7 @@ export default testSuite('findTsconfig', ({ test, describe }) => {
 		expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 	});
 
-	describe('includes', ({ test }) => {
+	describe('includes', () => {
 		test('matches when no include or exclude is set', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': tsconfigJson,

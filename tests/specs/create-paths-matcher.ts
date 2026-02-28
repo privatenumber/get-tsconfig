@@ -1,4 +1,4 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import type { ExecaError } from 'execa';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
@@ -10,8 +10,8 @@ import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
  * npx tsc --traceResolution --noEmit
  */
 
-export default testSuite('paths', ({ describe, test }) => {
-	describe('error cases', ({ test }) => {
+describe('paths', () => {
+	describe('error cases', () => {
 		test('no baseUrl or paths should be fine', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
@@ -166,7 +166,7 @@ export default testSuite('paths', ({ describe, test }) => {
 		});
 	});
 
-	describe('baseUrl', ({ test }) => {
+	describe('baseUrl', () => {
 		test('absolute path', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
@@ -492,7 +492,7 @@ export default testSuite('paths', ({ describe, test }) => {
 		]);
 	});
 
-	describe('extends w/ no baseUrl', ({ test }) => {
+	describe('extends w/ no baseUrl', () => {
 		test('extended config should resolve relative to self', async () => {
 			await using fixture = await createFixture({
 				tsconfigs: {
@@ -584,7 +584,7 @@ export default testSuite('paths', ({ describe, test }) => {
 		});
 	});
 
-	describe('${configDir}', ({ test }) => {
+	describe('${configDir}', () => {
 		test('resolves paths with ${configDir}', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({

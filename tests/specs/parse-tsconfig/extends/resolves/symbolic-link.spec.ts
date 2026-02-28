@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
@@ -14,7 +14,7 @@ const validate = async (directoryPath: string) => {
 	expect(expectedTsconfig).toStrictEqual(tsconfig);
 };
 
-export default testSuite('symbolic link', ({ test }) => {
+describe('symbolic link', () => {
 	test('extends symlink to file', async () => {
 		await using fixture = await createFixture({
 			'tsconfig.symlink-source.json': createTsconfigJson({

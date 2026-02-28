@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { expect, testSuite } from 'manten';
+import { describe, test, expect } from 'manten';
 import slash from 'slash';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
@@ -71,8 +71,8 @@ const getTscMatchingFiles = (
 	return parsedTsconfig.fileNames.sort();
 };
 
-export default testSuite('createFilesMatcher', ({ describe }) => {
-	describe('error handling', ({ test }) => {
+describe('createFilesMatcher', () => {
+	describe('error handling', () => {
 		test('should throw on relative path', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 			await using fixture = await createFixture({
@@ -110,7 +110,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('files', ({ test }) => {
+	describe('files', () => {
 		test('disables default include', async () => {
 			const tsconfig: TsConfigJsonResolved = {
 				files: ['index.ts'],
@@ -215,7 +215,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('include', ({ test, describe }) => {
+	describe('include', () => {
 		test('default include matches all TS files', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 
@@ -340,7 +340,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			);
 		});
 
-		describe('hidden files', ({ test }) => {
+		describe('hidden files', () => {
 			test('should not match hidden files by default', async () => {
 				const directoryName = 'some-dir';
 				const tsconfig: TsConfigJsonResolved = {};
@@ -491,7 +491,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 
 		for (const directory of ['node_modules', 'bower_components', 'jspm_packages']) {
-			describe(directory, ({ test }) => {
+			describe(directory, () => {
 				test('exclude by default', async () => {
 					const directoryName = `${directory}/some-pkg`;
 					const tsconfig: TsConfigJsonResolved = {};
@@ -562,7 +562,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			});
 		}
 
-		describe('case sensitivity', ({ test }) => {
+		describe('case sensitivity', () => {
 			test('default', async () => {
 				const projectDirectory = '/project-root';
 				const matches = createFilesMatcher({
@@ -608,7 +608,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			});
 		});
 
-		describe('globs', ({ describe, test }) => {
+		describe('globs', () => {
 			test('?', async () => {
 				const tsconfig: TsConfigJsonResolved = {
 					include: [
@@ -643,7 +643,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 				)).toBe(undefined);
 			});
 
-			describe('*', ({ test }) => {
+			describe('*', () => {
 				test('single', async () => {
 					const tsconfig: TsConfigJsonResolved = {
 						include: ['*'],
@@ -744,7 +744,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('.min.js', ({ test }) => {
+	describe('.min.js', () => {
 		const filePath = 'some-dir/index.min.js';
 
 		test('explicit files', async () => {
@@ -859,8 +859,8 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('exclude', ({ test, describe }) => {
-		describe('default: outDir & declarationDir', ({ test }) => {
+	describe('exclude', () => {
+		describe('default: outDir & declarationDir', () => {
 			const directoryNames = ['out-dir', 'declaration-dir'];
 
 			const directoryFileNames = directoryNames.flatMap(
@@ -982,7 +982,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			);
 		});
 
-		describe('case sensitivity', ({ test }) => {
+		describe('case sensitivity', () => {
 			test('default', async () => {
 				const projectDirectory = '/project-root';
 				const matches = createFilesMatcher({
@@ -1028,7 +1028,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			});
 		});
 
-		describe('globs', ({ test }) => {
+		describe('globs', () => {
 			test('?', async () => {
 				const tsconfig: TsConfigJsonResolved = {
 					exclude: [
@@ -1153,7 +1153,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('.js', ({ test }) => {
+	describe('.js', () => {
 		test('should not match', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 
@@ -1259,7 +1259,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('extends', ({ test }) => {
+	describe('extends', () => {
 		test('must be resolved', async () => {
 			expect(
 				() => createFilesMatcher({
@@ -1304,7 +1304,7 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 		});
 	});
 
-	describe('${configDir}', ({ test }) => {
+	describe('${configDir}', () => {
 		test('matches files when include uses ${configDir}', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.base.json': createTsconfigJson({

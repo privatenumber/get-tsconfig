@@ -4,12 +4,12 @@ import { createTsconfigJson } from './utils/fixture-helpers.js';
 import { getTscResolution } from './utils/typescript-helpers.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
 
-await describe('get-tsconfig', ({ runTestSuite }) => {
-	runTestSuite(import('./specs/find-tsconfig.js'));
-	runTestSuite(import('./specs/get-tsconfig.js'));
-	runTestSuite(import('./specs/parse-tsconfig/index.js'));
-	runTestSuite(import('./specs/create-paths-matcher.js'));
-	runTestSuite(import('./specs/create-files-matcher.js'));
+describe('get-tsconfig', () => {
+	import('./specs/find-tsconfig.js');
+	import('./specs/get-tsconfig.js');
+	import('./specs/parse-tsconfig/index.js');
+	import('./specs/create-paths-matcher.js');
+	import('./specs/create-files-matcher.js');
 });
 
 /**

@@ -1,11 +1,11 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
 
-export default testSuite('merges', ({ describe, test }) => {
-	describe('error handling', ({ test }) => {
+describe('merges', () => {
+	describe('error handling', () => {
 		test('invalid path', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
@@ -114,7 +114,7 @@ export default testSuite('merges', ({ describe, test }) => {
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
 
-	describe('files', ({ test }) => {
+	describe('files', () => {
 		test('inherits with relative path', async () => {
 			await using fixture = await createFixture({
 				'some-dir': {
@@ -167,7 +167,7 @@ export default testSuite('merges', ({ describe, test }) => {
 		});
 	});
 
-	describe('include', ({ test }) => {
+	describe('include', () => {
 		test('inherits with relative path', async () => {
 			await using fixture = await createFixture({
 				'src-a': {
@@ -297,7 +297,7 @@ export default testSuite('merges', ({ describe, test }) => {
 		});
 	});
 
-	describe('baseUrl', ({ test }) => {
+	describe('baseUrl', () => {
 		test('path becomes prefixed with ./', async () => {
 			await using fixture = await createFixture({
 				'src-a': {
@@ -535,7 +535,7 @@ export default testSuite('merges', ({ describe, test }) => {
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
-	describe('${configDir}', ({ test }) => {
+	describe('${configDir}', () => {
 		test('works in paths, include, excludes', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',

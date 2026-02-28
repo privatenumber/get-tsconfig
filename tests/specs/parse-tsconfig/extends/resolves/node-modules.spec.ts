@@ -1,12 +1,12 @@
 import path from 'node:path';
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
 import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
 
-export default testSuite('node_modules', ({ describe, test }) => {
+describe('node_modules', () => {
 	test('prefers file over package', async () => {
 		await using fixture = await createFixture({
 			node_modules: {
@@ -34,7 +34,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
-	describe('extends dependency', ({ test }) => {
+	describe('extends dependency', () => {
 		test('implicit tsconfig.json', async () => {
 			await using fixture = await createFixture({
 				'node_modules/dep': {
@@ -196,7 +196,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		});
 	});
 
-	describe('dependency file', ({ test }) => {
+	describe('dependency file', () => {
 		test('direct tsconfig.json', async () => {
 			await using fixture = await createFixture({
 				'node_modules/dep/some-file.json': createTsconfigJson({
@@ -394,7 +394,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		}
 	});
 
-	describe('package.json#tsconfig', ({ test }) => {
+	describe('package.json#tsconfig', () => {
 		test('package.json#tsconfig', async () => {
 			await using fixture = await createFixture({
 				'node_modules/dep': {
@@ -523,7 +523,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		expect(invalidExtends).toMatch('Error: File \'fs/promises\' not found.');
 	});
 
-	describe('package.json exports', ({ test, describe }) => {
+	describe('package.json exports', () => {
 		test('main', async () => {
 			await using fixture = await createFixture({
 				'node_modules/dep': {
@@ -592,7 +592,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 			expect(expectedTsconfig).toStrictEqual(tsconfig);
 		});
 
-		describe('conditions', ({ test }) => {
+		describe('conditions', () => {
 			test('require', async () => {
 				await using fixture = await createFixture({
 					'node_modules/dep': {
