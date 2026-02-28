@@ -1,4 +1,4 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
 import { getTscTsconfig } from '../utils/typescript-helpers.js';
@@ -18,7 +18,7 @@ const tsconfigJson = `
 } //comment at bottom
 `;
 
-export default testSuite('getTsconfig', ({ test }) => {
+describe('getTsconfig', () => {
 	test('not found', () => {
 		const tsconfig = getTsconfig('/');
 		expect(tsconfig).toBeUndefined();

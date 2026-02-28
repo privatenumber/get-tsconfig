@@ -1,10 +1,10 @@
-import { testSuite, expect } from 'manten';
+import { describe, test, expect, onTestFinish } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
 
-export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
+describe('resolves', () => {
 	test('handles missing extends', async () => {
 		await using fixture = await createFixture({
 			'file.ts': '',
@@ -18,8 +18,8 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 		).toThrow('File \'missing-package\' not found.');
 	});
 
-	describe('circularity', ({ test }) => {
-		test('self extend', async ({ onTestFinish }) => {
+	describe('circularity', () => {
+		test('self extend', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					extends: './tsconfig.json',
@@ -37,7 +37,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 			).toThrow(errorMessage);
 		});
 
-		test('recursive', async ({ onTestFinish }) => {
+		test('recursive', async () => {
 			await using fixture = await createFixture({
 				'base.json': createTsconfigJson({
 					extends: './tsconfig.json',
@@ -54,7 +54,7 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 		});
 	});
 
-	test('extends array with common base', async ({ onTestFinish }) => {
+	test('extends array with common base', async () => {
 		await using fixture = await createFixture({
 			'base.json': createTsconfigJson({}),
 			'tsconfig-b.json': createTsconfigJson({
@@ -80,8 +80,8 @@ export default testSuite('resolves', ({ test, describe, runTestSuite }) => {
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
-	runTestSuite(import('./relative-path.spec.js'));
-	runTestSuite(import('./absolute-path.spec.js'));
-	runTestSuite(import('./node-modules.spec.js'));
-	runTestSuite(import('./symbolic-link.spec.js'));
+	import('./relative-path.spec.js');
+	import('./absolute-path.spec.js');
+	import('./node-modules.spec.js');
+	import('./symbolic-link.spec.js');
 });
