@@ -44,17 +44,9 @@ Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` a
 Returns:
 
 ```ts
-type TsconfigResult = {
-
-    /**
-     * The path to the tsconfig.json file
-     */
+type TsConfigResult<Config = TsConfigJsonResolved> = {
     path: string
-
-    /**
-     * The resolved tsconfig.json file
-     */
-    config: TsConfigJsonResolved
+    config: Config
 }
 ```
 
@@ -137,7 +129,7 @@ findTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true)
 
 ### readTsconfig(tsconfigPath, cache?)
 
-Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsconfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
+Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsConfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
 
 #### tsconfigPath
 Type: `string`
@@ -162,18 +154,101 @@ const { path, config } = readTsconfig('./path/to/tsconfig.custom.json')
 
 ---
 
-### createFilesMatcher(tsconfig: TsconfigResult, caseSensitivePaths?: boolean)
+### Tsconfig `extends`
+
+`readTsconfig` and `getTsconfig` fully resolve the [`extends`](https://www.typescriptlang.org/tsconfig/#extends) chain and return a flattened config. These two functions expose the chain for use cases like watch mode (knowing which files to monitor for reloads) and config auditing (inspecting what each layer sets).
+
+#### getExtendsChain(tsconfigPath, cache?)
+
+Collects the full extends chain for a tsconfig file. Returns an array of `TsConfigResult<TsConfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths.
+
+`chain[0]` is the root config. Ancestors follow in resolution order. The `extends` field in each entry is resolved to absolute paths, so you can navigate the graph by matching `extends` values to other entries' `path`.
+
+##### tsconfigPath
+Type: `string`
+
+Required path to the tsconfig file.
+
+##### cache
+Type: `Map<string, any>`
+
+Default: `new Map()`
+
+Optional cache for fs operations.
+
+##### Example
+
+Given this extends chain:
+
+```
+tsconfig.json → extends: "./base.json"
+base.json     → extends: "@tsconfig/node20/tsconfig.json"
+```
+
+```ts
+import { getExtendsChain } from 'get-tsconfig'
+
+const chain = getExtendsChain('./tsconfig.json')
+// [
+//   {
+//     path: '/project/tsconfig.json',
+//     config: { extends: '/project/base.json', ... }
+//   },
+//   {
+//     path: '/project/base.json',
+//     config: { extends: '/project/node_modules/...', ... }
+//   },
+//   {
+//     path: '/project/node_modules/.../tsconfig.json',
+//     config: { ... }
+//   },
+// ]
+
+// Watch all files in the extends chain
+const filesToWatch = chain.map(entry => entry.path)
+```
+
+#### resolveExtendsChain(chain)
+
+Merges a collected extends chain into a resolved tsconfig. Pure function — no filesystem access.
+
+Expects the output of `getExtendsChain` or an equivalent acyclic, root-first chain with `extends` resolved to absolute paths.
+
+##### chain
+Type: `TsConfigResult<TsConfigJson>[]`
+
+Array of unresolved tsconfig entries. `chain[0]` is the root config.
+
+##### Example
+
+```ts
+import { getExtendsChain, resolveExtendsChain } from 'get-tsconfig'
+
+const chain = getExtendsChain('./tsconfig.json')
+
+// Inspect or modify the chain before merging
+chain[0].config.compilerOptions = {
+    ...chain[0].config.compilerOptions,
+    sourceMap: true
+}
+
+const { path, config } = resolveExtendsChain(chain)
+```
+
+---
+
+### createFilesMatcher(tsconfig: TsConfigResult, caseSensitivePaths?: boolean)
 
 Given a `tsconfig.json` file, it returns a file-matcher function that determines whether it should apply to a file path.
 
 ```ts
-type FileMatcher = (filePath: string) => TsconfigResult['config'] | undefined
+type FileMatcher = (filePath: string) => TsConfigResult['config'] | undefined
 ```
 
 #### tsconfig
-Type: `TsconfigResult`
+Type: `TsConfigResult`
 
-Pass in the return value from `getTsconfig`, or a `TsconfigResult` object.
+Pass in the return value from `getTsconfig`, or a `TsConfigResult` object.
 
 #### caseSensitivePaths
 Type: `boolean`
@@ -203,7 +278,7 @@ const distCode = compileTypescript({
 
 ---
 
-### createPathsMatcher(tsconfig: TsconfigResult)
+### createPathsMatcher(tsconfig: TsConfigResult)
 
 Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
 

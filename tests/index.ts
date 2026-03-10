@@ -6,4 +6,5 @@ describe('get-tsconfig', () => {
 	import('./specs/parse-tsconfig/index.js');
 	import('./specs/create-paths-matcher.js');
 	import('./specs/create-files-matcher.js');
+	import('./specs/extends-chain.js');
 });
