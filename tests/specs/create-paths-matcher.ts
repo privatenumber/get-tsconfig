@@ -1,6 +1,8 @@
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import type { ExecaError } from 'execa';
+import { execaNode, type ExecaError } from 'execa';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import { getTscResolution } from '../utils/typescript-helpers.js';
 import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
@@ -167,7 +169,7 @@ describe('paths', () => {
 	});
 
 	describe('baseUrl', () => {
-		test('absolute path', async () => {
+		test('relative baseUrl', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson({
 					compilerOptions: {
@@ -221,7 +223,7 @@ describe('paths', () => {
 			]);
 		});
 
-		test('absolute path', async () => {
+		test('absolute baseUrl', async () => {
 			await using fixture = await createFixture({
 				'tsconfig.json': ({ fixturePath }) => createTsconfigJson({
 					compilerOptions: {
@@ -334,6 +336,39 @@ describe('paths', () => {
 
 		const resolvedAttempts = await getTscResolution('prefix-specifier', fixture.path);
 		expect(matcher('prefix-specifier')).toStrictEqual([
+			resolvedAttempts[0].filePath.slice(0, -3),
+		]);
+	});
+
+	// Runs in a subprocess so getTsconfig receives a relative path
+	// from a different cwd — verifying that path.resolve() is applied
+	// internally (regression test for https://github.com/privatenumber/get-tsconfig/issues/79)
+	test('prefix match > nested directory', async () => {
+		const distPath = pathToFileURL(path.resolve('dist/index.mjs')).href;
+
+		await using fixture = await createFixture({
+			'dir/tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					paths: {
+						'@/*': ['./*'],
+					},
+				},
+			}),
+			'test.mjs': `
+				import { getTsconfig, createPathsMatcher } from ${JSON.stringify(distPath)};
+				const tsconfig = getTsconfig('./dir/tsconfig.json');
+				if (!tsconfig) process.exit(1);
+				const matcher = createPathsMatcher(tsconfig);
+				if (!matcher) process.exit(1);
+				console.log(JSON.stringify(matcher('@/file')));
+			`,
+		});
+
+		const { stdout } = await execaNode(fixture.getPath('test.mjs'), [], { cwd: fixture.path });
+		const matcherResult = JSON.parse(stdout);
+
+		const resolvedAttempts = await getTscResolution('@/file', fixture.getPath('./dir'));
+		expect(matcherResult).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
