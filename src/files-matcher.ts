@@ -193,7 +193,7 @@ export const createFilesMatcher = (
 		filePath: string,
 	) => {
 		if (!path.isAbsolute(filePath)) {
-			throw new Error('filePath must be absolute');
+			return;
 		}
 
 		if (isWindows) {
