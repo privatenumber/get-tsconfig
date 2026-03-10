@@ -239,11 +239,15 @@ const { path, config } = resolveExtendsChain(chain)
 
 ### createFilesMatcher(tsconfig: TsConfigResult, caseSensitivePaths?: boolean)
 
-Given a `tsconfig.json` file, it returns a file-matcher function that determines whether it should apply to a file path.
+Given a `tsconfig.json` file, it returns a file-matcher function that determines whether an absolute file path should apply to it.
 
 ```ts
 type FileMatcher = (filePath: string) => TsConfigResult['config'] | undefined
 ```
+
+The `filePath` must be absolute. Non-absolute paths return `undefined` without matching.
+
+Returns the resolved config if the file matches `include`/`files` and is not excluded, `undefined` otherwise.
 
 #### tsconfig
 Type: `TsConfigResult`

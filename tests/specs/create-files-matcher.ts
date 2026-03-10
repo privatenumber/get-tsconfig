@@ -73,7 +73,7 @@ const getTscMatchingFiles = (
 
 describe('createFilesMatcher', () => {
 	describe('error handling', () => {
-		test('should throw on relative path', async () => {
+		test('should return undefined for non-absolute paths', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson(tsconfig),
@@ -85,7 +85,11 @@ describe('createFilesMatcher', () => {
 				path: fixture.getPath('tsconfig.json'),
 			});
 
-			expect(() => matches('index.ts')).toThrow('Path must be absolute');
+			// Relative path
+			expect(matches('index.ts')).toBeUndefined();
+
+			// Bare specifier
+			expect(matches('react')).toBeUndefined();
 		});
 
 		test('should not match path outside of directory', async () => {
