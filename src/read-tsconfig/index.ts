@@ -51,235 +51,10 @@ const prefixPattern = (
 	return slash(`${relativeDir}/${cleanPattern}`);
 };
 
-const resolveExtends = (
-	extendsPath: string,
-	fromDirectoryPath: string,
-	circularExtendsTracker: Set<string>,
-	cache?: Cache<string>,
-) => {
-	const resolvedExtendsPath = resolveExtendsPath(
-		extendsPath,
-		fromDirectoryPath,
-		cache,
-	);
-
-	if (!resolvedExtendsPath) {
-		throw new Error(`File '${extendsPath}' not found.`);
-	}
-
-	if (circularExtendsTracker.has(resolvedExtendsPath)) {
-		throw new Error(`Circularity detected while resolving configuration: ${resolvedExtendsPath}`);
-	}
-
-	circularExtendsTracker.add(resolvedExtendsPath);
-
-	const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
-	const extendsConfig = _parseTsconfig(resolvedExtendsPath, cache, circularExtendsTracker);
-	delete extendsConfig.references;
-
-	const { compilerOptions } = extendsConfig;
-	if (compilerOptions) {
-		const { baseUrl } = compilerOptions;
-		if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
-			compilerOptions.baseUrl = resolveAndRelativize(
-				fromDirectoryPath,
-				extendsDirectoryPath,
-				baseUrl,
-			);
-		}
-
-		const { outDir } = compilerOptions;
-		if (outDir && !outDir.startsWith(configDirPlaceholder)) {
-			compilerOptions.outDir = resolveAndRelativize(
-				fromDirectoryPath,
-				extendsDirectoryPath,
-				outDir,
-			);
-		}
-	}
-
-	for (const property of filesProperties) {
-		const filesList = extendsConfig[property];
-		if (filesList) {
-			extendsConfig[property] = filesList.map((file) => {
-				if (file.startsWith(configDirPlaceholder)) {
-					return file;
-				}
-
-				return prefixPattern(fromDirectoryPath, extendsDirectoryPath, file);
-			});
-		}
-	}
-
-	return extendsConfig;
-};
-
 const outputFields = [
 	'outDir',
 	'declarationDir',
 ] as const;
-
-const _parseTsconfig = (
-	tsconfigPath: string,
-	cache?: Cache<string>,
-	circularExtendsTracker = new Set<string>(),
-): TsConfigJsonResolved => {
-	/**
-	 * Decided not to cache the TsConfigJsonResolved object because it's
-	 * mutable.
-	 *
-	 * Note how `resolveExtends` can call `parseTsconfig` rescursively
-	 * and actually mutates the object. It can also be mutated in
-	 * user-land.
-	 *
-	 * By only caching fs results, we can avoid serving mutated objects
-	 */
-	let config: TsConfigJson;
-	try {
-		config = readJsonc(tsconfigPath, cache) || {};
-	} catch {
-		throw new Error(`Cannot resolve tsconfig at path: ${tsconfigPath}`);
-	}
-
-	if (typeof config !== 'object') {
-		throw new SyntaxError(`Failed to parse tsconfig at: ${tsconfigPath}`);
-	}
-
-	const directoryPath = path.dirname(tsconfigPath);
-
-	if (config.compilerOptions) {
-		const { compilerOptions } = config;
-		if (
-			compilerOptions.paths
-			&& !compilerOptions.baseUrl
-		) {
-			type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
-				[implicitBaseUrlSymbol]: string;
-			};
-			(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
-		}
-	}
-
-	if (config.extends) {
-		const extendsPathList = (
-			Array.isArray(config.extends)
-				? config.extends
-				: [config.extends]
-		);
-
-		delete config.extends;
-
-		for (const extendsPath of extendsPathList.reverse()) {
-			const extendsConfig = resolveExtends(
-				extendsPath,
-				directoryPath,
-				new Set(circularExtendsTracker),
-				cache,
-			);
-			const merged = {
-				...extendsConfig,
-				...config,
-
-				compilerOptions: {
-					...extendsConfig.compilerOptions,
-					...config.compilerOptions,
-				},
-			};
-
-			if (extendsConfig.watchOptions) {
-				merged.watchOptions = {
-					...extendsConfig.watchOptions,
-					...config.watchOptions,
-				};
-			}
-			config = merged;
-		}
-	}
-
-	if (config.compilerOptions) {
-		const { compilerOptions } = config;
-		const normalizedPaths = [
-			'baseUrl',
-			'rootDir',
-		] as const;
-
-		for (const property of normalizedPaths) {
-			const unresolvedPath = compilerOptions[property];
-			if (unresolvedPath && !unresolvedPath.startsWith(configDirPlaceholder)) {
-				const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
-				const relativeBaseUrl = pathRelative(directoryPath, resolvedBaseUrl);
-				compilerOptions[property] = relativeBaseUrl;
-			}
-		}
-
-		for (const outputField of outputFields) {
-			let outputPath = compilerOptions[outputField];
-
-			if (outputPath) {
-				if (!Array.isArray(config.exclude)) {
-					config.exclude = outputFields
-						.map(field => compilerOptions[field])
-						.filter(Boolean) as string[];
-				}
-
-				if (!outputPath.startsWith(configDirPlaceholder)) {
-					outputPath = normalizeRelativePath(outputPath);
-				}
-
-				compilerOptions[outputField] = outputPath;
-			}
-		}
-	} else {
-		config.compilerOptions = {};
-	}
-
-	if (config.include) {
-		config.include = config.include.map(slash);
-
-		if (config.files) {
-			delete config.files;
-		}
-	} else if (config.files) {
-		config.files = config.files.map(file => (
-			file.startsWith(configDirPlaceholder)
-				? file
-				: normalizeRelativePath(file)
-		));
-	}
-
-	if (config.watchOptions) {
-		const { watchOptions } = config;
-
-		if (watchOptions.excludeDirectories) {
-			watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
-				excludePath => slash(path.resolve(directoryPath, excludePath)),
-			);
-		}
-
-		if (watchOptions.excludeFiles) {
-			watchOptions.excludeFiles = watchOptions.excludeFiles.map(
-				excludePath => slash(path.resolve(directoryPath, excludePath)),
-			);
-		}
-
-		if (watchOptions.watchFile) {
-			watchOptions.watchFile = watchOptions.watchFile.toLowerCase() as
-				TsConfigJson.WatchOptions['watchFile'];
-		}
-
-		if (watchOptions.watchDirectory) {
-			watchOptions.watchDirectory = watchOptions.watchDirectory.toLowerCase() as
-				TsConfigJson.WatchOptions['watchDirectory'];
-		}
-
-		if (watchOptions.fallbackPolling) {
-			watchOptions.fallbackPolling = watchOptions.fallbackPolling.toLowerCase() as
-				TsConfigJson.WatchOptions['fallbackPolling'];
-		}
-	}
-
-	return config;
-};
 
 const interpolateConfigDir = (
 	filePath: string,
@@ -536,20 +311,296 @@ const normalizeCompilerOptions = (
 };
 
 /**
- * Reads and resolves a tsconfig file at a given path
+ * Collects the extends chain for a tsconfig file.
+ *
+ * Walks the filesystem to discover all configs in the extends chain,
+ * returning them as a flat array with `extends` resolved to absolute paths.
  *
  * @param tsconfigPath - Path to the tsconfig file.
- * @param cache - Cache for storing parsed tsconfig results (default: new `Map()`).
- * @returns The resolved absolute path and config. The path is the same one used
- * internally for extends resolution.
+ * @param cache - Cache for filesystem reads (default: new `Map()`).
+ * @returns Array of `{ path, config }` entries. `chain[0]` is the root config.
+ * Ordered root-first, deepest ancestor last.
  */
-export const readTsconfig = (
+export const getExtendsChain = (
 	tsconfigPath: string,
 	cache: Cache<string> = new Map(),
+): TsConfigResult<TsConfigJson>[] => {
+	const resolvedPath = path.resolve(tsconfigPath);
+	const chain: TsConfigResult<TsConfigJson>[] = [];
+	const visited = new Set<string>();
+
+	const collect = (
+		configPath: string,
+		circularTracker: Set<string>,
+	) => {
+		const normalizedPath = slash(configPath);
+		if (visited.has(normalizedPath)) {
+			return;
+		}
+
+		visited.add(normalizedPath);
+
+		let config: TsConfigJson;
+		try {
+			config = readJsonc(configPath, cache) || {};
+		} catch {
+			throw new Error(`Cannot resolve tsconfig at path: ${configPath}`);
+		}
+
+		if (typeof config !== 'object') {
+			throw new SyntaxError(`Failed to parse tsconfig at: ${configPath}`);
+		}
+
+		const directoryPath = path.dirname(configPath);
+
+		if (config.extends) {
+			const extendsIsArray = Array.isArray(config.extends);
+			const extendsList = extendsIsArray
+				? config.extends as string[]
+				: [config.extends as string];
+
+			const resolvedExtends = extendsList.map((extendsValue) => {
+				const resolved = resolveExtendsPath(extendsValue, directoryPath, cache);
+				if (!resolved) {
+					throw new Error(`File '${extendsValue}' not found.`);
+				}
+
+				const resolvedNormalized = slash(resolved);
+				if (circularTracker.has(resolvedNormalized) || resolvedNormalized === normalizedPath) {
+					throw new Error(`Circularity detected while resolving configuration: ${resolvedNormalized}`);
+				}
+
+				return resolvedNormalized;
+			});
+
+			config.extends = extendsIsArray
+				? resolvedExtends
+				: resolvedExtends[0];
+
+			chain.push({
+				path: normalizedPath,
+				config,
+			});
+
+			const nextTracker = new Set(circularTracker);
+			nextTracker.add(normalizedPath);
+
+			for (const resolvedExtendsPath of [...resolvedExtends].reverse()) {
+				collect(resolvedExtendsPath, nextTracker);
+			}
+		} else {
+			chain.push({
+				path: normalizedPath,
+				config,
+			});
+		}
+	};
+
+	collect(resolvedPath, new Set());
+	return chain;
+};
+
+/**
+ * Resolves a collected extends chain into a merged tsconfig.
+ *
+ * Pure function — no filesystem access. Expects the output of
+ * `getExtendsChain` or an equivalent acyclic, root-first chain
+ * with `extends` resolved to absolute paths.
+ *
+ * @param chain - Array of `{ path, config }` entries. `chain[0]` is the
+ * root config. Must be acyclic — cyclic extends will cause infinite recursion.
+ * @returns The resolved tsconfig with path and fully merged config.
+ */
+export const resolveExtendsChain = (
+	chain: TsConfigResult<TsConfigJson>[],
 ): TsConfigResult => {
-	const resolvedTsconfigPath = path.resolve(tsconfigPath);
-	const config = _parseTsconfig(resolvedTsconfigPath, cache);
-	const configDir = path.dirname(resolvedTsconfigPath);
+	if (chain.length === 0) {
+		throw new Error('Chain must not be empty');
+	}
+
+	const lookup = new Map(chain.map(entry => [entry.path, entry]));
+
+	const resolveEntry = (entryPath: string): TsConfigJsonResolved => {
+		const entry = lookup.get(entryPath);
+		if (!entry) {
+			throw new Error(`Config not found in chain: ${entryPath}`);
+		}
+
+		// structuredClone drops symbol-keyed properties by spec.
+		// implicitBaseUrlSymbol is set after cloning, so this is safe.
+		let config: TsConfigJson = structuredClone(entry.config);
+		const directoryPath = path.dirname(entryPath);
+
+		if (config.compilerOptions) {
+			const { compilerOptions } = config;
+			if (
+				compilerOptions.paths
+				&& !compilerOptions.baseUrl
+			) {
+				type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
+					[implicitBaseUrlSymbol]: string;
+				};
+				(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
+			}
+		}
+
+		if (config.extends) {
+			const extendsPathList = (
+				Array.isArray(config.extends)
+					? config.extends
+					: [config.extends]
+			);
+
+			delete config.extends;
+
+			for (const extendsPath of extendsPathList.reverse()) {
+				const extendsConfig = resolveEntry(extendsPath);
+				delete extendsConfig.references;
+
+				const extendsDirectoryPath = path.dirname(extendsPath);
+
+				const { compilerOptions } = extendsConfig;
+				if (compilerOptions) {
+					const { baseUrl } = compilerOptions;
+					if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
+						compilerOptions.baseUrl = resolveAndRelativize(
+							directoryPath,
+							extendsDirectoryPath,
+							baseUrl,
+						);
+					}
+
+					const { outDir } = compilerOptions;
+					if (outDir && !outDir.startsWith(configDirPlaceholder)) {
+						compilerOptions.outDir = resolveAndRelativize(
+							directoryPath,
+							extendsDirectoryPath,
+							outDir,
+						);
+					}
+				}
+
+				for (const property of filesProperties) {
+					const filesList = extendsConfig[property];
+					if (filesList) {
+						extendsConfig[property] = filesList.map((file) => {
+							if (file.startsWith(configDirPlaceholder)) {
+								return file;
+							}
+
+							return prefixPattern(directoryPath, extendsDirectoryPath, file);
+						});
+					}
+				}
+
+				const merged = {
+					...extendsConfig,
+					...config,
+
+					compilerOptions: {
+						...extendsConfig.compilerOptions,
+						...config.compilerOptions,
+					},
+				};
+
+				if (extendsConfig.watchOptions) {
+					merged.watchOptions = {
+						...extendsConfig.watchOptions,
+						...config.watchOptions,
+					};
+				}
+				config = merged;
+			}
+		}
+
+		if (config.compilerOptions) {
+			const { compilerOptions } = config;
+			const normalizedPaths = [
+				'baseUrl',
+				'rootDir',
+			] as const;
+
+			for (const property of normalizedPaths) {
+				const unresolvedPath = compilerOptions[property];
+				if (unresolvedPath && !unresolvedPath.startsWith(configDirPlaceholder)) {
+					const resolvedBaseUrl = path.resolve(directoryPath, unresolvedPath);
+					const relativeBaseUrl = pathRelative(directoryPath, resolvedBaseUrl);
+					compilerOptions[property] = relativeBaseUrl;
+				}
+			}
+
+			for (const outputField of outputFields) {
+				let outputPath = compilerOptions[outputField];
+
+				if (outputPath) {
+					if (!Array.isArray(config.exclude)) {
+						config.exclude = outputFields
+							.map(field => compilerOptions[field])
+							.filter(Boolean) as string[];
+					}
+
+					if (!outputPath.startsWith(configDirPlaceholder)) {
+						outputPath = normalizeRelativePath(outputPath);
+					}
+
+					compilerOptions[outputField] = outputPath;
+				}
+			}
+		} else {
+			config.compilerOptions = {};
+		}
+
+		if (config.include) {
+			config.include = config.include.map(slash);
+
+			if (config.files) {
+				delete config.files;
+			}
+		} else if (config.files) {
+			config.files = config.files.map(file => (
+				file.startsWith(configDirPlaceholder)
+					? file
+					: normalizeRelativePath(file)
+			));
+		}
+
+		if (config.watchOptions) {
+			const { watchOptions } = config;
+
+			if (watchOptions.excludeDirectories) {
+				watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
+					excludePath => slash(path.resolve(directoryPath, excludePath)),
+				);
+			}
+
+			if (watchOptions.excludeFiles) {
+				watchOptions.excludeFiles = watchOptions.excludeFiles.map(
+					excludePath => slash(path.resolve(directoryPath, excludePath)),
+				);
+			}
+
+			if (watchOptions.watchFile) {
+				watchOptions.watchFile = watchOptions.watchFile.toLowerCase() as
+					TsConfigJson.WatchOptions['watchFile'];
+			}
+
+			if (watchOptions.watchDirectory) {
+				watchOptions.watchDirectory = watchOptions.watchDirectory.toLowerCase() as
+					TsConfigJson.WatchOptions['watchDirectory'];
+			}
+
+			if (watchOptions.fallbackPolling) {
+				watchOptions.fallbackPolling = watchOptions.fallbackPolling.toLowerCase() as
+					TsConfigJson.WatchOptions['fallbackPolling'];
+			}
+		}
+
+		return config;
+	};
+
+	const root = chain[0];
+	const config = resolveEntry(root.path);
+	const configDir = path.dirname(root.path);
 
 	const { compilerOptions } = config;
 	if (compilerOptions) {
@@ -593,7 +644,23 @@ export const readTsconfig = (
 	}
 
 	return {
-		path: slash(resolvedTsconfigPath),
+		path: root.path,
 		config,
 	};
+};
+
+/**
+ * Reads and resolves a tsconfig file at a given path
+ *
+ * @param tsconfigPath - Path to the tsconfig file.
+ * @param cache - Cache for storing parsed tsconfig results (default: new `Map()`).
+ * @returns The resolved absolute path and config. The path is the same one used
+ * internally for extends resolution.
+ */
+export const readTsconfig = (
+	tsconfigPath: string,
+	cache: Cache<string> = new Map(),
+): TsConfigResult => {
+	const chain = getExtendsChain(tsconfigPath, cache);
+	return resolveExtendsChain(chain);
 };

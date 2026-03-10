@@ -4,17 +4,18 @@ export type { TsConfigJson };
 
 export type TsConfigJsonResolved = Except<TsConfigJson, 'extends'>;
 
-export type TsConfigResult = {
+export type TsConfigResult<Config = TsConfigJsonResolved> = {
 
 	/**
-	 * The path to the tsconfig.json file
+	 * Absolute path to the tsconfig.json file
 	 */
 	path: string;
 
 	/**
-	 * The resolved tsconfig.json file
+	 * The tsconfig.json content. When using the default type parameter,
+	 * this is the fully resolved config (extends merged, options normalized).
 	 */
-	config: TsConfigJsonResolved;
+	config: Config;
 };
 
 export type PathsMatcher = (specifier: string) => string[];
