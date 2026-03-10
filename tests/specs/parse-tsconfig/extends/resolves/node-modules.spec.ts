@@ -114,7 +114,7 @@ describe('node_modules', () => {
 			expect(tsconfig).toStrictEqual(expectedTsconfig);
 		});
 
-		test('ignores invalid package.json', async () => {
+		test('ignores invalid package.json without extra configs', async () => {
 			await using fixture = await createFixture({
 				'node_modules/dep': {
 					'package.json': 'invalid json',

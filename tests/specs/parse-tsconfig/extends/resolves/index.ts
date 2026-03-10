@@ -1,4 +1,6 @@
-import { describe, test, expect, onTestFinish } from 'manten';
+import {
+	describe, test, expect, onTestFinish,
+} from 'manten';
 import { createFixture } from 'fs-fixture';
 import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
