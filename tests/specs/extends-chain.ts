@@ -307,6 +307,38 @@ describe('resolveExtendsChain', () => {
 		expect(first.config).toStrictEqual(second.config);
 	});
 
+	test('shared ancestor with paths (no baseUrl) resolves correctly', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': JSON.stringify({
+				extends: ['./a.json', './b.json'],
+			}),
+			'a.json': JSON.stringify({
+				extends: './shared/tsconfig.json',
+				compilerOptions: { strict: true },
+			}),
+			'b.json': JSON.stringify({
+				extends: './shared/tsconfig.json',
+				compilerOptions: { jsx: 'react-jsx' },
+			}),
+			'shared/tsconfig.json': JSON.stringify({
+				compilerOptions: {
+					paths: { '@/*': ['./src/*'] },
+				},
+			}),
+			'shared/src/index.ts': '',
+		});
+
+		const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+
+		// Both branches extend shared config with paths but no baseUrl.
+		// The implicitBaseUrlSymbol must survive memoization + structuredClone.
+		const chain = getExtendsChain(tsconfigPath);
+		const fromChain = resolveExtendsChain(chain);
+		const fromRead = readTsconfig(tsconfigPath);
+
+		expect(fromChain.config).toStrictEqual(fromRead.config);
+	});
+
 	test('diamond dependency merge result', async () => {
 		await using fixture = await createFixture({
 			'tsconfig.json': JSON.stringify({

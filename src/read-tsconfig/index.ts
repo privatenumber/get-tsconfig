@@ -419,8 +419,31 @@ export const resolveExtendsChain = (
 	}
 
 	const lookup = new Map(chain.map(entry => [entry.path, entry]));
+	const resolvedCache = new Map<string, TsConfigJsonResolved>();
+
+	type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
+		[implicitBaseUrlSymbol]: string;
+	};
+
+	const cloneResolved = (config: TsConfigJsonResolved) => {
+		const cloned = structuredClone(config);
+
+		// structuredClone drops symbol properties — copy from source
+		const sourceOptions = config.compilerOptions as WithImplicitBaseUrl | undefined;
+		if (sourceOptions && implicitBaseUrlSymbol in sourceOptions) {
+			const clonedOptions = cloned.compilerOptions as WithImplicitBaseUrl;
+			clonedOptions[implicitBaseUrlSymbol] = sourceOptions[implicitBaseUrlSymbol];
+		}
+
+		return cloned;
+	};
 
 	const resolveEntry = (entryPath: string): TsConfigJsonResolved => {
+		const cached = resolvedCache.get(entryPath);
+		if (cached) {
+			return cloneResolved(cached);
+		}
+
 		const entry = lookup.get(entryPath);
 		if (!entry) {
 			throw new Error(`Config not found in chain: ${entryPath}`);
@@ -437,9 +460,6 @@ export const resolveExtendsChain = (
 				compilerOptions.paths
 				&& !compilerOptions.baseUrl
 			) {
-				type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
-					[implicitBaseUrlSymbol]: string;
-				};
 				(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
 			}
 		}
@@ -595,7 +615,9 @@ export const resolveExtendsChain = (
 			}
 		}
 
-		return config;
+		resolvedCache.set(entryPath, config);
+		// Return a clone so callers can mutate without corrupting the cache
+		return cloneResolved(config);
 	};
 
 	const root = chain[0];
