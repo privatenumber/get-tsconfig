@@ -2,9 +2,7 @@ import path from 'node:path';
 import slash from 'slash';
 import type { TsConfigJson } from 'type-fest';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
-import type { TsConfigResult, TsConfigJsonResolved } from './types.js';
-
-export type FileMatcher = (filePath: string) => (TsConfigJsonResolved | undefined);
+import type { TsConfigResult } from './types.js';
 
 const { join: pathJoin } = path.posix;
 
@@ -91,13 +89,20 @@ const noPeriodOrSlash = '[^./]';
 
 const isWindows = process.platform === 'win32';
 
-export const createFilesMatcher = (
+type CompiledPatterns = {
+	filesSet: Set<string> | undefined;
+	extensions: string[];
+	excludePatterns: RegExp[];
+	includePatterns: RegExp[] | undefined;
+};
+
+const compilePatterns = (
 	{
 		config,
 		path: tsconfigPath,
 	}: TsConfigResult,
-	caseSensitivePaths = isFsCaseSensitive(),
-): FileMatcher => {
+	caseSensitivePaths: boolean,
+): CompiledPatterns => {
 	if ('extends' in config) {
 		throw new Error('tsconfig#extends must be resolved. Use getTsconfig or readTsconfig to resolve it.');
 	}
@@ -117,7 +122,9 @@ export const createFilesMatcher = (
 	const resolvePattern = (pattern: string) => (
 		path.isAbsolute(pattern) ? pattern : pathJoin(projectDirectory, pattern)
 	);
-	const filesList = files?.map(resolvePattern);
+	const filesSet = files
+		? new Set(files.map(resolvePattern))
+		: undefined;
 	const extensions = getSupportedExtensions(compilerOptions);
 	const regexpFlags = caseSensitivePaths ? '' : 'i';
 
@@ -189,37 +196,78 @@ export const createFilesMatcher = (
 		})
 		: undefined;
 
-	return (
-		filePath: string,
-	) => {
-		if (!path.isAbsolute(filePath)) {
-			return;
-		}
-
-		if (isWindows) {
-			filePath = slash(filePath);
-		}
-
-		if (filesList?.includes(filePath)) {
-			return config;
-		}
-
-		if (
-
-			// Invalid extension (case sensitive)
-			!extensions.some(extension => filePath.endsWith(extension))
-
-			// Matches exclude
-			|| excludePatterns.some(pattern => pattern.test(filePath))
-		) {
-			return;
-		}
-
-		if (
-			includePatterns
-			&& includePatterns.some(pattern => pattern.test(filePath))
-		) {
-			return config;
-		}
+	return {
+		filesSet,
+		extensions,
+		excludePatterns,
+		includePatterns,
 	};
+};
+
+const patternCache = new WeakMap<TsConfigResult, CompiledPatterns>();
+
+/**
+ * Checks whether a file is included by a tsconfig's `files`, `include`,
+ * and `exclude` settings.
+ *
+ * Case sensitivity is auto-detected from the filesystem, matching
+ * TypeScript's behavior.
+ *
+ * The `filePath` must be absolute. Non-absolute paths return `false`.
+ *
+ * Compiled patterns are cached per tsconfig object. The tsconfig must
+ * not be mutated after the first call — mutation will not invalidate
+ * the cache and may return stale results.
+ *
+ * @param tsconfig - The resolved tsconfig to check against (treat as immutable).
+ * @param filePath - Absolute path to the file.
+ * @returns `true` if the file is included, `false` otherwise.
+ */
+export const isFileIncluded = (
+	tsconfig: TsConfigResult,
+	filePath: string,
+): boolean => {
+	if (!path.isAbsolute(filePath)) {
+		return false;
+	}
+
+	if (isWindows) {
+		filePath = slash(filePath);
+	}
+
+	let compiled = patternCache.get(tsconfig);
+	if (!compiled) {
+		compiled = compilePatterns(tsconfig, isFsCaseSensitive());
+		patternCache.set(tsconfig, compiled);
+	}
+
+	const {
+		filesSet,
+		extensions,
+		excludePatterns,
+		includePatterns,
+	} = compiled;
+
+	if (filesSet?.has(filePath)) {
+		return true;
+	}
+
+	if (
+		// Invalid extension (case sensitive)
+		!extensions.some(extension => filePath.endsWith(extension))
+
+		// Matches exclude
+		|| excludePatterns.some(pattern => pattern.test(filePath))
+	) {
+		return false;
+	}
+
+	if (
+		includePatterns
+		&& includePatterns.some(pattern => pattern.test(filePath))
+	) {
+		return true;
+	}
+
+	return false;
 };

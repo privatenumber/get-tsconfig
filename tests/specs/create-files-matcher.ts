@@ -6,10 +6,10 @@ import typescript from 'typescript';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
-	createFilesMatcher,
+	isFileIncluded,
 	readTsconfig,
+	type TsConfigResult,
 	type TsConfigJsonResolved,
-	type FileMatcher,
 } from '#get-tsconfig';
 
 const fsCaseSensitive = isFsCaseSensitive();
@@ -17,14 +17,14 @@ const fsCaseSensitive = isFsCaseSensitive();
 const isWindows = process.platform === 'win32';
 
 const assertFilesMatch = (
-	matcher: FileMatcher,
+	tsconfig: TsConfigResult,
 	files: string[],
 ) => {
 	for (const file of files) {
-		expect(matcher(file)).toBeTruthy();
+		expect(isFileIncluded(tsconfig, file)).toBe(true);
 
 		if (isWindows) {
-			expect(matcher(file.replaceAll('/', '\\'))).toBeTruthy();
+			expect(isFileIncluded(tsconfig, file.replaceAll('/', '\\'))).toBe(true);
 		}
 	}
 };
@@ -71,25 +71,25 @@ const getTscMatchingFiles = (
 	return parsedTsconfig.fileNames.sort();
 };
 
-describe('createFilesMatcher', () => {
+describe('isFileIncluded', () => {
 	describe('error handling', () => {
-		test('should return undefined for non-absolute paths', async () => {
+		test('should return false for non-absolute paths', async () => {
 			const tsconfig: TsConfigJsonResolved = {};
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson(tsconfig),
 				'index.ts': '',
 			});
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: fixture.getPath('tsconfig.json'),
-			});
+			};
 
 			// Relative path
-			expect(matches('index.ts')).toBeUndefined();
+			expect(isFileIncluded(matchConfig, 'index.ts')).toBe(false);
 
 			// Bare specifier
-			expect(matches('react')).toBeUndefined();
+			expect(isFileIncluded(matchConfig, 'react')).toBe(false);
 		});
 
 		test('should not match path outside of directory', async () => {
@@ -105,12 +105,12 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			expect(matches('/index.ts')).toBe(undefined);
+			expect(isFileIncluded(matchConfig, '/index.ts')).toBe(false);
 		});
 	});
 
@@ -133,13 +133,13 @@ describe('createFilesMatcher', () => {
 				slash(fixture.getPath('index.ts')),
 			]);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			assertFilesMatch(matches, tsFiles);
-			expect(matches(fixture.getPath('no-match.ts'))).toBe(undefined);
+			assertFilesMatch(matchConfig, tsFiles);
+			expect(isFileIncluded(matchConfig, fixture.getPath('no-match.ts'))).toBe(false);
 		});
 
 		test('files outside of project', async () => {
@@ -158,13 +158,10 @@ describe('createFilesMatcher', () => {
 				slash(fixture.getPath('index.ts')),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('files takes precedence over extensions', async () => {
@@ -183,13 +180,10 @@ describe('createFilesMatcher', () => {
 				slash(fixture.getPath('some-dir/index.js')),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('files takes precedence over exclude', async () => {
@@ -209,13 +203,10 @@ describe('createFilesMatcher', () => {
 				slash(fixture.getPath('some-dir/index.ts')),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 	});
 
@@ -231,13 +222,10 @@ describe('createFilesMatcher', () => {
 			const tsconfigPath = fixture.getPath('tsconfig.json');
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('specific directories', async () => {
@@ -263,13 +251,10 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(21);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('include matches nested directories', async () => {
@@ -285,13 +270,10 @@ describe('createFilesMatcher', () => {
 			const tsconfigPath = fixture.getPath('tsconfig.json');
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('should not match directory with prefix', async () => {
@@ -308,14 +290,12 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			expect(matches(
-				fixture.getPath('dir-abc/ts.ts'),
-			)).toBe(undefined);
+			expect(isFileIncluded(matchConfig, fixture.getPath('dir-abc/ts.ts'))).toBe(false);
 		});
 
 		test('relative parent directory', async () => {
@@ -335,13 +315,10 @@ describe('createFilesMatcher', () => {
 				slash(fixture.getPath('src/a.ts')),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		describe('hidden files', () => {
@@ -360,13 +337,11 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
-				expect(matches(
-					path.join(fixture.path, directoryName, '.index.ts'),
-				)).toBe(undefined);
+				};
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, directoryName, '.index.ts'))).toBe(false);
 			});
 
 			test('should not match hidden directory by default', async () => {
@@ -382,13 +357,11 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
-				expect(matches(
-					path.join(fixture.path, directoryName, 'index.ts'),
-				)).toBe(undefined);
+				};
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
 			});
 
 			test('explicit directory name without star should not match', async () => {
@@ -407,13 +380,11 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
-				expect(matches(
-					path.join(fixture.path, directoryName, 'index.ts'),
-				)).toBe(undefined);
+				};
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
 			});
 
 			test('explicit directory name with star should match', async () => {
@@ -432,13 +403,10 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(7);
 
-				assertFilesMatch(
-					createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
-					}),
-					tsFiles,
-				);
+				assertFilesMatch({
+					config: tsconfig,
+					path: tsconfigPath,
+				}, tsFiles);
 			});
 
 			test('explicit hidden glob should match hidden directory', async () => {
@@ -457,13 +425,10 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(7);
 
-				assertFilesMatch(
-					createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
-					}),
-					tsFiles,
-				);
+				assertFilesMatch({
+					config: tsconfig,
+					path: tsconfigPath,
+				}, tsFiles);
 			});
 
 			test('explicit hidden glob should match hidden files', async () => {
@@ -484,13 +449,10 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(7);
 
-				assertFilesMatch(
-					createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
-					}),
-					tsFiles,
-				);
+				assertFilesMatch({
+					config: tsconfig,
+					path: tsconfigPath,
+				}, tsFiles);
 			});
 		});
 
@@ -509,13 +471,11 @@ describe('createFilesMatcher', () => {
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(0);
 
-					const matches = createFilesMatcher({
+					const matchConfig = {
 						config: tsconfig,
 						path: tsconfigPath,
-					});
-					expect(matches(
-						path.join(fixture.path, directoryName, 'index.ts'),
-					)).toBe(undefined);
+					};
+					expect(isFileIncluded(matchConfig, path.join(fixture.path, directoryName, 'index.ts'))).toBe(false);
 				});
 
 				test('explictly include', async () => {
@@ -532,13 +492,10 @@ describe('createFilesMatcher', () => {
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(7);
 
-					assertFilesMatch(
-						createFilesMatcher({
-							config: tsconfig,
-							path: tsconfigPath,
-						}),
-						tsFiles,
-					);
+					assertFilesMatch({
+						config: tsconfig,
+						path: tsconfigPath,
+					}, tsFiles);
 				});
 
 				test(`project in ${directory}`, async () => {
@@ -555,13 +512,10 @@ describe('createFilesMatcher', () => {
 					const tsFiles = getTscMatchingFiles(tsconfigPath);
 					expect(tsFiles.length).toBe(7);
 
-					assertFilesMatch(
-						createFilesMatcher({
-							config: tsconfig,
-							path: tsconfigPath,
-						}),
-						tsFiles,
-					);
+					assertFilesMatch({
+						config: tsconfig,
+						path: tsconfigPath,
+					}, tsFiles);
 				});
 			});
 		}
@@ -569,46 +523,40 @@ describe('createFilesMatcher', () => {
 		describe('case sensitivity', () => {
 			test('default', async () => {
 				const projectDirectory = '/project-root';
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: {
 						include: ['SOME-DIR'],
 					},
 					path: path.join(projectDirectory, 'tsconfig.json'),
-				});
+				};
 
-				expect(matches(
-					path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
-				)).toBeTruthy();
+				expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'SOME-DIR/INDEX.ts'))).toBe(true);
 
 				if (fsCaseSensitive) {
-					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
-					)).toBe(undefined);
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
 				} else {
-					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
-					)).toBeTruthy();
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
 				}
 			});
 
 			test('case sensitive', async () => {
 				const projectDirectory = '/project-root';
-				const matches = createFilesMatcher(
-					{
-						config: {
-							include: ['SOME-DIR'],
-						},
-						path: path.join(projectDirectory, 'tsconfig.json'),
+				const matchConfig = {
+					config: {
+						include: ['SOME-DIR'],
 					},
-					true,
-				);
+					path: path.join(projectDirectory, 'tsconfig.json'),
+				};
 
-				expect(matches(
-					path.join(projectDirectory, 'SOME-DIR/index.ts'),
-				)).toBeTruthy();
-				expect(matches(
-					path.join(projectDirectory, 'some-dir/index.ts'),
-				)).toBe(undefined);
+				// Exact case always matches
+				expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(true);
+
+				// Different case depends on filesystem
+				if (fsCaseSensitive) {
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
+				} else {
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
+				}
 			});
 		});
 
@@ -636,15 +584,13 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(2);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
-				assertFilesMatch(matches, tsFiles);
-				expect(matches(
-					fixture.getPath('some-dir/nested-dir/d.ts'),
-				)).toBe(undefined);
+				assertFilesMatch(matchConfig, tsFiles);
+				expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/nested-dir/d.ts'))).toBe(false);
 			});
 
 			describe('*', () => {
@@ -665,13 +611,10 @@ describe('createFilesMatcher', () => {
 						slash(fixture.getPath('a.ts')),
 					]);
 
-					assertFilesMatch(
-						createFilesMatcher({
-							config: tsconfig,
-							path: tsconfigPath,
-						}),
-						tsFiles,
-					);
+					assertFilesMatch({
+						config: tsconfig,
+						path: tsconfigPath,
+					}, tsFiles);
 				});
 
 				test('multiple', async () => {
@@ -701,15 +644,13 @@ describe('createFilesMatcher', () => {
 						fixture.getPath('some-dir/dot.ts'),
 					].map(slash));
 
-					const matches = createFilesMatcher({
+					const matchConfig = {
 						config: tsconfig,
 						path: tsconfigPath,
-					});
+					};
 
-					assertFilesMatch(matches, tsFiles);
-					expect(matches(
-						fixture.getPath('some-dir/nested-dir/d.ts'),
-					)).toBe(undefined);
+					assertFilesMatch(matchConfig, tsFiles);
+					expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/nested-dir/d.ts'))).toBe(false);
 				});
 			});
 
@@ -737,13 +678,10 @@ describe('createFilesMatcher', () => {
 					fixture.getPath('some-dir/nested-dir/d.ts'),
 				].map(slash));
 
-				assertFilesMatch(
-					createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
-					}),
-					tsFiles,
-				);
+				assertFilesMatch({
+					config: tsconfig,
+					path: tsconfigPath,
+				}, tsFiles);
 			});
 		});
 	});
@@ -770,13 +708,10 @@ describe('createFilesMatcher', () => {
 				slash(path.join(fixture.path, filePath)),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('explicit include', async () => {
@@ -798,13 +733,10 @@ describe('createFilesMatcher', () => {
 				slash(path.join(fixture.path, filePath)),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('empty exclude', async () => {
@@ -824,14 +756,12 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			expect(matches(
-				path.join(fixture.path, filePath),
-			)).toBe(undefined);
+			expect(isFileIncluded(matchConfig, path.join(fixture.path, filePath))).toBe(false);
 		});
 
 		test('empty exclude with directory include', async () => {
@@ -852,14 +782,12 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			expect(matches(
-				path.join(fixture.path, filePath),
-			)).toBe(undefined);
+			expect(isFileIncluded(matchConfig, path.join(fixture.path, filePath))).toBe(false);
 		});
 	});
 
@@ -894,14 +822,14 @@ describe('createFilesMatcher', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(0);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
 				for (const filePath of directoryFileNames) {
 					const absoluteFilePath = path.join(fixture.path, filePath);
-					expect(matches(absoluteFilePath)).toBe(undefined);
+					expect(isFileIncluded(matchConfig, absoluteFilePath)).toBe(false);
 				}
 			});
 
@@ -926,14 +854,14 @@ describe('createFilesMatcher', () => {
 					directoryFileNames.map(filePath => slash(path.join(fixture.path, filePath))).sort(),
 				);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
 				for (const filePath of directoryFileNames) {
 					const absoluteFilePath = path.join(fixture.path, filePath);
-					expect(matches(absoluteFilePath)).toBeTruthy();
+					expect(isFileIncluded(matchConfig, absoluteFilePath)).toBe(true);
 				}
 			});
 		});
@@ -953,14 +881,12 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
+			};
 
-			expect(matches(
-				fixture.getPath('some-dir/index.ts'),
-			)).toBe(undefined);
+			expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/index.ts'))).toBe(false);
 		});
 
 		test('should not ignore directory with prefix', async () => {
@@ -977,58 +903,49 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(7);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		describe('case sensitivity', () => {
 			test('default', async () => {
 				const projectDirectory = '/project-root';
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: {
 						exclude: ['SOME-DIR'],
 					},
 					path: path.join(projectDirectory, 'tsconfig.json'),
-				});
+				};
 
-				expect(matches(
-					path.join(projectDirectory, 'SOME-DIR/INDEX.ts'),
-				)).toBe(undefined);
+				expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'SOME-DIR/INDEX.ts'))).toBe(false);
 
 				if (fsCaseSensitive) {
-					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
-					)).toBeTruthy();
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
 				} else {
-					expect(matches(
-						path.join(projectDirectory, 'some-dir/index.ts'),
-					)).toBe(undefined);
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
 				}
 			});
 
 			test('case sensitive', async () => {
 				const projectDirectory = '/project-root';
-				const matches = createFilesMatcher(
-					{
-						config: {
-							exclude: ['SOME-DIR'],
-						},
-						path: path.join(projectDirectory, 'tsconfig.json'),
+				const matchConfig = {
+					config: {
+						exclude: ['SOME-DIR'],
 					},
-					true,
-				);
+					path: path.join(projectDirectory, 'tsconfig.json'),
+				};
 
-				expect(matches(
-					path.join(projectDirectory, 'SOME-DIR/index.ts'),
-				)).toBe(undefined);
-				expect(matches(
-					path.join(projectDirectory, 'some-dir/index.ts'),
-				)).toBeTruthy();
+				// Exact case excluded
+				expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'SOME-DIR/index.ts'))).toBe(false);
+
+				// Different case depends on filesystem
+				if (fsCaseSensitive) {
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(true);
+				} else {
+					expect(isFileIncluded(matchConfig, path.join(projectDirectory, 'some-dir/index.ts'))).toBe(false);
+				}
 			});
 		});
 
@@ -1059,19 +976,15 @@ describe('createFilesMatcher', () => {
 					slash(fixture.getPath('some-dir/nested-dir/d.ts')),
 				]);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
-				expect(matches(
-					fixture.getPath('some-dir/a.ts'),
-				)).toBe(undefined);
-				expect(matches(
-					fixture.getPath('some-dir/abc.ts'),
-				)).toBe(undefined);
+				expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/a.ts'))).toBe(false);
+				expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/abc.ts'))).toBe(false);
 
-				assertFilesMatch(matches, tsFiles);
+				assertFilesMatch(matchConfig, tsFiles);
 			});
 
 			test('*', async () => {
@@ -1101,18 +1014,14 @@ describe('createFilesMatcher', () => {
 					fixture.getPath('some-dir/nested-dir/d.ts'),
 				].map(slash));
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
-				assertFilesMatch(matches, tsFiles);
-				expect(matches(
-					fixture.getPath('some-dir/abc.ts'),
-				)).toBe(undefined);
-				expect(matches(
-					fixture.getPath('some-dir/qwwweeerrrt.ts'),
-				)).toBe(undefined);
+				assertFilesMatch(matchConfig, tsFiles);
+				expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/abc.ts'))).toBe(false);
+				expect(isFileIncluded(matchConfig, fixture.getPath('some-dir/qwwweeerrrt.ts'))).toBe(false);
 			});
 
 			test('**/', async () => {
@@ -1139,20 +1048,14 @@ describe('createFilesMatcher', () => {
 					slash(path.join(fixture.path, files[0])),
 				]);
 
-				const matches = createFilesMatcher({
+				const matchConfig = {
 					config: tsconfig,
 					path: tsconfigPath,
-				});
+				};
 
-				expect(matches(
-					path.join(fixture.path, files[0]),
-				)).toBeTruthy();
-				expect(matches(
-					path.join(fixture.path, files[1]),
-				)).toBe(undefined);
-				expect(matches(
-					path.join(fixture.path, files[2]),
-				)).toBe(undefined);
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, files[0]))).toBe(true);
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, files[1]))).toBe(false);
+				expect(isFileIncluded(matchConfig, path.join(fixture.path, files[2]))).toBe(false);
 			});
 		});
 	});
@@ -1172,13 +1075,11 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
-			expect(matches(
-				path.join(fixture.path, jsFilePath),
-			)).toBe(undefined);
+			};
+			expect(isFileIncluded(matchConfig, path.join(fixture.path, jsFilePath))).toBe(false);
 		});
 
 		test('should match with allowJs', async () => {
@@ -1201,13 +1102,10 @@ describe('createFilesMatcher', () => {
 				slash(path.join(fixture.path, jsFilePath)),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 
 		test('shouldnt match .js even if explicitly in "includes"', async () => {
@@ -1225,13 +1123,11 @@ describe('createFilesMatcher', () => {
 			const tsFiles = getTscMatchingFiles(tsconfigPath);
 			expect(tsFiles.length).toBe(0);
 
-			const matches = createFilesMatcher({
+			const matchConfig = {
 				config: tsconfig,
 				path: tsconfigPath,
-			});
-			expect(matches(
-				path.join(fixture.path, filePath),
-			)).toBe(undefined);
+			};
+			expect(isFileIncluded(matchConfig, path.join(fixture.path, filePath))).toBe(false);
 		});
 
 		test('matches .js if explicitly in "files"', async () => {
@@ -1253,26 +1149,23 @@ describe('createFilesMatcher', () => {
 				slash(path.join(fixture.path, filePath)),
 			]);
 
-			assertFilesMatch(
-				createFilesMatcher({
-					config: tsconfig,
-					path: tsconfigPath,
-				}),
-				tsFiles,
-			);
+			assertFilesMatch({
+				config: tsconfig,
+				path: tsconfigPath,
+			}, tsFiles);
 		});
 	});
 
 	describe('extends', () => {
 		test('must be resolved', async () => {
 			expect(
-				() => createFilesMatcher({
+				() => isFileIncluded({
 					config: {
 						// @ts-expect-error extends must be pre-resolved
 						extends: '../tsconfig.json',
 					},
 					path: '',
-				}),
+				}, '/file.ts'),
 			).toThrow('tsconfig#extends must be resolved. Use getTsconfig or readTsconfig to resolve it.');
 		});
 
@@ -1301,10 +1194,7 @@ describe('createFilesMatcher', () => {
 
 			const tsconfig = readTsconfig(tsconfigPath);
 
-			assertFilesMatch(
-				createFilesMatcher(tsconfig),
-				tsFiles,
-			);
+			assertFilesMatch(tsconfig, tsFiles);
 		});
 	});
 
@@ -1327,9 +1217,63 @@ describe('createFilesMatcher', () => {
 			expect(tsFiles.length).toBe(1);
 
 			const tsconfig = readTsconfig(tsconfigPath);
-			const matches = createFilesMatcher(tsconfig);
+			const matchConfig = tsconfig;
 
-			assertFilesMatch(matches, tsFiles);
+			assertFilesMatch(matchConfig, tsFiles);
+		});
+	});
+
+	describe('caching', () => {
+		test('same config, different paths', async () => {
+			await using fixture = await createFixture({
+				'a/tsconfig.json': createTsconfigJson({
+					include: ['src'],
+				}),
+				'a/src/index.ts': '',
+				'b/tsconfig.json': createTsconfigJson({
+					include: ['lib'],
+				}),
+				'b/lib/index.ts': '',
+			});
+
+			const tsconfigA = readTsconfig(fixture.getPath('a/tsconfig.json'));
+			const tsconfigB = readTsconfig(fixture.getPath('b/tsconfig.json'));
+
+			expect(isFileIncluded(tsconfigA, fixture.getPath('a/src/index.ts'))).toBe(true);
+			expect(isFileIncluded(tsconfigA, fixture.getPath('b/lib/index.ts'))).toBe(false);
+			expect(isFileIncluded(tsconfigB, fixture.getPath('b/lib/index.ts'))).toBe(true);
+			expect(isFileIncluded(tsconfigB, fixture.getPath('a/src/index.ts'))).toBe(false);
+		});
+
+		test('repeated calls hit cache', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson({}),
+				'a.ts': '',
+				'b.ts': '',
+				'c.ts': '',
+			});
+
+			const tsconfig = readTsconfig(fixture.getPath('tsconfig.json'));
+
+			expect(isFileIncluded(tsconfig, fixture.getPath('a.ts'))).toBe(true);
+			expect(isFileIncluded(tsconfig, fixture.getPath('b.ts'))).toBe(true);
+			expect(isFileIncluded(tsconfig, fixture.getPath('c.ts'))).toBe(true);
+		});
+
+		test('cache uses object identity - mutation returns stale results', () => {
+			const projectDirectory = '/project-root';
+			const tsconfig: TsConfigResult = {
+				config: { include: ['src'] },
+				path: path.join(projectDirectory, 'tsconfig.json'),
+			};
+
+			expect(isFileIncluded(tsconfig, path.join(projectDirectory, 'src/index.ts'))).toBe(true);
+			expect(isFileIncluded(tsconfig, path.join(projectDirectory, 'lib/index.ts'))).toBe(false);
+
+			// Mutating the config does NOT invalidate the cache.
+			// This is expected — tsconfig objects should be treated as immutable.
+			tsconfig.config.include = ['lib'];
+			expect(isFileIncluded(tsconfig, path.join(projectDirectory, 'lib/index.ts'))).toBe(false);
 		});
 	});
 });

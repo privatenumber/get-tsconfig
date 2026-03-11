@@ -2,7 +2,7 @@ import path from 'node:path';
 import slash from 'slash';
 import { findUp } from './utils/find-up.js';
 import { readTsconfig } from './read-tsconfig/index.js';
-import { createFilesMatcher } from './files-matcher.js';
+import { isFileIncluded } from './files-matcher.js';
 import type { TsConfigResult, Cache } from './types.js';
 
 const findConfigApplicable = (
@@ -21,8 +21,7 @@ const findConfigApplicable = (
 
 		const absoluteConfigFile = path.resolve(configFile);
 		const result = readTsconfig(absoluteConfigFile, cache);
-		const matcher = createFilesMatcher(result);
-		if (matcher(resolvedFilePath)) {
+		if (isFileIncluded(result, resolvedFilePath)) {
 			return result;
 		}
 
