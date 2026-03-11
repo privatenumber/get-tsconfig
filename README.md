@@ -237,47 +237,34 @@ const { path, config } = resolveExtendsChain(chain)
 
 ---
 
-### createFilesMatcher(tsconfig: TsConfigResult, caseSensitivePaths?: boolean)
+### isFileIncluded(tsconfig, filePath)
 
-Given a `tsconfig.json` file, it returns a file-matcher function that determines whether an absolute file path should apply to it.
+Checks whether an absolute file path is included by a tsconfig's `files`, `include`, and `exclude` settings. Case sensitivity is auto-detected from the filesystem.
 
-```ts
-type FileMatcher = (filePath: string) => TsConfigResult['config'] | undefined
-```
+Non-absolute paths return `false`.
 
-The `filePath` must be absolute. Non-absolute paths return `undefined` without matching.
-
-Returns the resolved config if the file matches `include`/`files` and is not excluded, `undefined` otherwise.
+Compiled patterns are cached per tsconfig object for performance. Do not mutate the tsconfig after the first call — create a new object instead.
 
 #### tsconfig
 Type: `TsConfigResult`
 
-Pass in the return value from `getTsconfig`, or a `TsConfigResult` object.
+Pass in the return value from `getTsconfig` or `readTsconfig`.
 
-#### caseSensitivePaths
-Type: `boolean`
+#### filePath
+Type: `string`
 
-By default, it uses [`is-fs-case-sensitive`](https://github.com/privatenumber/is-fs-case-sensitive) to detect whether the file-system is case-sensitive.
-
-Pass in `true` to make it case-sensitive.
+Absolute path to the file.
 
 #### Example
 
-For example, if it's called with a `tsconfig.json` file that has `include`/`exclude`/`files` defined, the file-matcher will return the config for files that match `include`/`files`, and return `undefined` for files that don't match or match `exclude`.
-
 ```ts
-const tsconfig = getTsconfig()
-const fileMatcher = tsconfig && createFilesMatcher(tsconfig)
+import { getTsconfig, isFileIncluded } from 'get-tsconfig'
 
-/*
- * Returns tsconfig.json if it matches the file,
- * undefined if not
- */
-const configForFile = fileMatcher?.('/path/to/file.ts')
-const distCode = compileTypescript({
-    code: sourceCode,
-    tsconfig: configForFile
-})
+const tsconfig = getTsconfig()
+
+if (tsconfig && isFileIncluded(tsconfig, '/path/to/file.ts')) {
+    // file is included — use tsconfig.config.compilerOptions
+}
 ```
 
 ---
