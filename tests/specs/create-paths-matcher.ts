@@ -5,7 +5,7 @@ import { createFixture } from 'fs-fixture';
 import { execaNode, type ExecaError } from 'execa';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import { getTscResolution } from '../utils/typescript-helpers.js';
-import { getTsconfig, createPathsMatcher } from '#get-tsconfig';
+import { getTsconfig, resolvePathAlias } from '#get-tsconfig';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
@@ -23,7 +23,23 @@ describe('paths', () => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
-			expect(createPathsMatcher(tsconfig!)).toBeUndefined();
+			expect(resolvePathAlias(tsconfig!, 'anything')).toStrictEqual([]);
+		});
+
+		test('empty results are independent arrays', async () => {
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson({
+					compilerOptions: {},
+				}),
+			});
+
+			const tsconfig = getTsconfig(fixture.path)!;
+			const first = resolvePathAlias(tsconfig, 'a');
+			const second = resolvePathAlias(tsconfig, 'b');
+
+			// Mutating one result must not affect the other
+			first.push('/poisoned');
+			expect(second).toStrictEqual([]);
 		});
 
 		test('no baseUrl nor relative paths', async () => {
@@ -49,7 +65,7 @@ describe('paths', () => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
-			expect(() => createPathsMatcher(tsconfig!)).toThrow(errorMessage);
+			expect(() => resolvePathAlias(tsconfig!, 'x')).toThrow(errorMessage);
 		});
 
 		test('no baseUrl nor relative paths in extends', async () => {
@@ -81,7 +97,7 @@ describe('paths', () => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
-			expect(() => createPathsMatcher(tsconfig!)).toThrow(errorMessage);
+			expect(() => resolvePathAlias(tsconfig!, 'x')).toThrow(errorMessage);
 		});
 
 		test('multiple * in pattern', async () => {
@@ -97,7 +113,7 @@ describe('paths', () => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
-			expect(() => createPathsMatcher(tsconfig!)).toThrow('Pattern \'a/*/*\' can have at most one \'*\' character.');
+			expect(() => resolvePathAlias(tsconfig!, 'x')).toThrow('Pattern \'a/*/*\' can have at most one \'*\' character.');
 		});
 
 		test('multiple * in substitution', async () => {
@@ -113,7 +129,7 @@ describe('paths', () => {
 
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
-			expect(() => createPathsMatcher(tsconfig!)).toThrow('Substitution \'*/*\' in pattern \'a/*\' can have at most one \'*\' character.');
+			expect(() => resolvePathAlias(tsconfig!, 'x')).toThrow('Substitution \'*/*\' in pattern \'a/*\' can have at most one \'*\' character.');
 		});
 
 		test('no match', async () => {
@@ -130,10 +146,10 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
+			const matchTsconfig = tsconfig!;
 
-			expect(matcher).toBeDefined();
-			expect(matcher('specifier')).toStrictEqual([]);
+			expect(matchTsconfig).toBeDefined();
+			expect(resolvePathAlias(matchTsconfig, 'specifier')).toStrictEqual([]);
 		});
 
 		/**
@@ -158,11 +174,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).toBeDefined();
+			const matchTsconfig = tsconfig!;
+			expect(matchTsconfig).toBeDefined();
 
 			const fixturePath = fixture.path.replaceAll('\\', '/');
-			expect(matcher('@libs/constants')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '@libs/constants')).toStrictEqual([
 				`${fixturePath}@libs/constants`,
 			]);
 		});
@@ -181,11 +197,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).toBeDefined();
+			const matchTsconfig = tsconfig!;
+			expect(matchTsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-			expect(matcher('exactMatch')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, 'exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -214,11 +230,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).toBeDefined();
+			const matchTsconfig = tsconfig!;
+			expect(matchTsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('$lib', fixture.path);
-			expect(matcher('$lib')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '$lib')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -235,11 +251,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).toBeDefined();
+			const matchTsconfig = tsconfig!;
+			expect(matchTsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-			expect(matcher('exactMatch')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, 'exactMatch')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -259,11 +275,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
-		expect(matcher).toBeDefined();
+		const matchTsconfig = tsconfig!;
+		expect(matchTsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-		expect(matcher('exactMatch')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'exactMatch')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -283,11 +299,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
-		expect(matcher).toBeDefined();
+		const matchTsconfig = tsconfig!;
+		expect(matchTsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-		expect(matcher('exactMatch')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'exactMatch')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -307,11 +323,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('exactMatch', fixture.path);
-		expect(matcher('exactMatch')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'exactMatch')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -331,11 +347,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('prefix-specifier', fixture.path);
-		expect(matcher('prefix-specifier')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'prefix-specifier')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -355,12 +371,10 @@ describe('paths', () => {
 				},
 			}),
 			'test.mjs': `
-				import { getTsconfig, createPathsMatcher } from ${JSON.stringify(distPath)};
+				import { getTsconfig, resolvePathAlias } from ${JSON.stringify(distPath)};
 				const tsconfig = getTsconfig('./dir/tsconfig.json');
 				if (!tsconfig) process.exit(1);
-				const matcher = createPathsMatcher(tsconfig);
-				if (!matcher) process.exit(1);
-				console.log(JSON.stringify(matcher('@/file')));
+				console.log(JSON.stringify(resolvePathAlias(tsconfig, '@/file')));
 			`,
 		});
 
@@ -388,11 +402,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('specifier-suffix', fixture.path);
-		expect(matcher('specifier-suffix')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'specifier-suffix')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -411,10 +425,10 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 
 		expect(tsconfig).toBeDefined();
-		expect(matcher('.')).toStrictEqual([]);
+		expect(resolvePathAlias(matchTsconfig, '.')).toStrictEqual([]);
 	});
 
 	test('doesnt match parent directory', async () => {
@@ -431,10 +445,10 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 
 		expect(tsconfig).toBeDefined();
-		expect(matcher('..')).toStrictEqual([]);
+		expect(resolvePathAlias(matchTsconfig, '..')).toStrictEqual([]);
 	});
 
 	test('doesnt match relative paths', async () => {
@@ -451,10 +465,10 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 
 		expect(tsconfig).toBeDefined();
-		expect(matcher('./relative')).toStrictEqual([]);
+		expect(resolvePathAlias(matchTsconfig, './relative')).toStrictEqual([]);
 	});
 
 	test('matches absolute paths', async () => {
@@ -471,11 +485,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('/absolute', fixture.path);
-		expect(matcher('/absolute')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, '/absolute')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -495,11 +509,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('dir', fixture.path);
-		expect(matcher('dir')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, 'dir')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -518,11 +532,11 @@ describe('paths', () => {
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toBeDefined();
 
-		const matcher = createPathsMatcher(tsconfig!)!;
+		const matchTsconfig = tsconfig!;
 		expect(tsconfig).toBeDefined();
 
 		const resolvedAttempts = await getTscResolution('.src', fixture.path);
-		expect(matcher('.src')).toStrictEqual([
+		expect(resolvePathAlias(matchTsconfig, '.src')).toStrictEqual([
 			resolvedAttempts[0].filePath.slice(0, -3),
 		]);
 	});
@@ -549,11 +563,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
+			const matchTsconfig = tsconfig!;
 			expect(tsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('@', fixture.path);
-			expect(matcher('@')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '@')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -579,11 +593,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
+			const matchTsconfig = tsconfig!;
 			expect(tsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('@', fixture.path);
-			expect(matcher('@')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '@')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -609,11 +623,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
+			const matchTsconfig = tsconfig!;
 			expect(tsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('@', fixture.path);
-			expect(matcher('@')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '@')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});
@@ -635,11 +649,11 @@ describe('paths', () => {
 			const tsconfig = getTsconfig(fixture.path);
 			expect(tsconfig).toBeDefined();
 
-			const matcher = createPathsMatcher(tsconfig!)!;
-			expect(matcher).toBeDefined();
+			const matchTsconfig = tsconfig!;
+			expect(matchTsconfig).toBeDefined();
 
 			const resolvedAttempts = await getTscResolution('#/index', fixture.path);
-			expect(matcher('#/index')).toStrictEqual([
+			expect(resolvePathAlias(matchTsconfig, '#/index')).toStrictEqual([
 				resolvedAttempts[0].filePath.slice(0, -3),
 			]);
 		});

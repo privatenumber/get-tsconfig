@@ -18,7 +18,5 @@ export type TsConfigResult<Config = TsConfigJsonResolved> = {
 	config: Config;
 };
 
-export type PathsMatcher = (specifier: string) => string[];
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Cache<value = any> = Map<string, value>;

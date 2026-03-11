@@ -269,31 +269,34 @@ if (tsconfig && isFileIncluded(tsconfig, '/path/to/file.ts')) {
 
 ---
 
-### createPathsMatcher(tsconfig: TsConfigResult)
+### resolvePathAlias(tsconfig, specifier)
 
-Given a tsconfig with [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) defined, it returns a matcher function.
+Resolves an [import specifier](https://nodejs.org/api/esm.html#terminology) against a tsconfig's [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) mappings.
 
-The matcher function accepts an [import specifier (the path to resolve)](https://nodejs.org/api/esm.html#terminology), checks it against `compilerOptions.paths`, and returns an array of possible paths to check:
-```ts
-function pathsMatcher(specifier: string): string[]
-```
+Returns an array of possible file paths to check. Returns an empty array when no `paths` are configured or no pattern matches. This function only returns possible paths and doesn't do actual file resolution — compatible with any file/build system resolver.
 
-This function only returns possible paths and doesn't actually do any resolution. This helps increase compatibility wtih file/build systems which usually have their own resolvers.
+Results are cached per tsconfig object. Do not mutate the tsconfig after the first call — create a new object instead.
+
+#### tsconfig
+Type: `TsConfigResult`
+
+Pass in the return value from `getTsconfig` or `readTsconfig`.
+
+#### specifier
+Type: `string`
+
+The import specifier to resolve (e.g. `@/utils/helper`).
 
 #### Example
 
 ```ts
-import { getTsconfig, createPathsMatcher } from 'get-tsconfig'
+import { getTsconfig, resolvePathAlias } from 'get-tsconfig'
 
 const tsconfig = getTsconfig()
-const pathsMatcher = createPathsMatcher(tsconfig)
 
-const exampleResolver = (request: string) => {
-    if (pathsMatcher) {
-        const tryPaths = pathsMatcher(request)
-
-        // Check if paths in `tryPaths` exist
-    }
+const tryPaths = tsconfig && resolvePathAlias(tsconfig, '@/utils/helper')
+if (tryPaths?.length) {
+    // Check if paths in tryPaths exist
 }
 ```
 
