@@ -40,6 +40,7 @@
 		"test": "tsx tests",
 		"dev": "tsx watch --conditions=development tests",
 		"type-check": "tsc --noEmit",
+		"benchmark": "tsx scripts/benchmark",
 		"prepack": "pnpm build && clean-pkg-json",
 		"prepare": "skills-npm"
 	},
