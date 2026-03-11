@@ -22,7 +22,9 @@ const resolveFromPackageJsonPath = (
 ) => {
 	const cacheKey = `resolveFromPackageJsonPath:${packageJsonPath}:${subpath}:${ignoreExports}`;
 	if (cache?.has(cacheKey)) {
-		return cache.get(cacheKey);
+		const cached = cache.get(cacheKey);
+		// Empty string is sentinel for blocked exports
+		return cached || false;
 	}
 
 	const packageJson = readJsonc(packageJsonPath, cache) as PackageJson;
@@ -40,7 +42,8 @@ const resolveFromPackageJsonPath = (
 			const [resolvedExport] = resolveExports(packageJson.exports, subpath, ['require', 'types']);
 			resolvedPath = resolvedExport;
 		} catch {
-			// Block
+			// Block — cache empty string as sentinel for blocked exports
+			cache?.set(cacheKey, '');
 			return false;
 		}
 	} else if (
@@ -65,6 +68,22 @@ const PACKAGE_JSON = 'package.json';
 const TS_CONFIG_JSON = 'tsconfig.json';
 
 export const resolveExtendsPath = (
+	requestedPath: string,
+	directoryPath: string,
+	cache?: Cache<string>,
+) => {
+	const cacheKey = `resolveExtendsPath:${requestedPath}:${directoryPath}`;
+	if (cache?.has(cacheKey)) {
+		return cache.get(cacheKey) || undefined;
+	}
+
+	const result = resolveExtendsPathUncached(requestedPath, directoryPath, cache);
+	cache?.set(cacheKey, result || '');
+
+	return result;
+};
+
+const resolveExtendsPathUncached = (
 	requestedPath: string,
 	directoryPath: string,
 	cache?: Cache<string>,
