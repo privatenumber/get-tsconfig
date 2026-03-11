@@ -35,7 +35,8 @@ const parsePaths = (
 });
 
 type CompiledPaths = {
-	pathEntries: PathEntry<string | StarPattern>[];
+	exactEntries: Map<string, string[]>;
+	patternEntries: PathEntry<StarPattern>[];
 	resolvedBaseUrl: string;
 	baseUrl: string | undefined;
 } | null;
@@ -67,10 +68,24 @@ const compilePaths = (
 		baseUrl || implicitBaseUrl || '.',
 	);
 
+	const pathEntries = paths
+		? parsePaths(paths, baseUrl, resolvedBaseUrl)
+		: [];
+
+	const exactEntries = new Map<string, string[]>();
+	const patternEntries: PathEntry<StarPattern>[] = [];
+
+	for (const entry of pathEntries) {
+		if (typeof entry.pattern === 'string') {
+			exactEntries.set(entry.pattern, entry.substitutions);
+		} else {
+			patternEntries.push(entry as PathEntry<StarPattern>);
+		}
+	}
+
 	return {
-		pathEntries: paths
-			? parsePaths(paths, baseUrl, resolvedBaseUrl)
-			: [],
+		exactEntries,
+		patternEntries,
 		resolvedBaseUrl,
 		baseUrl,
 	};
@@ -111,24 +126,19 @@ export const resolvePathAlias = (
 		return [];
 	}
 
-	const { pathEntries, resolvedBaseUrl, baseUrl } = compiled;
+	const {
+		exactEntries, patternEntries, resolvedBaseUrl, baseUrl,
+	} = compiled;
 
-	const patternPathEntries: PathEntry<StarPattern>[] = [];
-
-	for (const pathEntry of pathEntries) {
-		if (pathEntry.pattern === specifier) {
-			return pathEntry.substitutions.map(slash);
-		}
-
-		if (typeof pathEntry.pattern !== 'string') {
-			patternPathEntries.push(pathEntry as PathEntry<StarPattern>);
-		}
+	const exactMatch = exactEntries.get(specifier);
+	if (exactMatch) {
+		return exactMatch.map(slash);
 	}
 
 	let matchedValue: PathEntry<StarPattern> | undefined;
 	let longestMatchPrefixLength = -1;
 
-	for (const pathEntry of patternPathEntries) {
+	for (const pathEntry of patternEntries) {
 		if (
 			isPatternMatch(pathEntry.pattern, specifier)
 			&& pathEntry.pattern.prefix.length > longestMatchPrefixLength
