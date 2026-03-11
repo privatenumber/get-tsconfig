@@ -1,6 +1,6 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsConfigResult, PathsMatcher } from '../types.js';
+import type { TsConfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
 import { implicitBaseUrlSymbol } from '../utils/constants.js';
 import {
@@ -34,21 +34,27 @@ const parsePaths = (
 	} as PathEntry<string | StarPattern>;
 });
 
+type CompiledPaths = {
+	pathEntries: PathEntry<string | StarPattern>[];
+	resolvedBaseUrl: string;
+	baseUrl: string | undefined;
+} | null;
+
 /**
  * Reference:
  * https://github.com/microsoft/TypeScript/blob/3ccbe804f850f40d228d3c875be952d94d39aa1d/src/compiler/moduleNameResolver.ts#L2465
  */
-export const createPathsMatcher = (
+const compilePaths = (
 	tsconfig: TsConfigResult,
-): PathsMatcher | undefined => {
+): CompiledPaths => {
 	const { compilerOptions } = tsconfig.config;
 	if (!compilerOptions) {
-		return;
+		return null;
 	}
 
 	const { baseUrl, paths } = compilerOptions;
 	if (!baseUrl && !paths) {
-		return;
+		return null;
 	}
 
 	const implicitBaseUrl = (
@@ -61,63 +67,97 @@ export const createPathsMatcher = (
 		baseUrl || implicitBaseUrl || '.',
 	);
 
-	const pathEntries = (
-		paths
+	return {
+		pathEntries: paths
 			? parsePaths(paths, baseUrl, resolvedBaseUrl)
-			: []
+			: [],
+		resolvedBaseUrl,
+		baseUrl,
+	};
+};
+
+const compiledCache = new WeakMap<TsConfigResult, CompiledPaths>();
+
+/**
+ * Resolves a specifier against a tsconfig's `compilerOptions.paths` mappings.
+ *
+ * Returns an array of possible file paths to check. Returns an empty
+ * array when no `paths` are configured or no pattern matches.
+ * Does not perform actual file resolution — compatible with any
+ * file/build system resolver.
+ *
+ * Results are cached per tsconfig object. The tsconfig must not be
+ * mutated after the first call.
+ *
+ * @param tsconfig - The resolved tsconfig to resolve against (treat as immutable).
+ * @param specifier - The import specifier to resolve.
+ * @returns Array of possible file paths, or empty array if no match.
+ */
+export const resolvePathAlias = (
+	tsconfig: TsConfigResult,
+	specifier: string,
+): string[] => {
+	let compiled = compiledCache.get(tsconfig);
+	if (compiled === undefined) {
+		compiled = compilePaths(tsconfig);
+		compiledCache.set(tsconfig, compiled);
+	}
+
+	if (!compiled) {
+		return [];
+	}
+
+	if (isRelativePathPattern.test(specifier)) {
+		return [];
+	}
+
+	const { pathEntries, resolvedBaseUrl, baseUrl } = compiled;
+
+	const patternPathEntries: PathEntry<StarPattern>[] = [];
+
+	for (const pathEntry of pathEntries) {
+		if (pathEntry.pattern === specifier) {
+			return pathEntry.substitutions.map(slash);
+		}
+
+		if (typeof pathEntry.pattern !== 'string') {
+			patternPathEntries.push(pathEntry as PathEntry<StarPattern>);
+		}
+	}
+
+	let matchedValue: PathEntry<StarPattern> | undefined;
+	let longestMatchPrefixLength = -1;
+
+	for (const pathEntry of patternPathEntries) {
+		if (
+			isPatternMatch(pathEntry.pattern, specifier)
+			&& pathEntry.pattern.prefix.length > longestMatchPrefixLength
+		) {
+			longestMatchPrefixLength = pathEntry.pattern.prefix.length;
+			matchedValue = pathEntry;
+		}
+	}
+
+	if (!matchedValue) {
+		/**
+		 * TypeScript falls back to baseUrl when no paths pattern matches.
+		 * These are separate resolution steps, not a fallback chain within paths.
+		 *
+		 * Reference: https://github.com/microsoft/TypeScript/blob/main/src/compiler/moduleNameResolver.ts#L1550-L1556
+		 */
+		return (
+			baseUrl
+				? [slash(path.join(resolvedBaseUrl, specifier))]
+				: []
+		);
+	}
+
+	const matchedPath = specifier.slice(
+		matchedValue.pattern.prefix.length,
+		specifier.length - matchedValue.pattern.suffix.length,
 	);
 
-	return (specifier: string) => {
-		if (isRelativePathPattern.test(specifier)) {
-			return [];
-		}
-
-		const patternPathEntries: PathEntry<StarPattern>[] = [];
-
-		for (const pathEntry of pathEntries) {
-			if (pathEntry.pattern === specifier) {
-				return pathEntry.substitutions.map(slash);
-			}
-
-			if (typeof pathEntry.pattern !== 'string') {
-				patternPathEntries.push(pathEntry as PathEntry<StarPattern>);
-			}
-		}
-
-		let matchedValue: PathEntry<StarPattern> | undefined;
-		let longestMatchPrefixLength = -1;
-
-		for (const pathEntry of patternPathEntries) {
-			if (
-				isPatternMatch(pathEntry.pattern, specifier)
-				&& pathEntry.pattern.prefix.length > longestMatchPrefixLength
-			) {
-				longestMatchPrefixLength = pathEntry.pattern.prefix.length;
-				matchedValue = pathEntry;
-			}
-		}
-
-		if (!matchedValue) {
-			/**
-			 * TypeScript falls back to baseUrl when no paths pattern matches.
-			 * These are separate resolution steps, not a fallback chain within paths.
-			 *
-			 * Reference: https://github.com/microsoft/TypeScript/blob/main/src/compiler/moduleNameResolver.ts#L1550-L1556
-			 */
-			return (
-				baseUrl
-					? [slash(path.join(resolvedBaseUrl, specifier))]
-					: []
-			);
-		}
-
-		const matchedPath = specifier.slice(
-			matchedValue.pattern.prefix.length,
-			specifier.length - matchedValue.pattern.suffix.length,
-		);
-
-		return matchedValue.substitutions.map(
-			substitution => slash(substitution.replace('*', matchedPath)),
-		);
-	};
+	return matchedValue.substitutions.map(
+		substitution => slash(substitution.replace('*', matchedPath)),
+	);
 };
