@@ -4,7 +4,7 @@ import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { stat, exists } from '../utils/fs-cached.js';
+import { tryStat } from '../utils/fs-cached.js';
 import type { Cache } from '../types.js';
 
 const getPnpApi = () => {
@@ -80,14 +80,15 @@ export const resolveExtendsPath = (
 	}
 
 	if (path.isAbsolute(filePath)) {
-		if (exists(cache, filePath)) {
-			if (stat(cache, filePath)!.isFile()) {
+		const fileStat = tryStat(cache, filePath);
+		if (fileStat) {
+			if (fileStat.isFile()) {
 				return filePath;
 			}
 		} else if (!filePath.endsWith('.json')) {
 			const jsonPath = `${filePath}.json`;
 
-			if (exists(cache, jsonPath)) {
+			if (tryStat(cache, jsonPath)) {
 				return jsonPath;
 			}
 		}
@@ -117,7 +118,7 @@ export const resolveExtendsPath = (
 						cache,
 					);
 
-					if (resolvedPath && exists(cache, resolvedPath)) {
+					if (resolvedPath && tryStat(cache, resolvedPath)) {
 						return resolvedPath;
 					}
 				}
@@ -149,12 +150,12 @@ export const resolveExtendsPath = (
 		cache,
 	);
 
-	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
+	if (!packagePath || !tryStat(cache, packagePath)?.isDirectory()) {
 		return;
 	}
 
 	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
-	if (exists(cache, packageJsonPath)) {
+	if (tryStat(cache, packageJsonPath)) {
 		const resolvedPath = resolveFromPackageJsonPath(
 			packageJsonPath,
 			subpath,
@@ -169,8 +170,7 @@ export const resolveExtendsPath = (
 
 		if (
 			resolvedPath
-			&& exists(cache, resolvedPath)
-			&& stat(cache, resolvedPath)!.isFile()
+			&& tryStat(cache, resolvedPath)?.isFile()
 		) {
 			return resolvedPath;
 		}
@@ -182,31 +182,32 @@ export const resolveExtendsPath = (
 	if (!jsonExtension) {
 		const fullPackagePathWithJson = `${fullPackagePath}.json`;
 
-		if (exists(cache, fullPackagePathWithJson)) {
+		if (tryStat(cache, fullPackagePathWithJson)) {
 			return fullPackagePathWithJson;
 		}
 	}
 
-	if (!exists(cache, fullPackagePath)) {
+	const fullPackageStat = tryStat(cache, fullPackagePath);
+	if (!fullPackageStat) {
 		return;
 	}
 
-	if (stat(cache, fullPackagePath)!.isDirectory()) {
+	if (fullPackageStat.isDirectory()) {
 		const fullPackageJsonPath = path.join(fullPackagePath, PACKAGE_JSON);
-		if (exists(cache, fullPackageJsonPath)) {
+		if (tryStat(cache, fullPackageJsonPath)) {
 			const resolvedPath = resolveFromPackageJsonPath(
 				fullPackageJsonPath,
 				'',
 				true,
 				cache,
 			);
-			if (resolvedPath && exists(cache, resolvedPath)) {
+			if (resolvedPath && tryStat(cache, resolvedPath)) {
 				return resolvedPath;
 			}
 		}
 
 		const tsconfigPath = path.join(fullPackagePath, TS_CONFIG_JSON);
-		if (exists(cache, tsconfigPath)) {
+		if (tryStat(cache, tsconfigPath)) {
 			return tsconfigPath;
 		}
 	} else if (jsonExtension) {

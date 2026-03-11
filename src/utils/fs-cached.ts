@@ -34,6 +34,27 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 	};
 };
 
-export const exists = cacheFs('existsSync');
 export const readFile = cacheFs('readFileSync');
-export const stat = cacheFs('statSync');
+
+/**
+ * Cached stat that returns undefined on ENOENT instead of throwing.
+ * Replaces exists() + stat() pairs with a single syscall.
+ */
+export const tryStat = (
+	cache: Cache | undefined,
+	filePath: string,
+): fs.Stats | undefined => {
+	const cacheKey = `tryStat:${filePath}`;
+	let result = cache?.get(cacheKey) as fs.Stats | null | undefined;
+
+	if (result === undefined) {
+		try {
+			result = fs.statSync(filePath);
+		} catch {
+			result = null;
+		}
+		cache?.set(cacheKey, result);
+	}
+
+	return result ?? undefined;
+};
