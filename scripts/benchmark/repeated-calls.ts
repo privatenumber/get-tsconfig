@@ -45,7 +45,7 @@ export const run = (): BenchmarkResult[] => {
 	const sharedCache = new Map();
 
 	const readShared = measure('readTsconfig (shared cache)', 500, () => {
-		readTsconfig(tsconfigPath, sharedCache);
+		readTsconfig(tsconfigPath, { cache: sharedCache });
 	});
 
 	const readFresh = measure('readTsconfig (fresh cache)', 500, () => {
@@ -53,7 +53,9 @@ export const run = (): BenchmarkResult[] => {
 	});
 
 	const getShared = measure('getTsconfig (shared cache)', 500, () => {
-		getTsconfig(projectDirectory, 'tsconfig.json', sharedCache);
+		getTsconfig(projectDirectory, {
+			cache: sharedCache,
+		});
 	});
 
 	const getFresh = measure('getTsconfig (fresh cache)', 500, () => {

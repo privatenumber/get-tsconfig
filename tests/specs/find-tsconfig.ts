@@ -44,7 +44,9 @@ describe('findTsconfig', () => {
 			[customName]: tsconfigJson,
 		});
 
-		const tsconfigPath = findTsconfig(fixture.path, customName);
+		const tsconfigPath = findTsconfig(fixture.path, {
+			configName: customName,
+		});
 		expect(tsconfigPath).toBe(slash(path.join(fixture.path, customName)));
 	});
 
@@ -67,9 +69,9 @@ describe('findTsconfig', () => {
 
 			const tsconfigPath = findTsconfig(
 				fixture.getPath('src/index.ts'),
-				'tsconfig.json',
-				new Map(),
-				true,
+				{
+					includes: true,
+				},
 			);
 			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 		});
@@ -84,9 +86,9 @@ describe('findTsconfig', () => {
 
 			const tsconfigPath = findTsconfig(
 				fixture.getPath('src/index.ts'),
-				'tsconfig.json',
-				new Map(),
-				true,
+				{
+					includes: true,
+				},
 			);
 			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 		});
@@ -102,9 +104,9 @@ describe('findTsconfig', () => {
 
 			const tsconfigPath = findTsconfig(
 				fixture.getPath('nested/src/index.ts'),
-				'tsconfig.json',
-				new Map(),
-				true,
+				{
+					includes: true,
+				},
 			);
 			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 		});
@@ -123,9 +125,9 @@ describe('findTsconfig', () => {
 			);
 			const tsconfigPath = findTsconfig(
 				relativePath,
-				'tsconfig.json',
-				new Map(),
-				true,
+				{
+					includes: true,
+				},
 			);
 			expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 		});
@@ -140,9 +142,9 @@ describe('findTsconfig', () => {
 
 			const tsconfigPath = findTsconfig(
 				fixture.getPath('src/index.ts'),
-				'tsconfig.json',
-				new Map(),
-				true,
+				{
+					includes: true,
+				},
 			);
 			expect(tsconfigPath).toBeUndefined();
 		});

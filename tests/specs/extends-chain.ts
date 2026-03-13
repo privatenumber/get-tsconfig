@@ -193,6 +193,32 @@ describe('getExtendsChain', () => {
 		expect(chain[1].path).toBe(slash(path.join(fixture.path, 'mid.json')));
 		expect(chain[2].path).toBe(slash(path.join(fixture.path, 'base.json')));
 	});
+
+	test('cache', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': JSON.stringify({
+				extends: './base.json',
+				compilerOptions: { jsx: 'react-jsx' },
+			}),
+			'base.json': JSON.stringify({
+				compilerOptions: { strict: true },
+			}),
+		});
+
+		const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+		const cache = new Map();
+		const chain = getExtendsChain(tsconfigPath, {
+			cache,
+		});
+
+		await fixture.rm('tsconfig.json');
+		await fixture.rm('base.json');
+
+		const cachedChain = getExtendsChain(tsconfigPath, {
+			cache,
+		});
+		expect(cachedChain).toStrictEqual(chain);
+	});
 });
 
 describe('resolveExtendsChain', () => {

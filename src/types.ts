@@ -20,3 +20,17 @@ export type TsConfigResult<Config = TsConfigJsonResolved> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Cache<value = any> = Map<string, value>;
+
+export type TsconfigSearchOptions = {
+	configName?: string;
+	cache?: Cache;
+	includes?: boolean;
+};
+
+export type ReadTsconfigOptions = {
+	cache?: Cache;
+};
+
+export type GetExtendsChainOptions = {
+	cache?: Cache;
+};

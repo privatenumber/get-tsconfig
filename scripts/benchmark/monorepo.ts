@@ -51,7 +51,7 @@ export const run = (): BenchmarkResult[] => {
 	const shared = measure('monorepo readTsconfig (shared cache)', 10, () => {
 		sharedCache.clear();
 		for (const tsconfigPath of tsconfigPaths) {
-			readTsconfig(tsconfigPath, sharedCache);
+			readTsconfig(tsconfigPath, { cache: sharedCache });
 		}
 	});
 

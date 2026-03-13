@@ -427,7 +427,9 @@ describe('parses tsconfig', () => {
 		});
 
 		const cache = new Map();
-		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'), cache);
+		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'), {
+			cache,
+		});
 		expect(cache.size).toBe(1);
 
 		const expectedTsconfig = await getTscTsconfig(fixture.path);
@@ -440,7 +442,9 @@ describe('parses tsconfig', () => {
 
 		expect(expectedTsconfig).toStrictEqual(parsedTsconfig.config);
 
-		const parsedTsconfigCached = readTsconfig(fixture.getPath('tsconfig.json'), cache);
+		const parsedTsconfigCached = readTsconfig(fixture.getPath('tsconfig.json'), {
+			cache,
+		});
 		expect(cache.size).toBe(1);
 
 		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached.config);
