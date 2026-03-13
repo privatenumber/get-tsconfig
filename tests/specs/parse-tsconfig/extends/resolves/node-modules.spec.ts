@@ -2,9 +2,9 @@ import path from 'node:path';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
-import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.js';
-import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
+import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.ts';
+import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
 describe('node_modules', () => {
 	test('prefers file over package', async () => {

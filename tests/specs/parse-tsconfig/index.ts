@@ -1,6 +1,6 @@
 import { describe } from 'manten';
 
 describe('parseTsconfig', () => {
-	import('./parses.spec.js');
-	import('./extends/index.js');
+	import('./parses.spec.ts');
+	import('./extends/index.ts');
 });

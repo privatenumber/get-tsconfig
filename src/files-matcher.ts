@@ -170,7 +170,7 @@ const compilePatterns = (
 
 				// Replace *
 				.replaceAll(/(\/)?\\\*/g, (_, hasSlash) => {
-					const pattern = `(${noPeriodOrSlash}|(\\.(?!min\\.js$))?)*`;
+					const pattern = String.raw`(${noPeriodOrSlash}|(\.(?!min\.js$))?)*`;
 					if (hasSlash) {
 						return `/${implicitExcludePathRegexPattern}${noPeriodOrSlash}${pattern}`;
 					}

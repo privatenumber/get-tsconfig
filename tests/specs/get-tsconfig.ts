@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import slash from 'slash';
-import { getTscTsconfig } from '../utils/typescript-helpers.js';
 import { getTsconfig } from '#get-tsconfig';
+import { getTscTsconfig } from '../utils/typescript-helpers.ts';
 
 const compilerOptions = {
 	jsx: 'react',

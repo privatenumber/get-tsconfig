@@ -2,9 +2,9 @@ import {
 	describe, test, expect, onTestFinish,
 } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { createTsconfigJson } from '../../../../utils/fixture-helpers.js';
-import { getTscTsconfig } from '../../../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
+import { createTsconfigJson } from '../../../../utils/fixture-helpers.ts';
+import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
 describe('resolves', () => {
 	test('handles missing extends', async () => {
@@ -82,8 +82,8 @@ describe('resolves', () => {
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
-	import('./relative-path.spec.js');
-	import('./absolute-path.spec.js');
-	import('./node-modules.spec.js');
-	import('./symbolic-link.spec.js');
+	import('./relative-path.spec.ts');
+	import('./absolute-path.spec.ts');
+	import('./node-modules.spec.ts');
+	import('./symbolic-link.spec.ts');
 });

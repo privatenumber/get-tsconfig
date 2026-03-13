@@ -4,13 +4,13 @@ import slash from 'slash';
 import { createFixture } from 'fs-fixture';
 import typescript from 'typescript';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
-import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
 	isFileIncluded,
 	readTsconfig,
 	type TsconfigResult,
 	type TsconfigJsonResolved,
 } from '#get-tsconfig';
+import { createTsconfigJson } from '../utils/fixture-helpers.ts';
 
 const fsCaseSensitive = isFsCaseSensitive();
 

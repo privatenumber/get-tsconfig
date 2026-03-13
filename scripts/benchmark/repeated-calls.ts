@@ -1,14 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import {
-	temporaryBase, writeJson, measure, type BenchmarkResult,
-} from './utils.js';
-import {
 	getTsconfig,
 	readTsconfig,
 	isFileIncluded,
 	resolvePathAlias,
 } from '#get-tsconfig';
+import {
+	temporaryBase, writeJson, measure, type BenchmarkResult,
+} from './utils.ts';
 
 const setupSingleProject = () => {
 	const projectDirectory = path.join(temporaryBase, 'single-project');

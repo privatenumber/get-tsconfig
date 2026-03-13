@@ -3,9 +3,9 @@ import { pathToFileURL } from 'node:url';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode, type ExecaError } from 'execa';
-import { createTsconfigJson } from '../utils/fixture-helpers.js';
-import { getTscResolution } from '../utils/typescript-helpers.js';
 import { getTsconfig, resolvePathAlias } from '#get-tsconfig';
+import { createTsconfigJson } from '../utils/fixture-helpers.ts';
+import { getTscResolution } from '../utils/typescript-helpers.ts';
 
 /**
  * Resolution is tested against the TypeScript compiler using:
