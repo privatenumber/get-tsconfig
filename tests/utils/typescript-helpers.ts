@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { execa } from 'execa';
-import type { TsConfigJson } from 'type-fest';
+import type { TsconfigJson } from '#get-tsconfig';
 
 const randomId = () => Math.random().toString(36).slice(2);
 
@@ -10,7 +10,7 @@ const tscPath = path.resolve('node_modules/.bin/tsc');
 export const getTscTsconfig = async (
 	cwd: string,
 	tsconfigPath?: string,
-): Promise<TsConfigJson> => {
+): Promise<TsconfigJson> => {
 	const tscArgs = ['--showConfig'];
 
 	if (tsconfigPath) {

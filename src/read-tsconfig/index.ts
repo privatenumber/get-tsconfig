@@ -1,11 +1,11 @@
 import path from 'node:path';
 import slash from 'slash';
 import type {
-	TsConfigJson,
-	TsConfigJsonResolved,
-	TsConfigResult,
-	ReadTsconfigOptions,
+	TsconfigJson,
+	TsconfigJsonResolved,
+	TsconfigResult,
 	GetExtendsChainOptions,
+	ReadTsconfigOptions,
 } from '../types.js';
 import { normalizeRelativePath } from '../utils/normalize-relative-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
@@ -83,7 +83,7 @@ const compilerFieldsWithConfigDir = [
 ] as const;
 
 const normalizeCompilerOptions = (
-	compilerOptions: TsConfigJson.CompilerOptions,
+	compilerOptions: TsconfigJson.CompilerOptions,
 ) => {
 	if (compilerOptions.strict) {
 		const strictOptions = [
@@ -111,7 +111,7 @@ const normalizeCompilerOptions = (
 	}
 
 	if (compilerOptions.target) {
-		let target = compilerOptions.target.toLowerCase() as TsConfigJson.CompilerOptions.Target;
+		let target = compilerOptions.target.toLowerCase() as TsconfigJson.CompilerOptions.Target;
 
 		if (target === 'es2015') {
 			target = 'es6';
@@ -150,7 +150,7 @@ const normalizeCompilerOptions = (
 	}
 
 	if (compilerOptions.module) {
-		let module = compilerOptions.module.toLowerCase() as TsConfigJson.CompilerOptions.Module;
+		let module = compilerOptions.module.toLowerCase() as TsconfigJson.CompilerOptions.Module;
 
 		if (module === 'es2015') {
 			module = 'es6';
@@ -244,7 +244,7 @@ const normalizeCompilerOptions = (
 
 	if (compilerOptions.moduleResolution) {
 		let moduleResolution = compilerOptions.moduleResolution.toLowerCase() as
-				TsConfigJson.CompilerOptions.ModuleResolution;
+				TsconfigJson.CompilerOptions.ModuleResolution;
 
 		if (moduleResolution === 'node') {
 			moduleResolution = 'node10';
@@ -268,22 +268,22 @@ const normalizeCompilerOptions = (
 	}
 
 	if (compilerOptions.jsx) {
-		compilerOptions.jsx = compilerOptions.jsx.toLowerCase() as TsConfigJson.CompilerOptions.JSX;
+		compilerOptions.jsx = compilerOptions.jsx.toLowerCase() as TsconfigJson.CompilerOptions.JSX;
 	}
 
 	if (compilerOptions.moduleDetection) {
 		compilerOptions.moduleDetection = compilerOptions.moduleDetection.toLowerCase() as
-			TsConfigJson.CompilerOptions.ModuleDetection;
+			TsconfigJson.CompilerOptions.ModuleDetection;
 	}
 
 	if (compilerOptions.importsNotUsedAsValues) {
 		compilerOptions.importsNotUsedAsValues = compilerOptions.importsNotUsedAsValues.toLowerCase() as
-			TsConfigJson.CompilerOptions.ImportsNotUsedAsValues;
+			TsconfigJson.CompilerOptions.ImportsNotUsedAsValues;
 	}
 
 	if (compilerOptions.newLine) {
 		compilerOptions.newLine = compilerOptions.newLine.toLowerCase() as
-			TsConfigJson.CompilerOptions.NewLine;
+			TsconfigJson.CompilerOptions.NewLine;
 	}
 
 	if (compilerOptions.esModuleInterop) {
@@ -305,7 +305,7 @@ const normalizeCompilerOptions = (
 
 	if (compilerOptions.lib) {
 		compilerOptions.lib = compilerOptions.lib.map(
-			library => library.toLowerCase() as TsConfigJson.CompilerOptions.Lib,
+			library => library.toLowerCase() as TsconfigJson.CompilerOptions.Lib,
 		);
 	}
 
@@ -329,10 +329,10 @@ const normalizeCompilerOptions = (
 export const getExtendsChain = (
 	tsconfigPath: string,
 	options: GetExtendsChainOptions = {},
-): TsConfigResult<TsConfigJson>[] => {
+): TsconfigResult<TsconfigJson>[] => {
 	const { cache = new Map() } = options;
 	const resolvedPath = path.resolve(tsconfigPath);
-	const chain: TsConfigResult<TsConfigJson>[] = [];
+	const chain: TsconfigResult<TsconfigJson>[] = [];
 	const visited = new Set<string>();
 
 	const collect = (
@@ -346,7 +346,7 @@ export const getExtendsChain = (
 
 		visited.add(normalizedPath);
 
-		let config: TsConfigJson;
+		let config: TsconfigJson;
 		try {
 			config = readJsonc(configPath, cache) || {};
 		} catch {
@@ -418,20 +418,20 @@ export const getExtendsChain = (
  * @returns The resolved tsconfig with path and fully merged config.
  */
 export const resolveExtendsChain = (
-	chain: TsConfigResult<TsConfigJson>[],
-): TsConfigResult => {
+	chain: TsconfigResult<TsconfigJson>[],
+): TsconfigResult => {
 	if (chain.length === 0) {
 		throw new Error('Chain must not be empty');
 	}
 
 	const lookup = new Map(chain.map(entry => [entry.path, entry]));
-	const resolvedCache = new Map<string, TsConfigJsonResolved>();
+	const resolvedCache = new Map<string, TsconfigJsonResolved>();
 
-	type WithImplicitBaseUrl = TsConfigJson.CompilerOptions & {
+	type WithImplicitBaseUrl = TsconfigJson.CompilerOptions & {
 		[implicitBaseUrlSymbol]: string;
 	};
 
-	const cloneResolved = (config: TsConfigJsonResolved) => {
+	const cloneResolved = (config: TsconfigJsonResolved) => {
 		const cloned = structuredClone(config);
 
 		// structuredClone drops symbol properties — copy from source
@@ -444,7 +444,7 @@ export const resolveExtendsChain = (
 		return cloned;
 	};
 
-	const resolveEntry = (entryPath: string): TsConfigJsonResolved => {
+	const resolveEntry = (entryPath: string): TsconfigJsonResolved => {
 		const cached = resolvedCache.get(entryPath);
 		if (cached) {
 			return cloneResolved(cached);
@@ -457,7 +457,7 @@ export const resolveExtendsChain = (
 
 		// structuredClone drops symbol-keyed properties by spec.
 		// implicitBaseUrlSymbol is set after cloning, so this is safe.
-		let config: TsConfigJson = structuredClone(entry.config);
+		let config: TsconfigJson = structuredClone(entry.config);
 		const directoryPath = path.dirname(entryPath);
 
 		if (config.compilerOptions) {
@@ -607,17 +607,17 @@ export const resolveExtendsChain = (
 
 			if (watchOptions.watchFile) {
 				watchOptions.watchFile = watchOptions.watchFile.toLowerCase() as
-					TsConfigJson.WatchOptions['watchFile'];
+					TsconfigJson.WatchOptions['watchFile'];
 			}
 
 			if (watchOptions.watchDirectory) {
 				watchOptions.watchDirectory = watchOptions.watchDirectory.toLowerCase() as
-					TsConfigJson.WatchOptions['watchDirectory'];
+					TsconfigJson.WatchOptions['watchDirectory'];
 			}
 
 			if (watchOptions.fallbackPolling) {
 				watchOptions.fallbackPolling = watchOptions.fallbackPolling.toLowerCase() as
-					TsConfigJson.WatchOptions['fallbackPolling'];
+					TsconfigJson.WatchOptions['fallbackPolling'];
 			}
 		}
 
@@ -690,7 +690,7 @@ export const resolveExtendsChain = (
 export const readTsconfig = (
 	tsconfigPath: string,
 	options: ReadTsconfigOptions = {},
-): TsConfigResult => {
+): TsconfigResult => {
 	const { cache = new Map() } = options;
 	const chain = getExtendsChain(tsconfigPath, { cache });
 	return resolveExtendsChain(chain);

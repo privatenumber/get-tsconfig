@@ -1,8 +1,7 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsConfigJson } from 'type-fest';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
-import type { TsConfigResult } from './types.js';
+import type { TsconfigJson, TsconfigResult } from './types.js';
 
 const { join: pathJoin } = path.posix;
 
@@ -13,7 +12,7 @@ const baseExtensions = {
 };
 
 const getSupportedExtensions = (
-	compilerOptions: TsConfigJson['compilerOptions'],
+	compilerOptions: TsconfigJson['compilerOptions'],
 ) => {
 	const ts = [...baseExtensions.ts];
 	const cts = [...baseExtensions.cts];
@@ -34,7 +33,7 @@ const getSupportedExtensions = (
 
 // https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#L3014-L3016
 const getDefaultExcludeSpec = (
-	compilerOptions: TsConfigJson['compilerOptions'],
+	compilerOptions: TsconfigJson['compilerOptions'],
 ) => {
 	const excludesSpec: string[] = [];
 
@@ -100,7 +99,7 @@ const compilePatterns = (
 	{
 		config,
 		path: tsconfigPath,
-	}: TsConfigResult,
+	}: TsconfigResult,
 	caseSensitivePaths: boolean,
 ): CompiledPatterns => {
 	if ('extends' in config) {
@@ -204,7 +203,7 @@ const compilePatterns = (
 	};
 };
 
-const patternCache = new WeakMap<TsConfigResult, CompiledPatterns>();
+const patternCache = new WeakMap<TsconfigResult, CompiledPatterns>();
 
 /**
  * Checks whether a file is included by a tsconfig's `files`, `include`,
@@ -224,7 +223,7 @@ const patternCache = new WeakMap<TsConfigResult, CompiledPatterns>();
  * @returns `true` if the file is included, `false` otherwise.
  */
 export const isFileIncluded = (
-	tsconfig: TsConfigResult,
+	tsconfig: TsconfigResult,
 	filePath: string,
 ): boolean => {
 	if (!path.isAbsolute(filePath)) {

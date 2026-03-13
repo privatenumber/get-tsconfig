@@ -1,6 +1,6 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsConfigResult } from '../types.js';
+import type { TsconfigResult } from '../types.js';
 import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
 import { implicitBaseUrlSymbol } from '../utils/constants.js';
 import {
@@ -46,7 +46,7 @@ type CompiledPaths = {
  * https://github.com/microsoft/TypeScript/blob/3ccbe804f850f40d228d3c875be952d94d39aa1d/src/compiler/moduleNameResolver.ts#L2465
  */
 const compilePaths = (
-	tsconfig: TsConfigResult,
+	tsconfig: TsconfigResult,
 ): CompiledPaths => {
 	const { compilerOptions } = tsconfig.config;
 	if (!compilerOptions) {
@@ -91,7 +91,7 @@ const compilePaths = (
 	};
 };
 
-const compiledCache = new WeakMap<TsConfigResult, CompiledPaths>();
+const compiledCache = new WeakMap<TsconfigResult, CompiledPaths>();
 
 /**
  * Resolves a specifier against a tsconfig's `compilerOptions.paths` mappings.
@@ -109,7 +109,7 @@ const compiledCache = new WeakMap<TsConfigResult, CompiledPaths>();
  * @returns Array of possible file paths, or empty array if no match.
  */
 export const resolvePathAlias = (
-	tsconfig: TsConfigResult,
+	tsconfig: TsconfigResult,
 	specifier: string,
 ): string[] => {
 	let compiled = compiledCache.get(tsconfig);

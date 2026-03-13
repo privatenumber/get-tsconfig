@@ -8,8 +8,8 @@ import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
 	isFileIncluded,
 	readTsconfig,
-	type TsConfigResult,
-	type TsConfigJsonResolved,
+	type TsconfigResult,
+	type TsconfigJsonResolved,
 } from '#get-tsconfig';
 
 const fsCaseSensitive = isFsCaseSensitive();
@@ -17,7 +17,7 @@ const fsCaseSensitive = isFsCaseSensitive();
 const isWindows = process.platform === 'win32';
 
 const assertFilesMatch = (
-	tsconfig: TsConfigResult,
+	tsconfig: TsconfigResult,
 	files: string[],
 ) => {
 	for (const file of files) {
@@ -74,7 +74,7 @@ const getTscMatchingFiles = (
 describe('isFileIncluded', () => {
 	describe('error handling', () => {
 		test('should return false for non-absolute paths', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
+			const tsconfig: TsconfigJsonResolved = {};
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson(tsconfig),
 				'index.ts': '',
@@ -93,7 +93,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('should not match path outside of directory', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
+			const tsconfig: TsconfigJsonResolved = {};
 
 			const tsconfigSubpath = 'some-dir/tsconfig.json';
 			await using fixture = await createFixture({
@@ -116,7 +116,7 @@ describe('isFileIncluded', () => {
 
 	describe('files', () => {
 		test('disables default include', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				files: ['index.ts'],
 			};
 
@@ -143,7 +143,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('files outside of project', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				files: ['../index.ts'],
 			};
 
@@ -165,7 +165,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('files takes precedence over extensions', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				files: ['some-dir/index.js'],
 			};
 
@@ -187,7 +187,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('files takes precedence over exclude', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				files: ['some-dir/index.ts'],
 				exclude: ['some-dir/index.ts'],
 			};
@@ -212,7 +212,7 @@ describe('isFileIncluded', () => {
 
 	describe('include', () => {
 		test('default include matches all TS files', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
+			const tsconfig: TsconfigJsonResolved = {};
 
 			await using fixture = await createFixture({
 				'tsconfig.json': createTsconfigJson(tsconfig),
@@ -230,7 +230,7 @@ describe('isFileIncluded', () => {
 
 		test('specific directories', async () => {
 			const periodInPath = 'period.in.path/directory';
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: [
 					'directory',
 					'ends-with-slash/',
@@ -258,7 +258,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('include matches nested directories', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: ['dir-a'],
 			};
 
@@ -277,7 +277,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('should not match directory with prefix', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: ['dir-a'],
 			};
 
@@ -299,7 +299,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('relative parent directory', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: ['../src'],
 			};
 
@@ -324,7 +324,7 @@ describe('isFileIncluded', () => {
 		describe('hidden files', () => {
 			test('should not match hidden files by default', async () => {
 				const directoryName = 'some-dir';
-				const tsconfig: TsConfigJsonResolved = {};
+				const tsconfig: TsconfigJsonResolved = {};
 
 				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
@@ -346,7 +346,7 @@ describe('isFileIncluded', () => {
 
 			test('should not match hidden directory by default', async () => {
 				const directoryName = '.hidden-dir';
-				const tsconfig: TsConfigJsonResolved = {};
+				const tsconfig: TsconfigJsonResolved = {};
 
 				await using fixture = await createFixture({
 					'tsconfig.json': createTsconfigJson(tsconfig),
@@ -367,7 +367,7 @@ describe('isFileIncluded', () => {
 			test('explicit directory name without star should not match', async () => {
 				const directoryName = '.hidden-dir';
 
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: [directoryName],
 				};
 
@@ -390,7 +390,7 @@ describe('isFileIncluded', () => {
 			test('explicit directory name with star should match', async () => {
 				const directoryName = '.hidden-dir';
 
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: [`${directoryName}/*`],
 				};
 
@@ -412,7 +412,7 @@ describe('isFileIncluded', () => {
 			test('explicit hidden glob should match hidden directory', async () => {
 				const directoryName = '.hidden-dir';
 
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: ['.*/*'],
 				};
 
@@ -434,7 +434,7 @@ describe('isFileIncluded', () => {
 			test('explicit hidden glob should match hidden files', async () => {
 				const directoryName = 'some-dir';
 
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: ['**/.*'],
 				};
 
@@ -460,7 +460,7 @@ describe('isFileIncluded', () => {
 			describe(directory, () => {
 				test('exclude by default', async () => {
 					const directoryName = `${directory}/some-pkg`;
-					const tsconfig: TsConfigJsonResolved = {};
+					const tsconfig: TsconfigJsonResolved = {};
 
 					await using fixture = await createFixture({
 						'tsconfig.json': createTsconfigJson(tsconfig),
@@ -479,7 +479,7 @@ describe('isFileIncluded', () => {
 				});
 
 				test('explictly include', async () => {
-					const tsconfig: TsConfigJsonResolved = {
+					const tsconfig: TsconfigJsonResolved = {
 						include: [directory],
 					};
 
@@ -499,7 +499,7 @@ describe('isFileIncluded', () => {
 				});
 
 				test(`project in ${directory}`, async () => {
-					const tsconfig: TsConfigJsonResolved = {};
+					const tsconfig: TsconfigJsonResolved = {};
 
 					await using fixture = await createFixture({
 						[directory]: {
@@ -562,7 +562,7 @@ describe('isFileIncluded', () => {
 
 		describe('globs', () => {
 			test('?', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: [
 						'some-dir/?.ts',
 						'some-dir/?b??ts',
@@ -595,7 +595,7 @@ describe('isFileIncluded', () => {
 
 			describe('*', () => {
 				test('single', async () => {
-					const tsconfig: TsConfigJsonResolved = {
+					const tsconfig: TsconfigJsonResolved = {
 						include: ['*'],
 					};
 
@@ -618,7 +618,7 @@ describe('isFileIncluded', () => {
 				});
 
 				test('multiple', async () => {
-					const tsconfig: TsConfigJsonResolved = {
+					const tsconfig: TsconfigJsonResolved = {
 						include: [
 							'some-dir/*b*',
 							'some-dir/dot*ts',
@@ -655,7 +655,7 @@ describe('isFileIncluded', () => {
 			});
 
 			test('**/', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: ['some-dir/**/*'],
 				};
 
@@ -690,7 +690,7 @@ describe('isFileIncluded', () => {
 		const filePath = 'some-dir/index.min.js';
 
 		test('explicit files', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				compilerOptions: {
 					allowJs: true,
 				},
@@ -715,7 +715,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('explicit include', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				compilerOptions: {
 					allowJs: true,
 				},
@@ -740,7 +740,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('empty exclude', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				compilerOptions: {
 					allowJs: true,
 				},
@@ -765,7 +765,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('empty exclude with directory include', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				compilerOptions: {
 					allowJs: true,
 				},
@@ -806,7 +806,7 @@ describe('isFileIncluded', () => {
 			);
 
 			test('exclude by default', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					compilerOptions: {
 						outDir: 'out-dir',
 						declarationDir: 'declaration-dir',
@@ -834,7 +834,7 @@ describe('isFileIncluded', () => {
 			});
 
 			test('overwritable', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					compilerOptions: {
 						outDir: 'out-dir',
 						declarationDir: 'declaration-dir',
@@ -867,7 +867,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('exclude takes precedence over include', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: ['some-dir'],
 				exclude: ['some-dir'],
 			};
@@ -890,7 +890,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('should not ignore directory with prefix', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				exclude: ['dir-prefix'],
 			};
 
@@ -951,7 +951,7 @@ describe('isFileIncluded', () => {
 
 		describe('globs', () => {
 			test('?', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					exclude: [
 						'some-dir/?.ts',
 						'some-dir/?b??ts',
@@ -988,7 +988,7 @@ describe('isFileIncluded', () => {
 			});
 
 			test('*', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					exclude: [
 						'some-dir/*b*',
 						'some-dir/q*eee*t*',
@@ -1025,7 +1025,7 @@ describe('isFileIncluded', () => {
 			});
 
 			test('**/', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					exclude: ['some-dir/**/*'],
 				};
 
@@ -1062,7 +1062,7 @@ describe('isFileIncluded', () => {
 
 	describe('.js', () => {
 		test('should not match', async () => {
-			const tsconfig: TsConfigJsonResolved = {};
+			const tsconfig: TsconfigJsonResolved = {};
 
 			const jsFilePath = 'index.js';
 			await using fixture = await createFixture({
@@ -1083,7 +1083,7 @@ describe('isFileIncluded', () => {
 		});
 
 		test('should match with allowJs', async () => {
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				compilerOptions: {
 					allowJs: true,
 				},
@@ -1110,7 +1110,7 @@ describe('isFileIncluded', () => {
 
 		test('shouldnt match .js even if explicitly in "includes"', async () => {
 			const filePath = 'file.js';
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				include: [filePath],
 			};
 
@@ -1132,7 +1132,7 @@ describe('isFileIncluded', () => {
 
 		test('matches .js if explicitly in "files"', async () => {
 			const filePath = 'file.js';
-			const tsconfig: TsConfigJsonResolved = {
+			const tsconfig: TsconfigJsonResolved = {
 				files: [filePath],
 			};
 
@@ -1262,7 +1262,7 @@ describe('isFileIncluded', () => {
 
 		test('cache uses object identity - mutation returns stale results', () => {
 			const projectDirectory = '/project-root';
-			const tsconfig: TsConfigResult = {
+			const tsconfig: TsconfigResult = {
 				config: { include: ['src'] },
 				path: path.join(projectDirectory, 'tsconfig.json'),
 			};
