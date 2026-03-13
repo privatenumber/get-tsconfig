@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { Cache } from '../types.js';
+import type { TsconfigCache } from '../types.js';
 
 type Fs = typeof fs;
 
@@ -19,7 +19,7 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 	type FsReturnType = ReturnType<FsMethods[MethodName]>;
 
 	return (
-		cache?: Cache,
+		cache?: TsconfigCache,
 		...args: any[]
 	): FsReturnType => {
 		const cacheKey = `${name}:${args.join(':')}`;
@@ -41,7 +41,7 @@ export const readFile = cacheFs('readFileSync');
  * Replaces exists() + stat() pairs with a single syscall.
  */
 export const tryStat = (
-	cache: Cache | undefined,
+	cache: TsconfigCache | undefined,
 	filePath: string,
 ): fs.Stats | undefined => {
 	const cacheKey = `tryStat:${filePath}`;

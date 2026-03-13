@@ -3,12 +3,14 @@ import slash from 'slash';
 import { findUp } from './utils/find-up.js';
 import { readTsconfig } from './read-tsconfig/index.js';
 import { isFileIncluded } from './files-matcher.js';
-import type { TsConfigResult, Cache, TsconfigSearchOptions } from './types.js';
+import type {
+	TsconfigResult, TsconfigCache, FindTsconfigOptions, GetTsconfigOptions,
+} from './types.js';
 
 const findConfigApplicable = (
 	searchPath: string,
 	configName: string,
-	cache: Cache,
+	cache: TsconfigCache,
 ) => {
 	const resolvedFilePath = path.resolve(searchPath);
 	let currentPath = slash(searchPath);
@@ -49,7 +51,7 @@ const findConfigApplicable = (
  */
 export const findTsconfig = (
 	searchPath = process.cwd(),
-	options: TsconfigSearchOptions = {},
+	options: FindTsconfigOptions = {},
 ): string | undefined => {
 	const {
 		configName = 'tsconfig.json',
@@ -94,8 +96,8 @@ export const findTsconfig = (
  */
 export const getTsconfig = (
 	searchPath = process.cwd(),
-	options: TsconfigSearchOptions = {},
-): TsConfigResult | undefined => {
+	options: GetTsconfigOptions = {},
+): TsconfigResult | undefined => {
 	const {
 		configName = 'tsconfig.json',
 		cache = new Map(),

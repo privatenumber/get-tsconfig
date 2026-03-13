@@ -1,10 +1,10 @@
 import type { TsConfigJson, Except } from 'type-fest';
 
-export type { TsConfigJson };
+export type { TsConfigJson as TsconfigJson };
 
-export type TsConfigJsonResolved = Except<TsConfigJson, 'extends'>;
+export type TsconfigJsonResolved = Except<TsConfigJson, 'extends'>;
 
-export type TsConfigResult<Config = TsConfigJsonResolved> = {
+export type TsconfigResult<Config = TsconfigJsonResolved> = {
 
 	/**
 	 * Absolute path to the tsconfig.json file
@@ -19,18 +19,20 @@ export type TsConfigResult<Config = TsConfigJsonResolved> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Cache<value = any> = Map<string, value>;
+export type TsconfigCache<value = any> = Map<string, value>;
 
-export type TsconfigSearchOptions = {
+type TsconfigSearchOptions = {
 	configName?: string;
-	cache?: Cache;
+	cache?: TsconfigCache;
 	includes?: boolean;
 };
 
-export type ReadTsconfigOptions = {
-	cache?: Cache;
+export type GetTsconfigOptions = TsconfigSearchOptions;
+export type FindTsconfigOptions = TsconfigSearchOptions;
+
+type TsconfigCacheOptions = {
+	cache?: TsconfigCache;
 };
 
-export type GetExtendsChainOptions = {
-	cache?: Cache;
-};
+export type ReadTsconfigOptions = TsconfigCacheOptions;
+export type GetExtendsChainOptions = TsconfigCacheOptions;

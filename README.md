@@ -44,7 +44,7 @@ Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` a
 Returns:
 
 ```ts
-type TsConfigResult<Config = TsConfigJsonResolved> = {
+type TsconfigResult<Config = TsconfigJsonResolved> = {
     path: string
     config: Config
 }
@@ -175,7 +175,7 @@ findTsconfig('./src/index.ts', {
 
 ### readTsconfig(tsconfigPath, options?)
 
-Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsConfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
+Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsconfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
 
 #### tsconfigPath
 Type: `string`
@@ -212,7 +212,7 @@ const { path, config } = readTsconfig('./path/to/tsconfig.custom.json')
 
 #### getExtendsChain(tsconfigPath, options?)
 
-Collects the full extends chain for a tsconfig file. Returns an array of `TsConfigResult<TsConfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths.
+Collects the full extends chain for a tsconfig file. Returns an array of `TsconfigResult<TsconfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths.
 
 `chain[0]` is the root config. Ancestors follow in resolution order. The `extends` field in each entry is resolved to absolute paths, so you can navigate the graph by matching `extends` values to other entries' `path`.
 
@@ -273,7 +273,7 @@ Merges a collected extends chain into a resolved tsconfig. Pure function — no 
 Expects the output of `getExtendsChain` or an equivalent acyclic, root-first chain with `extends` resolved to absolute paths.
 
 ##### chain
-Type: `TsConfigResult<TsConfigJson>[]`
+Type: `TsconfigResult<TsconfigJson>[]`
 
 Array of unresolved tsconfig entries. `chain[0]` is the root config.
 
@@ -304,7 +304,7 @@ Non-absolute paths return `false`.
 Compiled patterns are cached per tsconfig object for performance. Do not mutate the tsconfig after the first call — create a new object instead.
 
 #### tsconfig
-Type: `TsConfigResult`
+Type: `TsconfigResult`
 
 Pass in the return value from `getTsconfig` or `readTsconfig`.
 
@@ -336,7 +336,7 @@ Returns an array of possible file paths to check. Returns an empty array when no
 Results are cached per tsconfig object. Do not mutate the tsconfig after the first call — create a new object instead.
 
 #### tsconfig
-Type: `TsConfigResult`
+Type: `TsconfigResult`
 
 Pass in the return value from `getTsconfig` or `readTsconfig`.
 

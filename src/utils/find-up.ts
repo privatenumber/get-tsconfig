@@ -1,11 +1,11 @@
 import path from 'node:path';
-import type { Cache } from '../types.js';
+import type { TsconfigCache } from '../types.js';
 import { tryStat } from './fs-cached.js';
 
 export const findUp = (
 	searchPath: string,
 	fileName: string,
-	cache?: Cache,
+	cache?: TsconfigCache,
 ) => {
 	while (true) {
 		const configPath = path.posix.join(searchPath, fileName);
