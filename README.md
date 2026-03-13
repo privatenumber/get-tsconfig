@@ -9,14 +9,14 @@
 
 Find and parse `tsconfig.json` files.
 
-### Features
-- Zero dependency (not even TypeScript)
+## Features
+- One dependency ([`resolve-pkg-maps`](https://github.com/nicolo-ribaudo/resolve-pkg-maps)), not even TypeScript
 - Tested against TypeScript for correctness
 - Supports comments & dangling commas in `tsconfig.json`
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
 - Validates and throws parsing errors
-- Tiny! `7 kB` Minified + Gzipped
+- Tiny! `9 kB` Minified + Gzipped
 
 <br>
 
@@ -33,15 +33,34 @@ npm install get-tsconfig
 ```
 
 ## Why?
-For TypeScript related tooling to correctly parse `tsconfig.json` file without depending on TypeScript.
 
-## API
+TypeScript tooling (bundlers, linters, loaders, test runners) needs to read `tsconfig.json` to understand compiler options, path aliases, and file inclusion rules. But TypeScript's own config parser is buried inside the compiler and requires TypeScript as a dependency.
 
-### getTsconfig(searchPath?, options?)
+`get-tsconfig` provides the same functionality as a lightweight, standalone library — tested against TypeScript for correctness.
 
-Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`readTsconfig`](#readtsconfigtsconfigpath-options) instead). Returns `undefined` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
+## Quick start
 
-Returns:
+```ts
+import { getTsconfig, isFileIncluded, resolvePathAlias } from 'get-tsconfig'
+
+// Find and parse the nearest tsconfig.json
+const tsconfig = getTsconfig()
+
+// Check if a file belongs to this tsconfig
+if (tsconfig && isFileIncluded(tsconfig, '/project/src/index.ts')) {
+    // Use tsconfig.config.compilerOptions for transformation
+}
+
+// Resolve path aliases (compilerOptions.paths)
+if (tsconfig) {
+    const resolved = resolvePathAlias(tsconfig, '@/utils/helper')
+    // → ['/project/src/utils/helper']
+}
+```
+
+## Finding & reading tsconfig
+
+These functions find, read, and parse tsconfig files from the filesystem. All return a `TsconfigResult`:
 
 ```ts
 type TsconfigResult<Config = TsconfigJsonResolved> = {
@@ -50,140 +69,63 @@ type TsconfigResult<Config = TsconfigJsonResolved> = {
 }
 ```
 
+### getTsconfig(searchPath?, options?)
+
+Searches for a tsconfig file and parses it. If you already know the path, use [`readTsconfig`](#readtsconfigtsconfigpath-options) instead. Returns `undefined` if not found.
+
 #### searchPath
 Type: `string`
 
 Default: `process.cwd()`
 
-Path to a source file or directory. The directory tree is searched up for a `tsconfig.json` file. Typically a TypeScript/JavaScript file path (e.g. `./src/index.ts`), but a directory path also works if you don't have a specific file.
+Path to a file or directory. The directory tree is searched up for `tsconfig.json`.
 
 #### options
-Type:
+Type: `GetTsconfigOptions`
 
 ```ts
 type GetTsconfigOptions = {
-    configName?: string
+    configName?: string // default: 'tsconfig.json'
     cache?: Map<string, unknown>
-    includes?: boolean
+    includes?: boolean // default: false
 }
 ```
 
-Default: `{}`
-
-Optional search configuration.
-
-##### configName
-Type: `string`
-
-Default: `tsconfig.json`
-
-The file name of the TypeScript config file.
-
-##### cache
-Type: `Map<string, unknown>`
-
-Default: `new Map()`
-
-Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
-
-##### includes
-Type: `boolean`
-
-Default: `false`
-
-When `true` and `searchPath` is a file path, validates that the found tsconfig applies to the file (via `files`, `include`, and `exclude`). If the file isn't matched, continues searching parent directories.
-
-By default, `getTsconfig` returns the nearest tsconfig — matching `tsc` CLI behavior ([`findConfigFile()`](https://github.com/microsoft/TypeScript/blob/b19a9da2a3b8/src/compiler/program.ts#L328)). With `includes`, it checks the file is included by `include`/`files` and not excluded by `exclude` before accepting the tsconfig — matching VS Code's TypeScript Language Server behavior ([`isMatchedByConfig()`](https://github.com/microsoft/TypeScript/blob/b19a9da2a3b8/src/server/editorServices.ts#L4486)).
+- **configName** — file name to search for (e.g. `'jsconfig.json'`)
+- **cache** — snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
+- **includes** — when `true`, validates the file is included by `include`/`files` and not excluded by `exclude` before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig).
 
 #### Example
 
 ```ts
 import { getTsconfig } from 'get-tsconfig'
 
-// Searches for tsconfig.json starting in the current directory
-console.log(getTsconfig())
+// Find from current directory
+getTsconfig()
 
-// Find tsconfig.json from a TypeScript file path
-console.log(getTsconfig('./path/to/index.ts'))
+// Find from a file path
+getTsconfig('./src/index.ts')
 
-// Find tsconfig.json from a directory file path
-console.log(getTsconfig('./path/to/directory'))
+// Search for jsconfig.json
+getTsconfig('.', { configName: 'jsconfig.json' })
 
-// Explicitly pass in tsconfig.json path
-console.log(getTsconfig('./path/to/tsconfig.json'))
-
-// Search for jsconfig.json - https://code.visualstudio.com/docs/languages/jsconfig
-console.log(getTsconfig('.', { configName: 'jsconfig.json' }))
-
-// Find the tsconfig that actually applies to a file (Language Server behavior)
-// Skips tsconfig files where the file is excluded or not included
-console.log(getTsconfig('./src/index.ts', {
-    includes: true,
-    cache: new Map()
-}))
+// Language Server behavior — validate the file is included
+getTsconfig('./src/index.ts', { includes: true })
 ```
-
----
 
 ### findTsconfig(searchPath?, options?)
 
-Searches for a tsconfig file by walking up the directory tree. Returns the path to the found tsconfig file, or `undefined` if not found.
-
-Supports the same [`includes`](#includes) option as `getTsconfig` to validate that the tsconfig applies to the `searchPath` file.
-
-#### searchPath
-Type: `string`
-
-Default: `process.cwd()`
-
-Path to a source file or directory to search from.
-
-#### options
-Type:
-
-```ts
-type FindTsconfigOptions = {
-    configName?: string
-    cache?: Map<string, unknown>
-    includes?: boolean
-}
-```
-
-Default: `{}`
-
-Same options as [`getTsconfig`](#gettsconfigsearchpath-options).
-
-#### Example
+Like `getTsconfig`, but returns only the path (`string | undefined`) without parsing. Same options.
 
 ```ts
 import { findTsconfig } from 'get-tsconfig'
 
-// Find the tsconfig.json path
-findTsconfig()
-
-// Search for a custom config file name
-findTsconfig('.', { configName: 'jsconfig.json' })
-
-// Find the tsconfig that includes the file
-findTsconfig('./src/index.ts', {
-    includes: true,
-    cache: new Map()
-})
+findTsconfig() // → '/project/tsconfig.json'
 ```
-
----
 
 ### readTsconfig(tsconfigPath, options?)
 
-Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsconfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
-
-#### tsconfigPath
-Type: `string`
-
-Required path to the tsconfig file.
-
-#### options
-Type:
+Reads and resolves a tsconfig at a known path. Used internally by `getTsconfig`.
 
 ```ts
 type ReadTsconfigOptions = {
@@ -191,38 +133,21 @@ type ReadTsconfigOptions = {
 }
 ```
 
-Default: `{}`
-
-Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
-
-#### Example
-
 ```ts
 import { readTsconfig } from 'get-tsconfig'
 
-// Must pass in a path to an existing tsconfig.json file
-const { path, config } = readTsconfig('./path/to/tsconfig.custom.json')
+const { path, config } = readTsconfig('./tsconfig.json')
 ```
 
----
+## Tsconfig `extends`
 
-### Tsconfig `extends`
+`readTsconfig` and `getTsconfig` fully resolve the [`extends`](https://www.typescriptlang.org/tsconfig/#extends) chain and return a flattened config. These two functions expose the chain for use cases like watch mode and config auditing.
 
-`readTsconfig` and `getTsconfig` fully resolve the [`extends`](https://www.typescriptlang.org/tsconfig/#extends) chain and return a flattened config. These two functions expose the chain for use cases like watch mode (knowing which files to monitor for reloads) and config auditing (inspecting what each layer sets).
+### getExtendsChain(tsconfigPath, options?)
 
-#### getExtendsChain(tsconfigPath, options?)
+Collects the full extends chain. Returns an array of `TsconfigResult<TsconfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths. (`TsconfigJson` is the raw tsconfig.json shape, including the `extends` field.)
 
-Collects the full extends chain for a tsconfig file. Returns an array of `TsconfigResult<TsconfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths.
-
-`chain[0]` is the root config. Ancestors follow in resolution order. The `extends` field in each entry is resolved to absolute paths, so you can navigate the graph by matching `extends` values to other entries' `path`.
-
-##### tsconfigPath
-Type: `string`
-
-Required path to the tsconfig file.
-
-##### options
-Type:
+`chain[0]` is the root. Ancestors follow in resolution order.
 
 ```ts
 type GetExtendsChainOptions = {
@@ -230,90 +155,45 @@ type GetExtendsChainOptions = {
 }
 ```
 
-Default: `{}`
-
-Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
-
-##### Example
-
-Given this extends chain:
-
-```
-tsconfig.json → extends: "./base.json"
-base.json     → extends: "@tsconfig/node20/tsconfig.json"
-```
-
 ```ts
 import { getExtendsChain } from 'get-tsconfig'
 
 const chain = getExtendsChain('./tsconfig.json')
 // [
-//   {
-//     path: '/project/tsconfig.json',
-//     config: { extends: '/project/base.json', ... }
-//   },
-//   {
-//     path: '/project/base.json',
-//     config: { extends: '/project/node_modules/...', ... }
-//   },
-//   {
-//     path: '/project/node_modules/.../tsconfig.json',
-//     config: { ... }
-//   },
+//   { path: '/project/tsconfig.json', config: { extends: '/project/base.json', ... } },
+//   { path: '/project/base.json', config: { ... } },
 // ]
 
 // Watch all files in the extends chain
 const filesToWatch = chain.map(entry => entry.path)
 ```
 
-#### resolveExtendsChain(chain)
+### resolveExtendsChain(chain)
 
 Merges a collected extends chain into a resolved tsconfig. Pure function — no filesystem access.
-
-Expects the output of `getExtendsChain` or an equivalent acyclic, root-first chain with `extends` resolved to absolute paths.
-
-##### chain
-Type: `TsconfigResult<TsconfigJson>[]`
-
-Array of unresolved tsconfig entries. `chain[0]` is the root config.
-
-##### Example
 
 ```ts
 import { getExtendsChain, resolveExtendsChain } from 'get-tsconfig'
 
 const chain = getExtendsChain('./tsconfig.json')
 
-// Inspect or modify the chain before merging
+// Modify before merging
 chain[0].config.compilerOptions = {
     ...chain[0].config.compilerOptions,
     sourceMap: true
 }
 
-const { path, config } = resolveExtendsChain(chain)
+const result = resolveExtendsChain(chain)
+// TsconfigResult { path: string, config: TsconfigJsonResolved }
 ```
 
----
+## Working with a tsconfig
+
+These functions take a parsed `TsconfigResult` (from `getTsconfig` or `readTsconfig`) and answer questions about it. They cache compiled state per tsconfig object — do not mutate the tsconfig after the first call.
 
 ### isFileIncluded(tsconfig, filePath)
 
-Checks whether an absolute file path is included by a tsconfig's `files`, `include`, and `exclude` settings. Case sensitivity is auto-detected from the filesystem.
-
-Non-absolute paths return `false`.
-
-Compiled patterns are cached per tsconfig object for performance. Do not mutate the tsconfig after the first call — create a new object instead.
-
-#### tsconfig
-Type: `TsconfigResult`
-
-Pass in the return value from `getTsconfig` or `readTsconfig`.
-
-#### filePath
-Type: `string`
-
-Absolute path to the file.
-
-#### Example
+Checks whether an absolute file path is included by a tsconfig's `files`, `include`, and `exclude` settings. Case sensitivity is auto-detected from the filesystem. Non-absolute paths return `false`.
 
 ```ts
 import { getTsconfig, isFileIncluded } from 'get-tsconfig'
@@ -325,27 +205,9 @@ if (tsconfig && isFileIncluded(tsconfig, '/path/to/file.ts')) {
 }
 ```
 
----
-
 ### resolvePathAlias(tsconfig, specifier)
 
-Resolves an [import specifier](https://nodejs.org/api/esm.html#terminology) against a tsconfig's [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths) mappings.
-
-Returns an array of possible file paths to check. Returns an empty array when no `paths` are configured or no pattern matches. This function only returns possible paths and doesn't do actual file resolution — compatible with any file/build system resolver.
-
-Results are cached per tsconfig object. Do not mutate the tsconfig after the first call — create a new object instead.
-
-#### tsconfig
-Type: `TsconfigResult`
-
-Pass in the return value from `getTsconfig` or `readTsconfig`.
-
-#### specifier
-Type: `string`
-
-The import specifier to resolve (e.g. `@/utils/helper`).
-
-#### Example
+Resolves an [import specifier](https://nodejs.org/api/esm.html#terminology) against [`compilerOptions.paths`](https://www.typescriptlang.org/tsconfig#paths). Returns an array of possible file paths, or an empty array if no match. Does not perform actual file resolution.
 
 ```ts
 import { getTsconfig, resolvePathAlias } from 'get-tsconfig'
