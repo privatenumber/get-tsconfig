@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { readTsconfig } from '#get-tsconfig';
 import {
 	temporaryBase, writeJson, measure, type BenchmarkResult,
-} from './utils.js';
-import { readTsconfig } from '#get-tsconfig';
+} from './utils.ts';
 
 const setupMonorepo = (packageCount: number) => {
 	const monorepoDirectory = path.join(temporaryBase, 'monorepo');

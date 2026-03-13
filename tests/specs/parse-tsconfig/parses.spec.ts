@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { createTsconfigJson } from '../../utils/fixture-helpers.js';
-import { getTscTsconfig } from '../../utils/typescript-helpers.js';
 import { readTsconfig } from '#get-tsconfig';
+import { createTsconfigJson } from '../../utils/fixture-helpers.ts';
+import { getTscTsconfig } from '../../utils/typescript-helpers.ts';
 
 describe('parses tsconfig', () => {
 	describe('errors', () => {

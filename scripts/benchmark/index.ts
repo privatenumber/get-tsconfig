@@ -1,7 +1,7 @@
-import { cleanup } from './utils.js';
-import { run as runRepeatedCalls } from './repeated-calls.js';
-import { run as runMonorepo } from './monorepo.js';
-import { run as runExtendsChain } from './extends-chain.js';
+import { cleanup } from './utils.ts';
+import { run as runRepeatedCalls } from './repeated-calls.ts';
+import { run as runMonorepo } from './monorepo.ts';
+import { run as runExtendsChain } from './extends-chain.ts';
 
 console.log('Running benchmarks...\n');
 

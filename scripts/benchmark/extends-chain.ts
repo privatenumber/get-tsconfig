@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { getExtendsChain, resolveExtendsChain } from '#get-tsconfig';
 import {
 	temporaryBase, writeJson, measure, type BenchmarkResult,
-} from './utils.js';
-import { getExtendsChain, resolveExtendsChain } from '#get-tsconfig';
+} from './utils.ts';
 
 const setupLinearChain = (depth: number) => {
 	const directory = path.join(temporaryBase, 'linear');
