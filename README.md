@@ -37,9 +37,9 @@ For TypeScript related tooling to correctly parse `tsconfig.json` file without d
 
 ## API
 
-### getTsconfig(searchPath?, configName?, cache?, includes?)
+### getTsconfig(searchPath?, options?)
 
-Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`readTsconfig`](#readtsconfigtsconfigpath-cache) instead). Returns `undefined` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
+Searches for a tsconfig file (defaults to `tsconfig.json`) in the `searchPath` and parses it. (If you already know the tsconfig path, use [`readTsconfig`](#readtsconfigtsconfigpath-options) instead). Returns `undefined` if a config file cannot be found, or an object containing the path and parsed TSConfig object if found.
 
 Returns:
 
@@ -57,21 +57,36 @@ Default: `process.cwd()`
 
 Path to a source file or directory. The directory tree is searched up for a `tsconfig.json` file. Typically a TypeScript/JavaScript file path (e.g. `./src/index.ts`), but a directory path also works if you don't have a specific file.
 
-#### configName
+#### options
+Type:
+
+```ts
+type GetTsconfigOptions = {
+    configName?: string
+    cache?: Map<string, unknown>
+    includes?: boolean
+}
+```
+
+Default: `{}`
+
+Optional search configuration.
+
+##### configName
 Type: `string`
 
 Default: `tsconfig.json`
 
 The file name of the TypeScript config file.
 
-#### cache
-Type: `Map<string, any>`
+##### cache
+Type: `Map<string, unknown>`
 
 Default: `new Map()`
 
-Optional cache for fs operations.
+Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
 
-#### includes
+##### includes
 Type: `boolean`
 
 Default: `false`
@@ -98,20 +113,45 @@ console.log(getTsconfig('./path/to/directory'))
 console.log(getTsconfig('./path/to/tsconfig.json'))
 
 // Search for jsconfig.json - https://code.visualstudio.com/docs/languages/jsconfig
-console.log(getTsconfig('.', 'jsconfig.json'))
+console.log(getTsconfig('.', { configName: 'jsconfig.json' }))
 
 // Find the tsconfig that actually applies to a file (Language Server behavior)
 // Skips tsconfig files where the file is excluded or not included
-console.log(getTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true))
+console.log(getTsconfig('./src/index.ts', {
+    includes: true,
+    cache: new Map()
+}))
 ```
 
 ---
 
-### findTsconfig(searchPath?, configName?, cache?, includes?)
+### findTsconfig(searchPath?, options?)
 
 Searches for a tsconfig file by walking up the directory tree. Returns the path to the found tsconfig file, or `undefined` if not found.
 
 Supports the same [`includes`](#includes) option as `getTsconfig` to validate that the tsconfig applies to the `searchPath` file.
+
+#### searchPath
+Type: `string`
+
+Default: `process.cwd()`
+
+Path to a source file or directory to search from.
+
+#### options
+Type:
+
+```ts
+type FindTsconfigOptions = {
+    configName?: string
+    cache?: Map<string, unknown>
+    includes?: boolean
+}
+```
+
+Default: `{}`
+
+Same options as [`getTsconfig`](#gettsconfigsearchpath-options).
 
 #### Example
 
@@ -121,13 +161,19 @@ import { findTsconfig } from 'get-tsconfig'
 // Find the tsconfig.json path
 findTsconfig()
 
+// Search for a custom config file name
+findTsconfig('.', { configName: 'jsconfig.json' })
+
 // Find the tsconfig that includes the file
-findTsconfig('./src/index.ts', 'tsconfig.json', new Map(), true)
+findTsconfig('./src/index.ts', {
+    includes: true,
+    cache: new Map()
+})
 ```
 
 ---
 
-### readTsconfig(tsconfigPath, cache?)
+### readTsconfig(tsconfigPath, options?)
 
 Reads and resolves the tsconfig file at the given path. Used internally by `getTsconfig`. Returns a `TsConfigResult` object containing the resolved path and parsed config. The `path` property is the same resolved path used internally for `extends` resolution and `${configDir}` interpolation.
 
@@ -136,12 +182,18 @@ Type: `string`
 
 Required path to the tsconfig file.
 
-#### cache
-Type: `Map<string, any>`
+#### options
+Type:
 
-Default: `new Map()`
+```ts
+type ReadTsconfigOptions = {
+    cache?: Map<string, unknown>
+}
+```
 
-Optional cache for fs operations.
+Default: `{}`
+
+Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
 
 #### Example
 
@@ -158,7 +210,7 @@ const { path, config } = readTsconfig('./path/to/tsconfig.custom.json')
 
 `readTsconfig` and `getTsconfig` fully resolve the [`extends`](https://www.typescriptlang.org/tsconfig/#extends) chain and return a flattened config. These two functions expose the chain for use cases like watch mode (knowing which files to monitor for reloads) and config auditing (inspecting what each layer sets).
 
-#### getExtendsChain(tsconfigPath, cache?)
+#### getExtendsChain(tsconfigPath, options?)
 
 Collects the full extends chain for a tsconfig file. Returns an array of `TsConfigResult<TsConfigJson>` entries — each containing the raw (unmerged) config with `extends` resolved to absolute paths.
 
@@ -169,12 +221,18 @@ Type: `string`
 
 Required path to the tsconfig file.
 
-##### cache
-Type: `Map<string, any>`
+##### options
+Type:
 
-Default: `new Map()`
+```ts
+type GetExtendsChainOptions = {
+    cache?: Map<string, unknown>
+}
+```
 
-Optional cache for fs operations.
+Default: `{}`
+
+Optional snapshot cache for fs operations and resolution results. Reusing it after filesystem changes can return stale results.
 
 ##### Example
 

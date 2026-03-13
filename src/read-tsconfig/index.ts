@@ -1,7 +1,11 @@
 import path from 'node:path';
 import slash from 'slash';
 import type {
-	TsConfigJson, TsConfigJsonResolved, TsConfigResult, Cache,
+	TsConfigJson,
+	TsConfigJsonResolved,
+	TsConfigResult,
+	ReadTsconfigOptions,
+	GetExtendsChainOptions,
 } from '../types.js';
 import { normalizeRelativePath } from '../utils/normalize-relative-path.js';
 import { readJsonc } from '../utils/read-jsonc.js';
@@ -317,14 +321,16 @@ const normalizeCompilerOptions = (
  * returning them as a flat array with `extends` resolved to absolute paths.
  *
  * @param tsconfigPath - Path to the tsconfig file.
- * @param cache - Cache for filesystem reads (default: new `Map()`).
+ * @param options - Optional read configuration.
+ * @param options.cache - Cache for filesystem reads (default: new `Map()`).
  * @returns Array of `{ path, config }` entries. `chain[0]` is the root config.
  * Ordered root-first, deepest ancestor last.
  */
 export const getExtendsChain = (
 	tsconfigPath: string,
-	cache: Cache<string> = new Map(),
+	options: GetExtendsChainOptions = {},
 ): TsConfigResult<TsConfigJson>[] => {
+	const { cache = new Map() } = options;
 	const resolvedPath = path.resolve(tsconfigPath);
 	const chain: TsConfigResult<TsConfigJson>[] = [];
 	const visited = new Set<string>();
@@ -675,14 +681,17 @@ export const resolveExtendsChain = (
  * Reads and resolves a tsconfig file at a given path
  *
  * @param tsconfigPath - Path to the tsconfig file.
- * @param cache - Cache for storing parsed tsconfig results (default: new `Map()`).
+ * @param options - Optional read configuration.
+ * @param options.cache - Cache for filesystem reads and resolution results
+ * (default: new `Map()`).
  * @returns The resolved absolute path and config. The path is the same one used
  * internally for extends resolution.
  */
 export const readTsconfig = (
 	tsconfigPath: string,
-	cache: Cache<string> = new Map(),
+	options: ReadTsconfigOptions = {},
 ): TsConfigResult => {
-	const chain = getExtendsChain(tsconfigPath, cache);
+	const { cache = new Map() } = options;
+	const chain = getExtendsChain(tsconfigPath, { cache });
 	return resolveExtendsChain(chain);
 };

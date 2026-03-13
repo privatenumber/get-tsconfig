@@ -56,6 +56,25 @@ describe('getTsconfig', () => {
 		});
 	});
 
+	test('custom name', async () => {
+		const customName = 'tsconfig-custom-name.json';
+		await using fixture = await createFixture({
+			[customName]: tsconfigJson,
+			'a.ts': '',
+		});
+
+		const expected = await getTscTsconfig(fixture.path, customName);
+		delete expected.files;
+
+		const tsconfig = getTsconfig(fixture.path, {
+			configName: customName,
+		});
+		expect(tsconfig).toStrictEqual({
+			path: slash(fixture.getPath(customName)),
+			config: expected,
+		});
+	});
+
 	test('parses config with comments and trailing commas', async () => {
 		await using fixture = await createFixture({
 			'tsconfig.json': tsconfigJson,
@@ -83,9 +102,9 @@ describe('getTsconfig', () => {
 
 		const tsconfig = getTsconfig(
 			fixture.getPath('nested/src/index.ts'),
-			'tsconfig.json',
-			new Map(),
-			true,
+			{
+				includes: true,
+			},
 		);
 		expect(tsconfig).toBeDefined();
 		expect(tsconfig!.config.compilerOptions!.strict).toBe(true);
@@ -125,13 +144,17 @@ describe('getTsconfig', () => {
 		};
 
 		const cache = new Map();
-		const tsconfig = getTsconfig(fixture.path, 'tsconfig.json', cache);
+		const tsconfig = getTsconfig(fixture.path, {
+			cache,
+		});
 		expect(tsconfig).toStrictEqual(expectedResult);
 		expect(cache.size).toBe(2);
 
 		await fixture.rm('tsconfig.json');
 
-		const tsconfigCacheHit = getTsconfig(fixture.path, 'tsconfig.json', cache);
+		const tsconfigCacheHit = getTsconfig(fixture.path, {
+			cache,
+		});
 		expect(tsconfigCacheHit).toStrictEqual(expectedResult);
 	});
 });
