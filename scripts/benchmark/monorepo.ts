@@ -1,74 +1,55 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import { readTsconfig } from '#get-tsconfig';
 import {
-	temporaryBase, writeJson, measure, type BenchmarkResult,
-} from './utils.ts';
+	defineScenario,
+	type RegisteredBenchmarkScenario,
+} from './types.ts';
+import { setupMonorepo } from './fixtures.ts';
 
-const setupMonorepo = (packageCount: number) => {
-	const monorepoDirectory = path.join(temporaryBase, 'monorepo');
-	writeJson(path.join(monorepoDirectory, 'tsconfig.base.json'), {
-		compilerOptions: {
-			target: 'es2022',
-			module: 'node16',
-			strict: true,
-			declaration: true,
+const packageCount = 200;
+
+export const scenarios = [
+	defineScenario({
+		id: 'monorepo:read-tsconfig-shared-cache',
+		suite: 'monorepo',
+		name: 'readTsconfig (shared cache)',
+		version: 1,
+		kind: 'macro',
+		note: `${packageCount} packages`,
+		plan: {
+			type: 'fixed',
+			iterations: 10,
 		},
-	});
-
-	for (let i = 0; i < packageCount; i += 1) {
-		const packageDirectory = path.join(monorepoDirectory, 'packages', `pkg-${i}`);
-		writeJson(path.join(packageDirectory, 'tsconfig.json'), {
-			extends: '../../tsconfig.base.json',
-			compilerOptions: {
-				outDir: './dist',
+		prepare: context => setupMonorepo(context, packageCount),
+		createRound: (fixture) => {
+			const cache = new Map();
+			return {
+				run: () => {
+					cache.clear();
+					for (const tsconfigPath of fixture.tsconfigPaths) {
+						readTsconfig(tsconfigPath, { cache });
+					}
+				},
+			};
+		},
+	}),
+	defineScenario({
+		id: 'monorepo:read-tsconfig-fresh-cache',
+		suite: 'monorepo',
+		name: 'readTsconfig (fresh cache)',
+		version: 1,
+		kind: 'macro',
+		note: `${packageCount} packages`,
+		plan: {
+			type: 'fixed',
+			iterations: 10,
+		},
+		prepare: context => setupMonorepo(context, packageCount),
+		createRound: fixture => ({
+			run: () => {
+				for (const tsconfigPath of fixture.tsconfigPaths) {
+					readTsconfig(tsconfigPath);
+				}
 			},
-			include: ['src'],
-		});
-		fs.mkdirSync(path.join(packageDirectory, 'src'), { recursive: true });
-		fs.writeFileSync(path.join(packageDirectory, 'src/index.ts'), '');
-	}
-
-	return monorepoDirectory;
-};
-
-export const run = (): BenchmarkResult[] => {
-	const packageCount = 200;
-	const monorepoDirectory = setupMonorepo(packageCount);
-
-	const tsconfigPaths = Array.from(
-		{ length: packageCount },
-		(_, i) => path.join(monorepoDirectory, 'packages', `pkg-${i}`, 'tsconfig.json'),
-	);
-
-	const sharedCache = new Map();
-
-	// Warmup
-	for (const tsconfigPath of tsconfigPaths) {
-		readTsconfig(tsconfigPath);
-	}
-
-	const shared = measure('monorepo readTsconfig (shared cache)', 10, () => {
-		sharedCache.clear();
-		for (const tsconfigPath of tsconfigPaths) {
-			readTsconfig(tsconfigPath, { cache: sharedCache });
-		}
-	});
-
-	const fresh = measure('monorepo readTsconfig (fresh cache)', 10, () => {
-		for (const tsconfigPath of tsconfigPaths) {
-			readTsconfig(tsconfigPath);
-		}
-	});
-
-	return [
-		{
-			...shared,
-			note: `${packageCount} packages`,
-		},
-		{
-			...fresh,
-			note: `${packageCount} packages`,
-		},
-	];
-};
+		}),
+	}),
+] satisfies RegisteredBenchmarkScenario[];
