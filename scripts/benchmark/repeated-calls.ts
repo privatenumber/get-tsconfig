@@ -1,119 +1,242 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import {
 	getTsconfig,
 	readTsconfig,
 	isFileIncluded,
 	resolvePathAlias,
+	type TsconfigResult,
 } from '#get-tsconfig';
 import {
-	temporaryBase, writeJson, measure, type BenchmarkResult,
-} from './utils.ts';
+	defineScenario,
+	type RegisteredBenchmarkScenario,
+} from './types.ts';
+import { setupSingleProject } from './fixtures.ts';
 
-const setupSingleProject = () => {
-	const projectDirectory = path.join(temporaryBase, 'single-project');
-	writeJson(path.join(projectDirectory, 'base.json'), {
-		compilerOptions: {
-			target: 'es2022',
-			module: 'node16',
-			strict: true,
+const createFreshTsconfig = (
+	tsconfig: TsconfigResult,
+): TsconfigResult => ({ ...tsconfig });
+
+const microPlan = {
+	type: 'adaptive',
+	targetDurationMs: 250,
+	maxIterations: 500_000,
+} as const;
+
+const shortMacroPlan = {
+	type: 'adaptive',
+	targetDurationMs: 350,
+	minIterations: 500,
+	maxIterations: 20_000,
+} as const;
+
+export const scenarios = [
+	defineScenario({
+		id: 'repeated-calls:read-tsconfig-shared-cache',
+		suite: 'repeated-calls',
+		name: 'readTsconfig (shared cache)',
+		version: 1,
+		kind: 'macro',
+		plan: shortMacroPlan,
+		prepare: context => setupSingleProject(context, 'repeated-calls-read-shared'),
+		createRound: (fixture) => {
+			const cache = new Map();
+			return {
+				run: () => {
+					readTsconfig(fixture.tsconfigPath, { cache });
+				},
+			};
 		},
-	});
-	writeJson(path.join(projectDirectory, 'tsconfig.json'), {
-		extends: './base.json',
-		compilerOptions: {
-			baseUrl: '.',
-			paths: {
-				'@/*': ['./src/*'],
-				'#utils/*': ['./utils/*'],
+	}),
+	defineScenario({
+		id: 'repeated-calls:read-tsconfig-fresh-cache',
+		suite: 'repeated-calls',
+		name: 'readTsconfig (fresh cache)',
+		version: 1,
+		kind: 'macro',
+		plan: shortMacroPlan,
+		prepare: context => setupSingleProject(context, 'repeated-calls-read-fresh'),
+		createRound: fixture => ({
+			run: () => {
+				readTsconfig(fixture.tsconfigPath);
 			},
-			outDir: './dist',
-			declaration: true,
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:get-tsconfig-shared-cache',
+		suite: 'repeated-calls',
+		name: 'getTsconfig (shared cache)',
+		version: 1,
+		kind: 'macro',
+		plan: shortMacroPlan,
+		prepare: context => setupSingleProject(context, 'repeated-calls-get-shared'),
+		createRound: (fixture) => {
+			const cache = new Map();
+			return {
+				run: () => {
+					getTsconfig(fixture.projectDirectory, { cache });
+				},
+			};
 		},
-		include: ['src/**/*.ts', 'utils/**/*.ts'],
-		exclude: ['node_modules', 'dist'],
-	});
-	fs.mkdirSync(path.join(projectDirectory, 'src'), { recursive: true });
-	fs.writeFileSync(path.join(projectDirectory, 'src/index.ts'), '');
-	fs.writeFileSync(path.join(projectDirectory, 'src/utils.ts'), '');
-	return projectDirectory;
-};
-
-export const run = (): BenchmarkResult[] => {
-	const projectDirectory = setupSingleProject();
-	const tsconfigPath = path.join(projectDirectory, 'tsconfig.json');
-	const sharedCache = new Map();
-
-	const readShared = measure('readTsconfig (shared cache)', 500, () => {
-		readTsconfig(tsconfigPath, { cache: sharedCache });
-	});
-
-	const readFresh = measure('readTsconfig (fresh cache)', 500, () => {
-		readTsconfig(tsconfigPath);
-	});
-
-	const getShared = measure('getTsconfig (shared cache)', 500, () => {
-		getTsconfig(projectDirectory, {
-			cache: sharedCache,
-		});
-	});
-
-	const getFresh = measure('getTsconfig (fresh cache)', 500, () => {
-		getTsconfig(projectDirectory);
-	});
-
-	const tsconfig = readTsconfig(tsconfigPath);
-	const srcFile = path.join(projectDirectory, 'src/index.ts');
-
-	const fileCached = measure('isFileIncluded (cached)', 100_000, () => {
-		isFileIncluded(tsconfig, srcFile);
-		isFileIncluded(tsconfig, '/nonexistent/file.ts');
-	});
-
-	// Pre-build distinct cloned inputs outside the timed region.
-	// Each clone is a separate object so the cache can't reuse compiled state,
-	// regardless of how the cache key strategy changes in the future.
-	const freshFileIterations = 20_000;
-	const freshFileConfigs = Array.from(
-		{ length: freshFileIterations + 1 }, // +1 for warmup
-		() => structuredClone(tsconfig),
-	);
-	let freshFileIndex = 0;
-	const fileFresh = measure('isFileIncluded (fresh compile)', freshFileIterations, () => {
-		const freshTsconfig = freshFileConfigs[freshFileIndex];
-		freshFileIndex += 1;
-		isFileIncluded(freshTsconfig, srcFile);
-		isFileIncluded(freshTsconfig, '/nonexistent/file.ts');
-	});
-
-	const aliasCached = measure('resolvePathAlias (cached)', 100_000, () => {
-		resolvePathAlias(tsconfig, '@/index');
-		resolvePathAlias(tsconfig, '#utils/helper');
-		resolvePathAlias(tsconfig, 'unmatched');
-	});
-
-	const freshAliasIterations = 20_000;
-	const freshAliasConfigs = Array.from(
-		{ length: freshAliasIterations + 1 },
-		() => structuredClone(tsconfig),
-	);
-	let freshAliasIndex = 0;
-	const aliasFresh = measure('resolvePathAlias (fresh compile)', freshAliasIterations, () => {
-		const freshTsconfig = freshAliasConfigs[freshAliasIndex];
-		freshAliasIndex += 1;
-		resolvePathAlias(freshTsconfig, '@/index');
-		resolvePathAlias(freshTsconfig, '#utils/helper');
-		resolvePathAlias(freshTsconfig, 'unmatched');
-	});
-
-	return [
-		readShared,
-		readFresh,
-		getShared,
-		getFresh,
-		fileCached,
-		fileFresh,
-		aliasCached,
-		aliasFresh,
-	];
-};
+	}),
+	defineScenario({
+		id: 'repeated-calls:get-tsconfig-fresh-cache',
+		suite: 'repeated-calls',
+		name: 'getTsconfig (fresh cache)',
+		version: 1,
+		kind: 'macro',
+		plan: shortMacroPlan,
+		prepare: context => setupSingleProject(context, 'repeated-calls-get-fresh'),
+		createRound: fixture => ({
+			run: () => {
+				getTsconfig(fixture.projectDirectory);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:is-file-included-cached-hit',
+		suite: 'repeated-calls',
+		name: 'isFileIncluded (cached hit)',
+		version: 1,
+		kind: 'micro',
+		plan: microPlan,
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-file-hit');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				isFileIncluded(fixture.tsconfig, fixture.srcFile);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:is-file-included-cached-miss',
+		suite: 'repeated-calls',
+		name: 'isFileIncluded (cached miss)',
+		version: 1,
+		kind: 'micro',
+		plan: microPlan,
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-file-miss');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				isFileIncluded(fixture.tsconfig, fixture.excludedFile);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:is-file-included-fresh-object-hit',
+		suite: 'repeated-calls',
+		name: 'isFileIncluded (fresh object hit)',
+		version: 1,
+		kind: 'micro',
+		note: 'new TsconfigResult object each iteration',
+		plan: {
+			...microPlan,
+			maxIterations: 50_000,
+		},
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-file-fresh');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				isFileIncluded(createFreshTsconfig(fixture.tsconfig), fixture.srcFile);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:resolve-path-alias-cached-exact',
+		suite: 'repeated-calls',
+		name: 'resolvePathAlias (cached exact match)',
+		version: 1,
+		kind: 'micro',
+		plan: microPlan,
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-alias-exact');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				resolvePathAlias(fixture.tsconfig, fixture.exactMatchSpecifier);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:resolve-path-alias-cached-pattern',
+		suite: 'repeated-calls',
+		name: 'resolvePathAlias (cached pattern match)',
+		version: 1,
+		kind: 'micro',
+		plan: microPlan,
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-alias-pattern');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				resolvePathAlias(fixture.tsconfig, fixture.wildcardMatchSpecifier);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:resolve-path-alias-cached-miss',
+		suite: 'repeated-calls',
+		name: 'resolvePathAlias (cached miss)',
+		version: 1,
+		kind: 'micro',
+		plan: microPlan,
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-alias-miss');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				resolvePathAlias(fixture.tsconfig, fixture.missSpecifier);
+			},
+		}),
+	}),
+	defineScenario({
+		id: 'repeated-calls:resolve-path-alias-fresh-object-pattern',
+		suite: 'repeated-calls',
+		name: 'resolvePathAlias (fresh object pattern match)',
+		version: 1,
+		kind: 'micro',
+		note: 'new TsconfigResult object each iteration',
+		plan: {
+			...microPlan,
+			maxIterations: 100_000,
+		},
+		prepare: (context) => {
+			const fixture = setupSingleProject(context, 'repeated-calls-alias-fresh');
+			return {
+				...fixture,
+				tsconfig: readTsconfig(fixture.tsconfigPath),
+			};
+		},
+		createRound: fixture => ({
+			run: () => {
+				resolvePathAlias(createFreshTsconfig(fixture.tsconfig), fixture.wildcardMatchSpecifier);
+			},
+		}),
+	}),
+] satisfies RegisteredBenchmarkScenario[];
