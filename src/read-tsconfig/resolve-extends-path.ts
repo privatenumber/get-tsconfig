@@ -14,10 +14,6 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
-const createNodeResolver = (
-	directoryPath: string,
-) => Module.createRequire(path.join(directoryPath, 'tsconfig.json'));
-
 // Try the package.json path first for environments where Node can resolve the
 // package root directly. If that is blocked, resolve the package entrypoint and
 // walk up to the nearest package.json instead.
@@ -26,7 +22,9 @@ const resolvePackageJsonPathWithNode = (
 	directoryPath: string,
 	cache?: TsconfigCache,
 ) => {
-	const resolveWithNode = createNodeResolver(directoryPath);
+	const resolveWithNode = Module.createRequire(
+		path.join(directoryPath, 'tsconfig.json'),
+	);
 
 	try {
 		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
