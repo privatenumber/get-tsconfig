@@ -14,27 +14,6 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
-const findPackageJsonPath = (
-	searchPath: string,
-	cache?: TsconfigCache,
-) => {
-	let currentPath = searchPath;
-
-	while (true) {
-		const packageJsonPath = path.join(currentPath, PACKAGE_JSON);
-		if (tryStat(cache, packageJsonPath)?.isFile()) {
-			return packageJsonPath;
-		}
-
-		const parentPath = path.dirname(currentPath);
-		if (parentPath === currentPath) {
-			return;
-		}
-
-		currentPath = parentPath;
-	}
-};
-
 const createNodeResolver = (
 	directoryPath: string,
 ) => Module.createRequire(path.join(directoryPath, 'tsconfig.json'));
@@ -55,7 +34,7 @@ const resolvePackageJsonPathWithNode = (
 
 	try {
 		const packageEntryPath = resolveWithNode.resolve(packageName);
-		return findPackageJsonPath(path.dirname(packageEntryPath), cache);
+		return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
 	} catch {}
 };
 
