@@ -39,6 +39,9 @@ const createNodeResolver = (
 	directoryPath: string,
 ) => Module.createRequire(path.join(directoryPath, 'tsconfig.json'));
 
+// Try the package.json path first for environments where Node can resolve the
+// package root directly. If that is blocked, resolve the package entrypoint and
+// walk up to the nearest package.json instead.
 const resolvePackageJsonPathWithNode = (
 	packageName: string,
 	directoryPath: string,
