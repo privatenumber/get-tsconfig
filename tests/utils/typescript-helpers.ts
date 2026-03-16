@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { execa } from 'execa';
+import spawn, { type SubprocessError } from 'nano-spawn';
 import type { TsconfigJson } from '#get-tsconfig';
 
 const randomId = () => Math.random().toString(36).slice(2);
@@ -17,11 +17,14 @@ export const getTscTsconfig = async (
 		tscArgs.push('--project', tsconfigPath);
 	}
 
-	const tscProcess = await execa(
+	const tscProcess = await spawn(
 		tscPath,
 		tscArgs,
 		{ cwd },
-	);
+	).catch((error: SubprocessError) => {
+		// Re-throw with stdout/stderr so tests can match on tsc output
+		throw new Error(error.stderr || error.stdout || error.message);
+	});
 
 	return JSON.parse(tscProcess.stdout);
 };
@@ -56,7 +59,7 @@ export const getTscResolution = async (
 
 	await fs.writeFile(filePath, `import '${request}'`);
 
-	const { stdout } = await execa(
+	const { stdout } = await spawn(
 		tscPath,
 		[
 			'--traceResolution',

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { execaNode, type ExecaError } from 'execa';
+import spawn, { type SubprocessError } from 'nano-spawn';
 import { getTsconfig, resolvePathAlias } from '#get-tsconfig';
 import { createTsconfigJson } from '../utils/fixture-helpers.ts';
 import { getTscResolution } from '../utils/typescript-helpers.ts';
@@ -59,7 +59,7 @@ describe('paths', () => {
 				await getTscResolution('@', fixture.path);
 			} catch (error) {
 				throwsError = true;
-				expect((error as ExecaError).stdout).toMatch(errorMessage);
+				expect((error as SubprocessError).stdout).toMatch(errorMessage);
 			}
 			expect(throwsError).toBe(true);
 
@@ -91,7 +91,7 @@ describe('paths', () => {
 				await getTscResolution('@', fixture.path);
 			} catch (error) {
 				throwsError = true;
-				expect((error as ExecaError).stdout).toMatch(errorMessage);
+				expect((error as SubprocessError).stdout).toMatch(errorMessage);
 			}
 			expect(throwsError).toBe(true);
 
@@ -378,7 +378,7 @@ describe('paths', () => {
 			`,
 		});
 
-		const { stdout } = await execaNode(fixture.getPath('test.mjs'), [], { cwd: fixture.path });
+		const { stdout } = await spawn(process.execPath, [fixture.getPath('test.mjs')], { cwd: fixture.path });
 		const matcherResult = JSON.parse(stdout);
 
 		const resolvedAttempts = await getTscResolution('@/file', fixture.getPath('./dir'));
