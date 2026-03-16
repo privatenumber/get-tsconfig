@@ -6,7 +6,7 @@ import { readTsconfig } from '#get-tsconfig';
 import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.ts';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
-const distIndexUrl = import.meta.resolve('#get-tsconfig');
+const getTsconfigPath = import.meta.resolve('#get-tsconfig');
 
 describe('node_modules', () => {
 	test('prefers file over package', async () => {
@@ -417,7 +417,7 @@ describe('node_modules', () => {
 			'test.mjs': `
 				import path from 'node:path';
 				import { createRequire } from 'node:module';
-				import { readTsconfig } from ${JSON.stringify(distIndexUrl)};
+				import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
 
 				const projectPath = path.resolve('project');
 				const require = createRequire(path.join(projectPath, 'index.cjs'));
