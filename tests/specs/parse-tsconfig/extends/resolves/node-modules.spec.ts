@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
-import { execaNode } from 'execa';
+import spawn, { type SubprocessError } from 'nano-spawn';
 import { readTsconfig } from '#get-tsconfig';
 import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.ts';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
@@ -12,33 +12,29 @@ const runNodePathFixture = async (
 	fixturePath: string,
 	nodePath: string,
 ) => {
-	const {
-		stdout,
-		stderr,
-		exitCode,
-	} = await execaNode(
-		path.join(fixturePath, 'test.mjs'),
-		[],
+	const result = await spawn(
+		process.execPath,
+		[path.join(fixturePath, 'test.mjs')],
 		{
 			cwd: fixturePath,
 			env: {
-				...process.env,
 				NODE_PATH: nodePath,
 			},
-			reject: false,
 		},
-	);
+	).catch(error => error as SubprocessError);
 
-	const resolvedLine = stdout
+	const exitCode = 'exitCode' in result ? result.exitCode : 0;
+
+	const resolvedLine = result.stdout
 		.split('\n')
 		.find(line => line.startsWith('resolved '));
 
-	const parsedLine = stdout
+	const parsedLine = result.stdout
 		.split('\n')
 		.find(line => line.startsWith('parsed '));
 
 	return {
-		stderr,
+		stderr: result.stderr,
 		exitCode,
 		resolvedLine,
 		parsedLine,
@@ -732,15 +728,16 @@ describe('node_modules', () => {
 	const pnpParseTsconfig = async (
 		tsconfigPath: string,
 	) => {
-		const { stdout, stderr } = await execaNode(
-			'./index.js',
-			[tsconfigPath],
+		const { stdout, stderr } = await spawn(
+			process.execPath,
+			['./index.js', tsconfigPath],
 			{
-				nodeOptions: ['--require', './.pnp.cjs'],
 				cwd: yarnPnpDirectory,
-				reject: false,
+				env: {
+					NODE_OPTIONS: '--require ./.pnp.cjs',
+				},
 			},
-		);
+		).catch(error => error as SubprocessError);
 		try {
 			return JSON.parse(stdout);
 		} catch {
