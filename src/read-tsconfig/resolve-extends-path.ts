@@ -14,6 +14,48 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
+const findPackageJsonPath = (
+	searchPath: string,
+	cache?: TsconfigCache,
+) => {
+	let currentPath = searchPath;
+
+	while (true) {
+		const packageJsonPath = path.join(currentPath, PACKAGE_JSON);
+		if (tryStat(cache, packageJsonPath)?.isFile()) {
+			return packageJsonPath;
+		}
+
+		const parentPath = path.dirname(currentPath);
+		if (parentPath === currentPath) {
+			return;
+		}
+
+		currentPath = parentPath;
+	}
+};
+
+const createNodeResolver = (
+	directoryPath: string,
+) => Module.createRequire(path.join(directoryPath, 'tsconfig.json'));
+
+const resolvePackageJsonPathWithNode = (
+	packageName: string,
+	directoryPath: string,
+	cache?: TsconfigCache,
+) => {
+	const resolveWithNode = createNodeResolver(directoryPath);
+
+	try {
+		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
+	} catch {}
+
+	try {
+		const packageEntryPath = resolveWithNode.resolve(packageName);
+		return findPackageJsonPath(path.dirname(packageEntryPath), cache);
+	} catch {}
+};
+
 const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
@@ -163,7 +205,16 @@ const resolveExtendsPathUncached = (
 		} catch {}
 	}
 
-	const packagePath = findUp(
+	const resolvedPackageJsonPath = resolvePackageJsonPathWithNode(
+		packageName,
+		directoryPath,
+		cache,
+	);
+
+	const packagePath = (
+		resolvedPackageJsonPath
+		&& path.dirname(resolvedPackageJsonPath)
+	) || findUp(
 		path.resolve(directoryPath),
 		path.join('node_modules', packageName),
 		cache,
