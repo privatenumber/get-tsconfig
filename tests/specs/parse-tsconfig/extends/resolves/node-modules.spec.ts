@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
@@ -7,6 +8,8 @@ import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
 describe('node_modules', () => {
+	const distIndexUrl = pathToFileURL(path.resolve('dist/index.mjs')).href;
+
 	test('prefers file over package', async () => {
 		await using fixture = await createFixture({
 			node_modules: {
@@ -392,6 +395,83 @@ describe('node_modules', () => {
 		} finally {
 			process.chdir(originalCwd);
 		}
+	});
+
+	test('resolves extends via NODE_PATH-backed hoisted store', async () => {
+		await using fixture = await createFixture({
+			project: {
+				'tsconfig.json': createTsconfigJson({
+					extends: 'dep',
+				}),
+				'index.cjs': '',
+			},
+			store: {
+				hash: {
+					node_modules: {
+						dep: {
+							'package.json': createPackageJson({
+								name: 'dep',
+							}),
+							'tsconfig.json': createTsconfigJson({
+								compilerOptions: {
+									jsx: 'react',
+								},
+							}),
+						},
+					},
+				},
+			},
+			'test.mjs': `
+				import path from 'node:path';
+				import { createRequire } from 'node:module';
+				import { readTsconfig } from ${JSON.stringify(distIndexUrl)};
+
+				const projectPath = path.resolve('project');
+				const require = createRequire(path.join(projectPath, 'index.cjs'));
+				console.log('resolved', require.resolve('dep/package.json'));
+
+				const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
+				console.log('parsed', JSON.stringify(parsed.config));
+			`,
+		});
+
+		const nodePath = fixture.getPath('store/hash/node_modules');
+		const {
+			stdout,
+			stderr,
+			exitCode,
+		} = await execaNode(
+			fixture.getPath('test.mjs'),
+			[],
+			{
+				cwd: fixture.path,
+				env: {
+					...process.env,
+					NODE_PATH: nodePath,
+				},
+				reject: false,
+			},
+		);
+
+		const resolvedLine = stdout
+			.split('\n')
+			.find(line => line.startsWith('resolved '));
+
+		expect(resolvedLine).toBeTruthy();
+		expect(resolvedLine).toContain(nodePath);
+
+		const parsedLine = stdout
+			.split('\n')
+			.find(line => line.startsWith('parsed '));
+
+		expect(exitCode).toBe(0);
+		expect(stderr).toBe('');
+		expect(parsedLine).toBeTruthy();
+		expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
+			compilerOptions: {
+				jsx: 'react',
+			},
+		});
 	});
 
 	describe('package.json#tsconfig', () => {
