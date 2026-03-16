@@ -8,6 +8,43 @@ import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
 const getTsconfigPath = import.meta.resolve('#get-tsconfig');
 
+const runNodePathFixture = async (
+	fixturePath: string,
+	nodePath: string,
+) => {
+	const {
+		stdout,
+		stderr,
+		exitCode,
+	} = await execaNode(
+		path.join(fixturePath, 'test.mjs'),
+		[],
+		{
+			cwd: fixturePath,
+			env: {
+				...process.env,
+				NODE_PATH: nodePath,
+			},
+			reject: false,
+		},
+	);
+
+	const resolvedLine = stdout
+		.split('\n')
+		.find(line => line.startsWith('resolved '));
+
+	const parsedLine = stdout
+		.split('\n')
+		.find(line => line.startsWith('parsed '));
+
+	return {
+		stderr,
+		exitCode,
+		resolvedLine,
+		parsedLine,
+	};
+};
+
 describe('node_modules', () => {
 	test('prefers file over package', async () => {
 		await using fixture = await createFixture({
@@ -396,74 +433,224 @@ describe('node_modules', () => {
 		}
 	});
 
-	test('resolves extends via NODE_PATH-backed hoisted store', async () => {
-		await using fixture = await createFixture({
-			project: {
-				'tsconfig.json': createTsconfigJson({
-					extends: 'dep',
-				}),
-				'index.cjs': '',
-			},
-			'store/hash/node_modules/dep': {
-				'package.json': createPackageJson({
-					name: 'dep',
-				}),
-				'tsconfig.json': createTsconfigJson({
-					compilerOptions: {
-						jsx: 'react',
-					},
-				}),
-			},
-			'test.mjs': `
-				import path from 'node:path';
-				import { createRequire } from 'node:module';
-				import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
+	describe('NODE_PATH-backed hoisted store', () => {
+		test('resolves dependency root', async () => {
+			await using fixture = await createFixture({
+				project: {
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep',
+					}),
+					'index.cjs': '',
+				},
+				'store/hash/node_modules/dep': {
+					'package.json': createPackageJson({
+						name: 'dep',
+					}),
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							jsx: 'react',
+						},
+					}),
+				},
+				'test.mjs': `
+					import path from 'node:path';
+					import { createRequire } from 'node:module';
+					import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
 
-				const projectPath = path.resolve('project');
-				const require = createRequire(path.join(projectPath, 'index.cjs'));
-				console.log('resolved', require.resolve('dep/package.json'));
+					const projectPath = path.resolve('project');
+					const require = createRequire(path.join(projectPath, 'index.cjs'));
+					console.log('resolved', require.resolve('dep/package.json'));
 
-				const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
-				console.log('parsed', JSON.stringify(parsed.config));
-			`,
+					const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
+					console.log('parsed', JSON.stringify(parsed.config));
+				`,
+			});
+
+			const nodePath = fixture.getPath('store/hash/node_modules');
+			const {
+				stderr,
+				exitCode,
+				resolvedLine,
+				parsedLine,
+			} = await runNodePathFixture(fixture.path, nodePath);
+
+			expect(resolvedLine).toBeTruthy();
+			expect(resolvedLine).toContain(nodePath);
+			expect(exitCode).toBe(0);
+			expect(stderr).toBe('');
+			expect(parsedLine).toBeTruthy();
+			expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
+				compilerOptions: {
+					jsx: 'react',
+				},
+			});
 		});
 
-		const nodePath = fixture.getPath('store/hash/node_modules');
-		const {
-			stdout,
-			stderr,
-			exitCode,
-		} = await execaNode(
-			fixture.getPath('test.mjs'),
-			[],
-			{
-				cwd: fixture.path,
-				env: {
-					...process.env,
-					NODE_PATH: nodePath,
+		test('resolves package subpath exports', async () => {
+			await using fixture = await createFixture({
+				project: {
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep/config',
+					}),
+					'index.cjs': '',
 				},
-				reject: false,
-			},
-		);
+				'store/hash/node_modules/dep': {
+					'package.json': createPackageJson({
+						name: 'dep',
+						exports: {
+							'./config': './config.json',
+						},
+					}),
+					'config.json': createTsconfigJson({
+						compilerOptions: {
+							jsx: 'react-jsx',
+						},
+					}),
+				},
+				'test.mjs': `
+					import path from 'node:path';
+					import { createRequire } from 'node:module';
+					import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
 
-		const resolvedLine = stdout
-			.split('\n')
-			.find(line => line.startsWith('resolved '));
+					const projectPath = path.resolve('project');
+					const require = createRequire(path.join(projectPath, 'index.cjs'));
+					console.log('resolved', require.resolve('dep/config'));
 
-		expect(resolvedLine).toBeTruthy();
-		expect(resolvedLine).toContain(nodePath);
+					const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
+					console.log('parsed', JSON.stringify(parsed.config));
+				`,
+			});
 
-		const parsedLine = stdout
-			.split('\n')
-			.find(line => line.startsWith('parsed '));
+			const nodePath = fixture.getPath('store/hash/node_modules');
+			const {
+				stderr,
+				exitCode,
+				resolvedLine,
+				parsedLine,
+			} = await runNodePathFixture(fixture.path, nodePath);
 
-		expect(exitCode).toBe(0);
-		expect(stderr).toBe('');
-		expect(parsedLine).toBeTruthy();
-		expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
-			compilerOptions: {
-				jsx: 'react',
-			},
+			expect(resolvedLine).toBeTruthy();
+			expect(resolvedLine).toContain(nodePath);
+			expect(exitCode).toBe(0);
+			expect(stderr).toBe('');
+			expect(parsedLine).toBeTruthy();
+			expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
+				compilerOptions: {
+					jsx: 'react-jsx',
+				},
+			});
+		});
+
+		test('resolves scoped package subpath exports', async () => {
+			await using fixture = await createFixture({
+				project: {
+					'tsconfig.json': createTsconfigJson({
+						extends: '@scope/dep/config',
+					}),
+					'index.cjs': '',
+				},
+				'store/hash/node_modules/@scope/dep': {
+					'package.json': createPackageJson({
+						name: '@scope/dep',
+						exports: {
+							'./config': './config.json',
+						},
+					}),
+					'config.json': createTsconfigJson({
+						compilerOptions: {
+							jsx: 'react-jsxdev',
+						},
+					}),
+				},
+				'test.mjs': `
+					import path from 'node:path';
+					import { createRequire } from 'node:module';
+					import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
+
+					const projectPath = path.resolve('project');
+					const require = createRequire(path.join(projectPath, 'index.cjs'));
+					console.log('resolved', require.resolve('@scope/dep/config'));
+
+					const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
+					console.log('parsed', JSON.stringify(parsed.config));
+				`,
+			});
+
+			const nodePath = fixture.getPath('store/hash/node_modules');
+			const {
+				stderr,
+				exitCode,
+				resolvedLine,
+				parsedLine,
+			} = await runNodePathFixture(fixture.path, nodePath);
+
+			expect(resolvedLine).toBeTruthy();
+			expect(resolvedLine).toContain(nodePath);
+			expect(exitCode).toBe(0);
+			expect(stderr).toBe('');
+			expect(parsedLine).toBeTruthy();
+			expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
+				compilerOptions: {
+					jsx: 'react-jsxdev',
+				},
+			});
+		});
+
+		test('resolves conditional package subpath exports', async () => {
+			await using fixture = await createFixture({
+				project: {
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep/config',
+					}),
+					'index.cjs': '',
+				},
+				'store/hash/node_modules/dep': {
+					'package.json': createPackageJson({
+						name: 'dep',
+						exports: {
+							'./config': {
+								require: './config.json',
+							},
+						},
+					}),
+					'config.json': createTsconfigJson({
+						compilerOptions: {
+							jsx: 'preserve',
+						},
+					}),
+				},
+				'test.mjs': `
+					import path from 'node:path';
+					import { createRequire } from 'node:module';
+					import { readTsconfig } from ${JSON.stringify(getTsconfigPath)};
+
+					const projectPath = path.resolve('project');
+					const require = createRequire(path.join(projectPath, 'index.cjs'));
+					console.log('resolved', require.resolve('dep/config'));
+
+					const parsed = readTsconfig(path.join(projectPath, 'tsconfig.json'));
+					console.log('parsed', JSON.stringify(parsed.config));
+				`,
+			});
+
+			const nodePath = fixture.getPath('store/hash/node_modules');
+			const {
+				stderr,
+				exitCode,
+				resolvedLine,
+				parsedLine,
+			} = await runNodePathFixture(fixture.path, nodePath);
+
+			expect(resolvedLine).toBeTruthy();
+			expect(resolvedLine).toContain(nodePath);
+			expect(exitCode).toBe(0);
+			expect(stderr).toBe('');
+			expect(parsedLine).toBeTruthy();
+			expect(JSON.parse(parsedLine!.slice('parsed '.length))).toStrictEqual({
+				compilerOptions: {
+					jsx: 'preserve',
+				},
+			});
 		});
 	});
 
