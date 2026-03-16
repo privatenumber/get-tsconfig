@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { execaNode } from 'execa';
@@ -7,9 +6,9 @@ import { readTsconfig } from '#get-tsconfig';
 import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.ts';
 import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
 
-describe('node_modules', () => {
-	const distIndexUrl = pathToFileURL(path.resolve('dist/index.mjs')).href;
+const distIndexUrl = import.meta.resolve('#get-tsconfig');
 
+describe('node_modules', () => {
 	test('prefers file over package', async () => {
 		await using fixture = await createFixture({
 			node_modules: {
