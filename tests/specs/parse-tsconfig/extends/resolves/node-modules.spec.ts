@@ -405,20 +405,16 @@ describe('node_modules', () => {
 				}),
 				'index.cjs': '',
 			},
-			store: {
-				hash: {
-					node_modules: {
-						dep: {
-							'package.json': createPackageJson({
-								name: 'dep',
-							}),
-							'tsconfig.json': createTsconfigJson({
-								compilerOptions: {
-									jsx: 'react',
-								},
-							}),
+			'store/hash/node_modules': {
+				dep: {
+					'package.json': createPackageJson({
+						name: 'dep',
+					}),
+					'tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							jsx: 'react',
 						},
-					},
+					}),
 				},
 			},
 			'test.mjs': `
