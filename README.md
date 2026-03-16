@@ -93,7 +93,7 @@ type GetTsconfigOptions = {
 
 - **configName** — file name to search for (e.g. `'jsconfig.json'`)
 - **cache** — snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
-- **includes** — when `true`, validates the file is included by `include`/`files` and not excluded by `exclude` before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig).
+- **includes** — when `true`, validates the file is a root file (matched by `include`/`files` globs, not excluded) before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig). Note: this checks glob matching only — a file can still be part of a TypeScript program via transitive imports even if not matched by `include`.
 
 #### Example
 
@@ -193,7 +193,10 @@ These functions take a parsed `TsconfigResult` (from `getTsconfig` or `readTscon
 
 ### isFileIncluded(tsconfig, filePath)
 
-Checks whether an absolute file path is included by a tsconfig's `files`, `include`, and `exclude` settings. Case sensitivity is auto-detected from the filesystem. Non-absolute paths return `false`.
+Checks whether an absolute file path matches a tsconfig's `files`, `include`, and `exclude` globs — i.e., whether it's a **root file**. Case sensitivity is auto-detected from the filesystem. Non-absolute paths return `false`.
+
+> [!NOTE]
+> This checks glob matching only, not transitive imports. A file outside `include` can still be part of the TypeScript program if it's imported by a root file. `exclude` only filters the initial glob matching — it doesn't prevent transitively imported files from being compiled.
 
 ```ts
 import { getTsconfig, isFileIncluded } from 'get-tsconfig'
@@ -201,7 +204,7 @@ import { getTsconfig, isFileIncluded } from 'get-tsconfig'
 const tsconfig = getTsconfig()
 
 if (tsconfig && isFileIncluded(tsconfig, '/path/to/file.ts')) {
-    // file is included — use tsconfig.config.compilerOptions
+    // file is a root file of this tsconfig
 }
 ```
 
