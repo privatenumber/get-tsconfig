@@ -18,6 +18,7 @@ const getPnpApi = () => {
 // package root directly. If that is blocked, resolve the package entrypoint and
 // walk up to the nearest package.json instead.
 const resolvePackageJsonPathWithNode = (
+	requestedPath: string,
 	packageName: string,
 	directoryPath: string,
 	cache?: TsconfigCache,
@@ -30,10 +31,18 @@ const resolvePackageJsonPathWithNode = (
 		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
 	} catch {}
 
-	try {
-		const packageEntryPath = resolveWithNode.resolve(packageName);
-		return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
-	} catch {}
+	const resolutionTargets = (
+		requestedPath === packageName
+			? [packageName]
+			: [requestedPath, packageName]
+	);
+
+	for (const resolutionTarget of resolutionTargets) {
+		try {
+			const packageEntryPath = resolveWithNode.resolve(resolutionTarget);
+			return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
+		} catch {}
+	}
 };
 
 const resolveFromPackageJsonPath = (
@@ -186,6 +195,7 @@ const resolveExtendsPathUncached = (
 	}
 
 	const resolvedPackageJsonPath = resolvePackageJsonPathWithNode(
+		requestedPath,
 		packageName,
 		directoryPath,
 		cache,
