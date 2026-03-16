@@ -14,6 +14,36 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
+// Try the package.json path first for environments where Node can resolve the
+// package root directly. If that is blocked, resolve the package entrypoint and
+// walk up to the nearest package.json instead.
+const resolvePackageJsonPathWithNode = (
+	requestedPath: string,
+	packageName: string,
+	directoryPath: string,
+	cache?: TsconfigCache,
+) => {
+	const resolveWithNode = Module.createRequire(
+		path.join(directoryPath, 'tsconfig.json'),
+	);
+
+	try {
+		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
+	} catch {}
+
+	if (requestedPath !== packageName) {
+		try {
+			const packageEntryPath = resolveWithNode.resolve(requestedPath);
+			return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
+		} catch {}
+	}
+
+	try {
+		const packageEntryPath = resolveWithNode.resolve(packageName);
+		return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
+	} catch {}
+};
+
 const resolveFromPackageJsonPath = (
 	packageJsonPath: string,
 	subpath: string,
@@ -163,7 +193,17 @@ const resolveExtendsPathUncached = (
 		} catch {}
 	}
 
-	const packagePath = findUp(
+	const resolvedPackageJsonPath = resolvePackageJsonPathWithNode(
+		requestedPath,
+		packageName,
+		directoryPath,
+		cache,
+	);
+
+	const packagePath = (
+		resolvedPackageJsonPath
+		&& path.dirname(resolvedPackageJsonPath)
+	) || findUp(
 		path.resolve(directoryPath),
 		path.join('node_modules', packageName),
 		cache,
