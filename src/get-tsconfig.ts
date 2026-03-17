@@ -1,6 +1,7 @@
 import path from 'node:path';
 import slash from 'slash';
 import { findUp } from './utils/find-up.js';
+import { tryStat } from './utils/fs-cached.js';
 import { readTsconfig } from './read-tsconfig/index.js';
 import { isFileIncluded } from './files-matcher.js';
 import type {
@@ -60,6 +61,15 @@ export const findTsconfig = (
 	} = options;
 
 	if (!includes) {
+		// Avoid probing "<config>/tsconfig.json" when searchPath already is the config file.
+		const resolvedSearchPath = path.resolve(searchPath);
+		if (
+			path.basename(resolvedSearchPath) === configName
+			&& tryStat(cache, resolvedSearchPath)?.isFile()
+		) {
+			return slash(resolvedSearchPath);
+		}
+
 		return findUp(
 			slash(searchPath),
 			configName,

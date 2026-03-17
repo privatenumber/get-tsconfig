@@ -56,6 +56,22 @@ describe('getTsconfig', () => {
 		});
 	});
 
+	test('from explicit config path', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': tsconfigJson,
+			'a.ts': '',
+		});
+
+		const expected = await getTscTsconfig(fixture.path);
+		delete expected.files;
+
+		const tsconfig = getTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual({
+			path: slash(fixture.getPath('tsconfig.json')),
+			config: expected,
+		});
+	});
+
 	test('custom name', async () => {
 		const customName = 'tsconfig-custom-name.json';
 		await using fixture = await createFixture({

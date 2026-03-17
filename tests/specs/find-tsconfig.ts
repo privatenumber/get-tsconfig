@@ -38,6 +38,15 @@ describe('findTsconfig', () => {
 		expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
 	});
 
+	test('from explicit config path', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': tsconfigJson,
+		});
+
+		const tsconfigPath = findTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfigPath).toBe(slash(fixture.getPath('tsconfig.json')));
+	});
+
 	test('custom name', async () => {
 		const customName = 'tsconfig-custom-name.json';
 		await using fixture = await createFixture({
