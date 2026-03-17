@@ -14,33 +14,29 @@ const getPnpApi = () => {
 	return findPnpApi && findPnpApi(process.cwd());
 };
 
-// Try the package.json path first for environments where Node can resolve the
-// package root directly. If that is blocked, resolve the package entrypoint and
-// walk up to the nearest package.json instead.
-const resolvePackageJsonPathWithNode = (
+// Use Node resolution to find the resolved package entry for the requested
+// package specifier or package root.
+const resolvePackageEntryWithNode = (
 	requestedPath: string,
 	packageName: string,
 	directoryPath: string,
-	cache?: TsconfigCache,
 ) => {
 	const resolveWithNode = Module.createRequire(
 		path.join(directoryPath, 'tsconfig.json'),
 	);
 
-	try {
-		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
-	} catch {}
-
 	if (requestedPath !== packageName) {
 		try {
-			const packageEntryPath = resolveWithNode.resolve(requestedPath);
-			return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
+			return resolveWithNode.resolve(requestedPath);
 		} catch {}
 	}
 
 	try {
-		const packageEntryPath = resolveWithNode.resolve(packageName);
-		return findUp(path.dirname(packageEntryPath), PACKAGE_JSON, cache);
+		return resolveWithNode.resolve(packageName);
+	} catch {}
+
+	try {
+		return resolveWithNode.resolve(`${packageName}/${PACKAGE_JSON}`);
 	} catch {}
 };
 
@@ -193,12 +189,29 @@ const resolveExtendsPathUncached = (
 		} catch {}
 	}
 
-	const resolvedPackageJsonPath = resolvePackageJsonPathWithNode(
+	const resolvedPackageEntry = resolvePackageEntryWithNode(
 		requestedPath,
 		packageName,
 		directoryPath,
-		cache,
 	);
+
+	let resolvedPackageJsonPath: string | undefined;
+	if (resolvedPackageEntry) {
+		// When Node already resolves the specifier to a JSON config file,
+		// return it directly instead of re-running package metadata resolution.
+		if (
+			path.basename(resolvedPackageEntry) !== PACKAGE_JSON
+			&& resolvedPackageEntry.endsWith('.json')
+		) {
+			return resolvedPackageEntry;
+		}
+
+		resolvedPackageJsonPath = (
+			path.basename(resolvedPackageEntry) === PACKAGE_JSON
+				? resolvedPackageEntry
+				: findUp(path.dirname(resolvedPackageEntry), PACKAGE_JSON, cache)
+		);
+	}
 
 	const packagePath = (
 		resolvedPackageJsonPath
