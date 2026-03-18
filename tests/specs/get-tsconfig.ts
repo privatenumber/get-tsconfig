@@ -33,10 +33,12 @@ describe('getTsconfig', () => {
 		const expected = await getTscTsconfig(fixture.path);
 		delete expected.files;
 
+		const tsconfigPath = slash(fixture.getPath('tsconfig.json'));
 		const tsconfig = getTsconfig(fixture.path);
 		expect(tsconfig).toStrictEqual({
-			path: slash(fixture.getPath('tsconfig.json')),
+			path: tsconfigPath,
 			config: expected,
+			sources: [tsconfigPath],
 		});
 	});
 
@@ -49,10 +51,12 @@ describe('getTsconfig', () => {
 		const expected = await getTscTsconfig(fixture.path);
 		delete expected.files;
 
+		const tsconfigPath = slash(fixture.getPath('tsconfig.json'));
 		const tsconfig = getTsconfig(fixture.getPath('index.js'));
 		expect(tsconfig).toStrictEqual({
-			path: slash(fixture.getPath('tsconfig.json')),
+			path: tsconfigPath,
 			config: expected,
+			sources: [tsconfigPath],
 		});
 	});
 
@@ -65,10 +69,12 @@ describe('getTsconfig', () => {
 		const expected = await getTscTsconfig(fixture.path);
 		delete expected.files;
 
+		const tsconfigPath = slash(fixture.getPath('tsconfig.json'));
 		const tsconfig = getTsconfig(fixture.getPath('tsconfig.json'));
 		expect(tsconfig).toStrictEqual({
-			path: slash(fixture.getPath('tsconfig.json')),
+			path: tsconfigPath,
 			config: expected,
+			sources: [tsconfigPath],
 		});
 	});
 
@@ -82,12 +88,14 @@ describe('getTsconfig', () => {
 		const expected = await getTscTsconfig(fixture.path, customName);
 		delete expected.files;
 
+		const configPath = slash(fixture.getPath(customName));
 		const tsconfig = getTsconfig(fixture.path, {
 			configName: customName,
 		});
 		expect(tsconfig).toStrictEqual({
-			path: slash(fixture.getPath(customName)),
+			path: configPath,
 			config: expected,
+			sources: [configPath],
 		});
 	});
 
@@ -154,9 +162,11 @@ describe('getTsconfig', () => {
 		const expected = await getTscTsconfig(fixture.path);
 		delete expected.files;
 
+		const tsconfigPath = slash(fixture.getPath('tsconfig.json'));
 		const expectedResult = {
-			path: slash(fixture.getPath('tsconfig.json')),
+			path: tsconfigPath,
 			config: expected,
+			sources: [tsconfigPath],
 		};
 
 		const cache = new Map();

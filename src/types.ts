@@ -16,6 +16,15 @@ export type TsconfigResult<Config = TsconfigJsonResolved> = {
 	 * this is the fully resolved config (extends merged, options normalized).
 	 */
 	config: Config;
+
+	/**
+	 * Paths of all tsconfig files that contributed to this config (via `extends`).
+	 * `sources[0]` is the root tsconfig (same as `.path`), followed by extended
+	 * configs in resolution order.
+	 *
+	 * Only present on resolved results (not on intermediate chain entries).
+	 */
+	sources?: string[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
