@@ -1,40 +1,21 @@
 import fs from 'node:fs';
 import type { TsconfigCache } from '../types.js';
 
-type Fs = typeof fs;
+export const readFile = (
+	cache: TsconfigCache | undefined,
+	filePath: string,
+	encoding: 'utf8',
+): string => {
+	const cacheKey = `readFileSync:${filePath}:${encoding}`;
+	let result = cache?.get(cacheKey) as string | undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFunction = (...args: any[]) => any;
+	if (result === undefined) {
+		result = fs.readFileSync(filePath, encoding);
+		cache?.set(cacheKey, result);
+	}
 
-type FunctionProperties<Type> = {
-	[Key in keyof Type as Type[Key] extends AnyFunction ? Key : never]: Type[Key];
+	return result;
 };
-
-type FsMethods = FunctionProperties<Fs>;
-
-const cacheFs = <MethodName extends keyof FsMethods>(
-	name: MethodName,
-) => {
-	const method = fs[name];
-	type FsReturnType = ReturnType<FsMethods[MethodName]>;
-
-	return (
-		cache?: TsconfigCache,
-		...args: any[]
-	): FsReturnType => {
-		const cacheKey = `${name}:${args.join(':')}`;
-		let result = cache?.get(cacheKey) as FsReturnType;
-
-		if (result === undefined) {
-			result = Reflect.apply(method, fs, args);
-			cache?.set(cacheKey, result);
-		}
-
-		return result;
-	};
-};
-
-export const readFile = cacheFs('readFileSync');
 
 /**
  * Cached stat that returns undefined on ENOENT instead of throwing.
