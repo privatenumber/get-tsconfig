@@ -66,8 +66,13 @@ These functions find, read, and parse tsconfig files from the filesystem. All re
 type TsconfigResult<Config = TsconfigJsonResolved> = {
     path: string
     config: Config
+    sources: string[]
 }
 ```
+
+- **path** — absolute path to the tsconfig file
+- **config** — the fully resolved config (extends merged, options normalized)
+- **sources** — paths of all tsconfig files that contributed to the resolved config via [`extends`](https://www.typescriptlang.org/tsconfig/#extends). When there are no `extends`, this is just `[path]`. Since `extends` can be an array, the order does not imply a linear chain.
 
 ### getTsconfig(searchPath?, options?)
 
@@ -184,7 +189,7 @@ chain[0].config.compilerOptions = {
 }
 
 const result = resolveExtendsChain(chain)
-// TsconfigResult { path: string, config: TsconfigJsonResolved }
+// TsconfigResult { path, config, sources }
 ```
 
 ## Working with a tsconfig

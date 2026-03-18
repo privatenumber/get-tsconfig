@@ -443,6 +443,7 @@ export const resolveExtendsChain = (
 	return {
 		path: root.path,
 		config,
+		sources: chain.map(entry => entry.path),
 	};
 };
 

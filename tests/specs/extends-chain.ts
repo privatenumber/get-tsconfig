@@ -400,6 +400,67 @@ describe('resolveExtendsChain', () => {
 		expect(result.config.compilerOptions?.jsx).toBe('react-jsx');
 	});
 
+	test('sources contains all contributing tsconfig paths', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': JSON.stringify({
+				extends: './base.json',
+				compilerOptions: { jsx: 'react-jsx' },
+			}),
+			'base.json': JSON.stringify({
+				compilerOptions: { strict: true },
+			}),
+		});
+
+		const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+		const chain = getExtendsChain(tsconfigPath);
+		const result = resolveExtendsChain(chain);
+
+		expect(result.sources).toStrictEqual([
+			slash(path.join(fixture.path, 'tsconfig.json')),
+			slash(path.join(fixture.path, 'base.json')),
+		]);
+		expect(result.sources![0]).toBe(result.path);
+	});
+
+	test('sources with no extends contains only root', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': JSON.stringify({
+				compilerOptions: { strict: true },
+			}),
+		});
+
+		const tsconfigPath = path.join(fixture.path, 'tsconfig.json');
+		const chain = getExtendsChain(tsconfigPath);
+		const result = resolveExtendsChain(chain);
+
+		expect(result.sources).toStrictEqual([
+			slash(path.join(fixture.path, 'tsconfig.json')),
+		]);
+	});
+
+	test('sources via readTsconfig', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': JSON.stringify({
+				extends: './base.json',
+				compilerOptions: { jsx: 'react-jsx' },
+			}),
+			'base.json': JSON.stringify({
+				extends: './deep.json',
+				compilerOptions: { strict: true },
+			}),
+			'deep.json': JSON.stringify({
+				compilerOptions: { target: 'es2022' },
+			}),
+		});
+
+		const result = readTsconfig(path.join(fixture.path, 'tsconfig.json'));
+		expect(result.sources).toStrictEqual([
+			slash(path.join(fixture.path, 'tsconfig.json')),
+			slash(path.join(fixture.path, 'base.json')),
+			slash(path.join(fixture.path, 'deep.json')),
+		]);
+	});
+
 	test('equivalence with complex config', async () => {
 		await using fixture = await createFixture({
 			'tsconfig.json': JSON.stringify({
