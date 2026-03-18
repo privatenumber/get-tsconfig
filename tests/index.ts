@@ -1,6 +1,7 @@
 import { describe } from 'manten';
 
 describe('get-tsconfig', () => {
+	import('./specs/normalize-compiler-options.ts');
 	import('./specs/find-tsconfig.ts');
 	import('./specs/get-tsconfig.ts');
 	import('./specs/parse-tsconfig/index.ts');

@@ -428,7 +428,7 @@ export const resolveExtendsChain = (
 			}
 		}
 
-		normalizeCompilerOptions(compilerOptions);
+		config.compilerOptions = normalizeCompilerOptions(compilerOptions);
 	}
 
 	for (const property of filesProperties) {
