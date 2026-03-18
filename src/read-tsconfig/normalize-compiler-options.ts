@@ -1,8 +1,10 @@
 import type { TsconfigJson } from '../types.js';
 
 export const normalizeCompilerOptions = (
-	compilerOptions: TsconfigJson.CompilerOptions,
-) => {
+	input: TsconfigJson.CompilerOptions,
+): TsconfigJson.CompilerOptions => {
+	const compilerOptions = { ...input };
+
 	if (compilerOptions.strict) {
 		const strictOptions = [
 			'noImplicitAny',
@@ -230,4 +232,6 @@ export const normalizeCompilerOptions = (
 	if (compilerOptions.checkJs) {
 		compilerOptions.allowJs ??= true;
 	}
+
+	return compilerOptions;
 };
