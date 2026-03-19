@@ -3,8 +3,8 @@ import {
 } from 'manten';
 import { createFixture } from 'fs-fixture';
 import { readTsconfig } from '#get-tsconfig';
-import { createTsconfigJson } from '../../../../utils/fixture-helpers.ts';
-import { getTscTsconfig } from '../../../../utils/typescript-helpers.ts';
+import { createTsconfigJson } from '../../utils/fixture-helpers.ts';
+import { getTscTsconfig } from '../../utils/typescript-helpers.ts';
 
 describe('resolves', () => {
 	test('handles missing extends', async () => {

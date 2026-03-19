@@ -275,4 +275,19 @@ describe('isFileIncluded (unit)', () => {
 			expect(isFileIncluded(tsconfigB, file('src/index.ts'))).toBe(false);
 		});
 	});
+
+	describe('additional edge cases', () => {
+		test('include with empty string pattern', () => {
+			const tsconfig = makeTsconfig({ include: [''] });
+			expect(isFileIncluded(tsconfig, file('index.ts'))).toBe(true);
+		});
+
+		test('file with no extension returns false', () => {
+			expect(isFileIncluded(makeTsconfig(), file('Makefile'))).toBe(false);
+		});
+
+		test('tsconfig.json path itself returns false', () => {
+			expect(isFileIncluded(makeTsconfig(), file('tsconfig.json'))).toBe(false);
+		});
+	});
 });

@@ -10,8 +10,10 @@ describe('get-tsconfig', () => {
 	// Integration tests (filesystem, tsc)
 	import('./integration/find-tsconfig.ts');
 	import('./integration/get-tsconfig.ts');
-	import('./integration/parse-tsconfig/index.ts');
-	import('./integration/create-paths-matcher.ts');
-	import('./integration/create-files-matcher.ts');
+	import('./integration/read-tsconfig.ts');
 	import('./integration/extends-chain.ts');
+	import('./integration/extends-merging.ts');
+	import('./integration/extends-resolution/index.ts');
+	import('./integration/paths-matcher-integration.ts');
+	import('./integration/files-matcher-integration.ts');
 });
