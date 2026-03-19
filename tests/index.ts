@@ -1,11 +1,17 @@
 import { describe } from 'manten';
 
 describe('get-tsconfig', () => {
-	import('./specs/normalize-compiler-options.ts');
-	import('./specs/find-tsconfig.ts');
-	import('./specs/get-tsconfig.ts');
-	import('./specs/parse-tsconfig/index.ts');
-	import('./specs/create-paths-matcher.ts');
-	import('./specs/create-files-matcher.ts');
-	import('./specs/extends-chain.ts');
+	// Unit tests (fast, pure)
+	import('./unit/normalize-compiler-options.ts');
+	import('./unit/resolve-extends-chain.ts');
+	import('./unit/paths-matcher.ts');
+	import('./unit/files-matcher.ts');
+
+	// Integration tests (filesystem, tsc)
+	import('./integration/find-tsconfig.ts');
+	import('./integration/get-tsconfig.ts');
+	import('./integration/parse-tsconfig/index.ts');
+	import('./integration/create-paths-matcher.ts');
+	import('./integration/create-files-matcher.ts');
+	import('./integration/extends-chain.ts');
 });
