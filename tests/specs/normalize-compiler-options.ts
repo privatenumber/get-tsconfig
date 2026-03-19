@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'manten';
-import { normalizeCompilerOptions } from '../../src/read-tsconfig/normalize-compiler-options.ts';
+import { normalizeCompilerOptions } from '../../src/normalize-compiler-options.ts';
 
 describe('normalizeCompilerOptions', () => {
 	test('empty options', () => {

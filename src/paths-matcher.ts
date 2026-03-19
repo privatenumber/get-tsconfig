@@ -1,14 +1,50 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsconfigResult } from '../types.js';
-import { isRelativePathPattern } from '../utils/is-relative-path-pattern.js';
-import { implicitBaseUrlSymbol } from '../utils/constants.js';
-import {
-	assertStarCount,
-	parsePattern,
-	isPatternMatch,
-} from './utils.js';
-import type { StarPattern, PathEntry } from './types.js';
+import type { TsconfigResult } from './types.js';
+import { implicitBaseUrlSymbol } from './utils/constants.js';
+import { isRelativePathPattern } from './utils/path.js';
+
+type StarPattern = {
+	prefix: string;
+	suffix: string;
+};
+
+type PathEntry<T extends string | StarPattern> = {
+	pattern: T;
+	substitutions: string[];
+};
+
+const starPattern = /\*/g;
+
+const assertStarCount = (
+	pattern: string,
+	errorMessage: string,
+) => {
+	const starCount = pattern.match(starPattern);
+	if (starCount && starCount.length > 1) {
+		throw new Error(errorMessage);
+	}
+};
+
+const parsePattern = (pattern: string) => {
+	if (pattern.includes('*')) {
+		const [prefix, suffix] = pattern.split('*');
+		return {
+			prefix,
+			suffix,
+		} as StarPattern;
+	}
+
+	return pattern;
+};
+
+const isPatternMatch = (
+	{ prefix, suffix }: StarPattern,
+	candidate: string,
+) => (
+	candidate.startsWith(prefix)
+	&& candidate.endsWith(suffix)
+);
 
 const parsePaths = (
 	paths: Partial<Record<string, string[]>>,

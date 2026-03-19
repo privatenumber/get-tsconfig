@@ -1,4 +1,4 @@
-import type { TsconfigJson } from '../types.js';
+import type { TsconfigJson } from './types.js';
 
 export const normalizeCompilerOptions = (
 	input: TsconfigJson.CompilerOptions,
