@@ -1,10 +1,8 @@
-import path from 'node:path';
 import { describe, test, expect } from 'manten';
-import slash from 'slash';
-import { resolvePathAlias } from '#get-tsconfig';
-import type { TsconfigResult } from '../../src/types.ts';
+import { resolvePathAlias, type TsconfigResult } from '#get-tsconfig';
 
-const projectDir = slash(path.resolve('/project'));
+const isWindows = process.platform === 'win32';
+const projectDir = isWindows ? 'C:/project' : '/project';
 
 const makeTsconfig = (compilerOptions: Record<string, unknown> = {}): TsconfigResult => ({
 	path: `${projectDir}/tsconfig.json`,
@@ -34,7 +32,10 @@ describe('resolvePathAlias', () => {
 		});
 
 		test('empty paths object with baseUrl falls back to baseUrl/specifier', () => {
-			const tsconfig = makeTsconfig({ baseUrl: '.', paths: {} });
+			const tsconfig = makeTsconfig({
+				baseUrl: '.',
+				paths: {},
+			});
 			expect(resolvePathAlias(tsconfig, 'foo')).toStrictEqual([
 				`${projectDir}/foo`,
 			]);

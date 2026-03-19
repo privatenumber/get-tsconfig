@@ -1,10 +1,8 @@
-import path from 'node:path';
 import { describe, test, expect } from 'manten';
-import slash from 'slash';
-import { isFileIncluded } from '../../src/files-matcher.ts';
-import type { TsconfigResult } from '../../src/types.ts';
+import { isFileIncluded, type TsconfigResult } from '#get-tsconfig';
 
-const projectDir = slash(path.resolve('/project'));
+const isWindows = process.platform === 'win32';
+const projectDir = isWindows ? 'C:/project' : '/project';
 
 const makeTsconfig = (config: Record<string, unknown> = {}): TsconfigResult => ({
 	path: `${projectDir}/tsconfig.json`,
@@ -14,7 +12,7 @@ const makeTsconfig = (config: Record<string, unknown> = {}): TsconfigResult => (
 	},
 });
 
-const file = (relativePath: string) => path.resolve('/project', relativePath);
+const file = (relativePath: string) => `${projectDir}/${relativePath}`;
 
 describe('isFileIncluded (unit)', () => {
 	describe('extension detection', () => {
@@ -251,11 +249,12 @@ describe('isFileIncluded (unit)', () => {
 
 	describe('edge cases', () => {
 		test('file outside project directory returns false', () => {
-			expect(isFileIncluded(makeTsconfig(), path.resolve('/other/index.ts'))).toBe(false);
+			const otherDir = isWindows ? 'C:/other' : '/other';
+			expect(isFileIncluded(makeTsconfig(), `${otherDir}/index.ts`)).toBe(false);
 		});
 
 		test('file path that equals the project directory returns false', () => {
-			expect(isFileIncluded(makeTsconfig(), path.resolve('/project'))).toBe(false);
+			expect(isFileIncluded(makeTsconfig(), projectDir)).toBe(false);
 		});
 
 		test('very deeply nested file with **/ pattern', () => {

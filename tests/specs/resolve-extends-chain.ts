@@ -1,10 +1,8 @@
 import { describe, test, expect } from 'manten';
-import path from 'node:path';
-import slash from 'slash';
-import { resolveExtendsChain } from '#get-tsconfig';
-import type { TsconfigJson, TsconfigResult } from '#get-tsconfig';
+import { resolveExtendsChain, type TsconfigJson, type TsconfigResult } from '#get-tsconfig';
 
-const projectDir = slash(path.resolve('/project'));
+const isWindows = process.platform === 'win32';
+const projectDir = isWindows ? 'C:/project' : '/project';
 const tsconfigPath = `${projectDir}/tsconfig.json`;
 
 const entry = (entryPath: string, config: TsconfigJson): TsconfigResult<TsconfigJson> => ({
@@ -204,7 +202,10 @@ describe('resolveExtendsChain', () => {
 					extends: [basePath, overridePath],
 				}),
 				entry(basePath, {
-					compilerOptions: { target: 'es5', strict: true },
+					compilerOptions: {
+						target: 'es5',
+						strict: true,
+					},
 				}),
 				entry(overridePath, {
 					compilerOptions: { target: 'es2022' },
@@ -224,10 +225,16 @@ describe('resolveExtendsChain', () => {
 					compilerOptions: { outDir: './dist' },
 				}),
 				entry(aPath, {
-					compilerOptions: { target: 'es5', strict: true },
+					compilerOptions: {
+						target: 'es5',
+						strict: true,
+					},
 				}),
 				entry(bPath, {
-					compilerOptions: { target: 'es2022', module: 'commonjs' },
+					compilerOptions: {
+						target: 'es2022',
+						module: 'commonjs',
+					},
 				}),
 			]);
 			// child wins outDir
@@ -407,7 +414,10 @@ describe('resolveExtendsChain', () => {
 		test('outDir and declarationDir both auto-added to exclude', () => {
 			const result = resolveExtendsChain([
 				entry(tsconfigPath, {
-					compilerOptions: { outDir: './dist', declarationDir: './types' },
+					compilerOptions: {
+						outDir: './dist',
+						declarationDir: './types',
+					},
 				}),
 			]);
 			expect(result.config.exclude).toContain('./dist');
@@ -648,7 +658,10 @@ describe('resolveExtendsChain', () => {
 					compilerOptions: { strict: true },
 				}),
 				entry(grandparentPath, {
-					compilerOptions: { target: 'es5', module: 'commonjs' },
+					compilerOptions: {
+						target: 'es5',
+						module: 'commonjs',
+					},
 				}),
 			]);
 			expect(result.config.compilerOptions!.target).toBe('es5');
