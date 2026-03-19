@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'manten';
 import { resolvePathAlias, type TsconfigResult } from '#get-tsconfig';
-import { tsconfigPath, projectDir } from '../utils/unit-helpers.ts';
+import { isWindows, tsconfigPath, projectDir } from '../utils/unit-helpers.ts';
 
 const makeTsconfig = (compilerOptions: Record<string, unknown> = {}): TsconfigResult => ({
 	path: tsconfigPath,
@@ -385,6 +385,40 @@ describe('resolvePathAlias', () => {
 			expect(resolvePathAlias(tsconfig, '@libs/constants')).toStrictEqual([
 				`${projectDir}/@libs/constants`,
 			]);
+		});
+	});
+
+	describe('additional edge cases', () => {
+		test('empty paths object without baseUrl returns empty', () => {
+			const tsconfig = makeTsconfig({ paths: {} });
+			expect(resolvePathAlias(tsconfig, 'foo')).toStrictEqual([]);
+		});
+
+		test('substitution with absolute path', () => {
+			const absoluteDir = isWindows ? 'C:/absolute/src' : '/absolute/src';
+			const tsconfig = makeTsconfig({
+				baseUrl: '.',
+				paths: { '@/*': [`${absoluteDir}/*`] },
+			});
+			expect(resolvePathAlias(tsconfig, '@/foo')).toStrictEqual([
+				`${absoluteDir}/foo`,
+			]);
+		});
+
+		test('multi-star pattern error includes the pattern', () => {
+			const tsconfig = makeTsconfig({
+				baseUrl: '.',
+				paths: { '@/**/*': ['./src/*'] },
+			});
+			expect(() => resolvePathAlias(tsconfig, '@/foo/bar')).toThrow(/@\/\*\*\/\*/);
+		});
+
+		test('multi-star substitution error includes the substitution', () => {
+			const tsconfig = makeTsconfig({
+				baseUrl: '.',
+				paths: { '@/*': ['./src/*/*'] },
+			});
+			expect(() => resolvePathAlias(tsconfig, '@/foo')).toThrow(/src\/\*\/\*/);
 		});
 	});
 });

@@ -463,4 +463,57 @@ describe('normalizeCompilerOptions', () => {
 			expect(result.esModuleInterop).toBe(true);
 		});
 	});
+
+	describe('additional edge cases', () => {
+		test('module: commonjs implies nothing', () => {
+			const result = normalizeCompilerOptions({ module: 'commonjs' });
+			expect(result).toStrictEqual({ module: 'commonjs' });
+		});
+
+		test('target: es3 alone implies nothing', () => {
+			const result = normalizeCompilerOptions({ target: 'es3' });
+			expect(result).toStrictEqual({ target: 'es3' });
+		});
+
+		test('strict: true does not override all flags explicitly set to false', () => {
+			const result = normalizeCompilerOptions({
+				strict: true,
+				noImplicitAny: false,
+				noImplicitThis: false,
+				strictNullChecks: false,
+				strictFunctionTypes: false,
+				strictBindCallApply: false,
+				strictPropertyInitialization: false,
+				strictBuiltinIteratorReturn: false,
+				alwaysStrict: false,
+				useUnknownInCatchVariables: false,
+			});
+			expect(result.noImplicitAny).toBe(false);
+			expect(result.noImplicitThis).toBe(false);
+			expect(result.strictNullChecks).toBe(false);
+			expect(result.strictFunctionTypes).toBe(false);
+			expect(result.strictBindCallApply).toBe(false);
+			expect(result.strictPropertyInitialization).toBe(false);
+			expect(result.strictBuiltinIteratorReturn).toBe(false);
+			expect(result.alwaysStrict).toBe(false);
+			expect(result.useUnknownInCatchVariables).toBe(false);
+		});
+
+		test('strict: true with all flags also true is a no-op', () => {
+			const input = {
+				strict: true,
+				noImplicitAny: true,
+				noImplicitThis: true,
+				strictNullChecks: true,
+				strictFunctionTypes: true,
+				strictBindCallApply: true,
+				strictPropertyInitialization: true,
+				strictBuiltinIteratorReturn: true,
+				alwaysStrict: true,
+				useUnknownInCatchVariables: true,
+			};
+			const result = normalizeCompilerOptions(input);
+			expect(result).toStrictEqual(input);
+		});
+	});
 });

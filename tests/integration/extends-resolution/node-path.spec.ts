@@ -2,7 +2,7 @@ import path from 'node:path';
 import { describe, test, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
 import spawn, { type SubprocessError } from 'nano-spawn';
-import { createTsconfigJson, createPackageJson } from '../../../../utils/fixture-helpers.ts';
+import { createTsconfigJson, createPackageJson } from '../../utils/fixture-helpers.ts';
 
 const getTsconfigPath = import.meta.resolve('#get-tsconfig');
 
