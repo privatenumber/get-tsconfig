@@ -10,13 +10,11 @@
 Find and parse `tsconfig.json` files.
 
 ## Features
-- One dependency ([`resolve-pkg-maps`](https://github.com/nicolo-ribaudo/resolve-pkg-maps)), not even TypeScript
+- Tiny! `9 kB` Minified + Gzipped
 - Tested against TypeScript for correctness
-- Supports comments & dangling commas in `tsconfig.json`
 - Resolves [`extends`](https://www.typescriptlang.org/tsconfig/#extends)
 - Fully typed `tsconfig.json`
 - Validates and throws parsing errors
-- Tiny! `9 kB` Minified + Gzipped
 
 <br>
 
@@ -46,15 +44,15 @@ import { getTsconfig, isFileIncluded, resolvePathAlias } from 'get-tsconfig'
 // Find and parse the nearest tsconfig.json
 const tsconfig = getTsconfig()
 
-// Check if a file belongs to this tsconfig
-if (tsconfig && isFileIncluded(tsconfig, '/project/src/index.ts')) {
-    // Use tsconfig.config.compilerOptions for transformation
-}
-
-// Resolve path aliases (compilerOptions.paths)
+// To resolve path aliases (compilerOptions.paths):
 if (tsconfig) {
     const resolved = resolvePathAlias(tsconfig, '@/utils/helper')
     // → ['/project/src/utils/helper']
+}
+
+// To check if a file belongs to this tsconfig:
+if (tsconfig && isFileIncluded(tsconfig, '/project/src/index.ts')) {
+    // Use tsconfig.config.compilerOptions for transformation
 }
 ```
 
@@ -70,9 +68,9 @@ type TsconfigResult<Config = TsconfigJsonResolved> = {
 }
 ```
 
-- **path** — absolute path to the tsconfig file
-- **config** — the fully resolved config (extends merged, options normalized)
-- **sources** — paths of all tsconfig files that contributed to the resolved config via [`extends`](https://www.typescriptlang.org/tsconfig/#extends). When there are no `extends`, this is just `[path]`. Since `extends` can be an array, the order does not imply a linear chain.
+- **path**: absolute path to the tsconfig file
+- **config**: the fully resolved config (extends merged, options normalized)
+- **sources**: paths of all tsconfig files that contributed to the resolved config via [`extends`](https://www.typescriptlang.org/tsconfig/#extends). When there are no `extends`, this is just `[path]`. Since `extends` can be an array, the order does not imply a linear chain.
 
 ### getTsconfig(searchPath?, options?)
 
@@ -96,9 +94,9 @@ type GetTsconfigOptions = {
 }
 ```
 
-- **configName** — file name to search for (e.g. `'jsconfig.json'`)
-- **cache** — snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
-- **includes** — when `true`, validates the file is a root file (matched by `include`/`files` globs, not excluded) before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig). Note: this checks glob matching only — a file can still be part of a TypeScript program via transitive imports even if not matched by `include`.
+- **configName**: file name to search for (e.g. `'jsconfig.json'`)
+- **cache**: snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
+- **includes**: when `true`, validates the file is a root file (matched by `include`/`files` globs, not excluded) before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig). Note: this checks glob matching only — a file can still be part of a TypeScript program via transitive imports even if not matched by `include`.
 
 #### Example
 
