@@ -60,14 +60,11 @@ describe('normalizeCompilerOptions', () => {
 
 	describe('target', () => {
 		test('normalizes to lowercase', () => {
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ target: 'ESNext' }).target).toBe('esnext');
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ target: 'ES2022' }).target).toBe('es2022');
 		});
 
 		test('normalizes es2015 to es6', () => {
-			// @ts-expect-error es2015 alias
 			expect(normalizeCompilerOptions({ target: 'es2015' }).target).toBe('es6');
 		});
 
@@ -106,21 +103,21 @@ describe('normalizeCompilerOptions', () => {
 		});
 
 		test('does not override explicit module', () => {
-			const result = normalizeCompilerOptions({ target: 'esnext', module: 'commonjs' });
+			const result = normalizeCompilerOptions({
+				target: 'esnext',
+				module: 'commonjs',
+			});
 			expect(result.module).toBe('commonjs');
 		});
 	});
 
 	describe('module', () => {
 		test('normalizes to lowercase', () => {
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ module: 'CommonJS' }).module).toBe('commonjs');
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ module: 'ESNext' }).module).toBe('esnext');
 		});
 
 		test('normalizes es2015 to es6', () => {
-			// @ts-expect-error es2015 alias
 			expect(normalizeCompilerOptions({ module: 'es2015' }).module).toBe('es6');
 		});
 
@@ -258,24 +255,32 @@ describe('normalizeCompilerOptions', () => {
 		});
 
 		test('useDefineForClassFields not implied when explicit target < es2022', () => {
-			const result = normalizeCompilerOptions({ target: 'es5', module: 'node16' });
+			const result = normalizeCompilerOptions({
+				target: 'es5',
+				module: 'node16',
+			});
 			expect(result.useDefineForClassFields).toBeUndefined();
 		});
 
 		test('useDefineForClassFields implied when explicit target is es3 (treated as unset)', () => {
-			const result = normalizeCompilerOptions({ target: 'es3', module: 'node16' });
+			const result = normalizeCompilerOptions({
+				target: 'es3',
+				module: 'node16',
+			});
 			expect(result.useDefineForClassFields).toBe(true);
 		});
 
 		test('does not override explicit moduleResolution', () => {
-			const result = normalizeCompilerOptions({ module: 'esnext', moduleResolution: 'bundler' });
+			const result = normalizeCompilerOptions({
+				module: 'esnext',
+				moduleResolution: 'bundler',
+			});
 			expect(result.moduleResolution).toBe('bundler');
 		});
 	});
 
 	describe('moduleResolution', () => {
 		test('normalizes to lowercase', () => {
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ moduleResolution: 'Node16' }).moduleResolution).toBe('node16');
 		});
 
@@ -342,7 +347,6 @@ describe('normalizeCompilerOptions', () => {
 		});
 
 		test('lib', () => {
-			// @ts-expect-error mixed case input
 			expect(normalizeCompilerOptions({ lib: ['ES2020', 'DOM'] }).lib).toStrictEqual(['es2020', 'dom']);
 		});
 	});
@@ -438,7 +442,10 @@ describe('normalizeCompilerOptions', () => {
 		});
 
 		test('strict + module: nodenext combined', () => {
-			const result = normalizeCompilerOptions({ strict: true, module: 'nodenext' });
+			const result = normalizeCompilerOptions({
+				strict: true,
+				module: 'nodenext',
+			});
 			expect(result.noImplicitAny).toBe(true);
 			expect(result.target).toBe('esnext');
 			expect(result.moduleResolution).toBe('nodenext');
@@ -447,7 +454,10 @@ describe('normalizeCompilerOptions', () => {
 		});
 
 		test('target: es2022 + module: preserve', () => {
-			const result = normalizeCompilerOptions({ target: 'es2022', module: 'preserve' });
+			const result = normalizeCompilerOptions({
+				target: 'es2022',
+				module: 'preserve',
+			});
 			expect(result.useDefineForClassFields).toBe(true);
 			expect(result.moduleResolution).toBe('bundler');
 			expect(result.esModuleInterop).toBe(true);
