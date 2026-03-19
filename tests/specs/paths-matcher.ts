@@ -1,11 +1,9 @@
 import { describe, test, expect } from 'manten';
 import { resolvePathAlias, type TsconfigResult } from '#get-tsconfig';
-
-const isWindows = process.platform === 'win32';
-const projectDir = isWindows ? 'C:/project' : '/project';
+import { tsconfigPath, projectDir } from '../utils/unit-helpers.ts';
 
 const makeTsconfig = (compilerOptions: Record<string, unknown> = {}): TsconfigResult => ({
-	path: `${projectDir}/tsconfig.json`,
+	path: tsconfigPath,
 	config: { compilerOptions },
 });
 

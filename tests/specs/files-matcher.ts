@@ -1,18 +1,8 @@
 import { describe, test, expect } from 'manten';
 import { isFileIncluded, type TsconfigResult } from '#get-tsconfig';
-
-const isWindows = process.platform === 'win32';
-const projectDir = isWindows ? 'C:/project' : '/project';
-
-const makeTsconfig = (config: Record<string, unknown> = {}): TsconfigResult => ({
-	path: `${projectDir}/tsconfig.json`,
-	config: {
-		compilerOptions: {},
-		...config,
-	},
-});
-
-const file = (relativePath: string) => `${projectDir}/${relativePath}`;
+import {
+	isWindows, projectDir, makeTsconfig, file,
+} from '../utils/unit-helpers.ts';
 
 describe('isFileIncluded (unit)', () => {
 	describe('extension detection', () => {

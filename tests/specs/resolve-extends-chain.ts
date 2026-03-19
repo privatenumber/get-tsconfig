@@ -1,9 +1,6 @@
 import { describe, test, expect } from 'manten';
 import { resolveExtendsChain, type TsconfigJson, type TsconfigResult } from '#get-tsconfig';
-
-const isWindows = process.platform === 'win32';
-const projectDir = isWindows ? 'C:/project' : '/project';
-const tsconfigPath = `${projectDir}/tsconfig.json`;
+import { projectDir, tsconfigPath } from '../utils/unit-helpers.ts';
 
 const entry = (entryPath: string, config: TsconfigJson): TsconfigResult<TsconfigJson> => ({
 	path: entryPath,
