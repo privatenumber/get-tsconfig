@@ -200,23 +200,10 @@ export const resolveExtendsChain = (
 		[implicitBaseUrlSymbol]: string;
 	};
 
-	const cloneResolved = (config: TsconfigJsonResolved) => {
-		const cloned = structuredClone(config);
-
-		// structuredClone drops symbol properties — copy from source
-		const sourceOptions = config.compilerOptions as WithImplicitBaseUrl | undefined;
-		if (sourceOptions && implicitBaseUrlSymbol in sourceOptions) {
-			const clonedOptions = cloned.compilerOptions as WithImplicitBaseUrl;
-			clonedOptions[implicitBaseUrlSymbol] = sourceOptions[implicitBaseUrlSymbol];
-		}
-
-		return cloned;
-	};
-
 	const resolveEntry = (entryPath: string): TsconfigJsonResolved => {
 		const cached = resolvedCache.get(entryPath);
 		if (cached) {
-			return cloneResolved(cached);
+			return cached;
 		}
 
 		const entry = lookup.get(entryPath);
@@ -224,83 +211,86 @@ export const resolveExtendsChain = (
 			throw new Error(`Config not found in chain: ${entryPath}`);
 		}
 
-		// structuredClone drops symbol-keyed properties by spec.
-		// implicitBaseUrlSymbol is set after cloning, so this is safe.
-		let config: TsconfigJson = structuredClone(entry.config);
+		const entryConfig = entry.config;
 		const directoryPath = path.dirname(entryPath);
 
-		if (config.compilerOptions) {
-			const { compilerOptions } = config;
-			if (
-				compilerOptions.paths
-				&& !compilerOptions.baseUrl
-			) {
-				(compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
-			}
+		// Build fresh working copy — spread nested objects that get mutated
+		let config: TsconfigJsonResolved = {
+			...entryConfig,
+			...(entryConfig.compilerOptions && {
+				compilerOptions: { ...entryConfig.compilerOptions },
+			}),
+			...(entryConfig.watchOptions && {
+				watchOptions: { ...entryConfig.watchOptions },
+			}),
+		};
+		delete (config as TsconfigJson).extends;
+
+		if (config.compilerOptions?.paths && !config.compilerOptions.baseUrl) {
+			(config.compilerOptions as WithImplicitBaseUrl)[implicitBaseUrlSymbol] = directoryPath;
 		}
 
-		if (config.extends) {
+		if (entryConfig.extends) {
 			const extendsPathList = (
-				Array.isArray(config.extends)
-					? config.extends
-					: [config.extends]
+				Array.isArray(entryConfig.extends)
+					? entryConfig.extends
+					: [entryConfig.extends]
 			);
 
-			delete config.extends;
-
-			for (const extendsPath of extendsPathList.reverse()) {
-				const extendsConfig = resolveEntry(extendsPath);
-				delete extendsConfig.references;
-
+			for (const extendsPath of extendsPathList.toReversed()) {
+				const parentConfig = resolveEntry(extendsPath);
 				const extendsDirectoryPath = path.dirname(extendsPath);
 
-				const { compilerOptions } = extendsConfig;
-				if (compilerOptions) {
-					const { baseUrl } = compilerOptions;
+				// Build fresh rebased parent — never mutate parentConfig
+				const { references: _references, ...rebasedParent } = parentConfig;
+
+				if (rebasedParent.compilerOptions) {
+					const parentCompilerOptions = { ...rebasedParent.compilerOptions };
+					const { baseUrl } = parentCompilerOptions;
 					if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
-						compilerOptions.baseUrl = resolveAndRelativize(
+						parentCompilerOptions.baseUrl = resolveAndRelativize(
 							directoryPath,
 							extendsDirectoryPath,
 							baseUrl,
 						);
 					}
 
-					const { outDir } = compilerOptions;
+					const { outDir } = parentCompilerOptions;
 					if (outDir && !outDir.startsWith(configDirPlaceholder)) {
-						compilerOptions.outDir = resolveAndRelativize(
+						parentCompilerOptions.outDir = resolveAndRelativize(
 							directoryPath,
 							extendsDirectoryPath,
 							outDir,
 						);
 					}
+
+					rebasedParent.compilerOptions = parentCompilerOptions;
 				}
 
 				for (const property of filesProperties) {
-					const filesList = extendsConfig[property];
+					const filesList = rebasedParent[property];
 					if (filesList) {
-						extendsConfig[property] = filesList.map((file) => {
-							if (file.startsWith(configDirPlaceholder)) {
-								return file;
-							}
-
-							return prefixPattern(directoryPath, extendsDirectoryPath, file);
-						});
+						rebasedParent[property] = filesList.map(file => (
+							file.startsWith(configDirPlaceholder)
+								? file
+								: prefixPattern(directoryPath, extendsDirectoryPath, file)
+						));
 					}
 				}
 
 				const merged = {
-					...extendsConfig,
+					...rebasedParent,
 					...config,
 
 					compilerOptions: {
-						...extendsConfig.compilerOptions,
+						...rebasedParent.compilerOptions,
 						...config.compilerOptions,
 					},
 				};
 
-				if (extendsConfig.watchOptions) {
+				if (rebasedParent.watchOptions) {
 					merged.watchOptions = {
-						...extendsConfig.watchOptions,
+						...rebasedParent.watchOptions,
 						...config.watchOptions,
 					};
 				}
@@ -391,13 +381,20 @@ export const resolveExtendsChain = (
 		}
 
 		resolvedCache.set(entryPath, config);
-		// Return a clone so callers can mutate without corrupting the cache
-		return cloneResolved(config);
+		return config;
 	};
 
 	const root = chain[0];
-	const config = resolveEntry(root.path);
+	const resolvedConfig = resolveEntry(root.path);
 	const configDir = path.dirname(root.path);
+
+	// Build fresh config for root post-processing — never mutate cached result
+	const config: TsconfigJsonResolved = {
+		...resolvedConfig,
+		compilerOptions: resolvedConfig.compilerOptions
+			? { ...resolvedConfig.compilerOptions }
+			: {},
+	};
 
 	const { compilerOptions } = config;
 	if (compilerOptions) {
@@ -419,13 +416,14 @@ export const resolveExtendsChain = (
 			}
 		}
 
-		const { paths } = compilerOptions;
-		if (paths) {
-			for (const name of Object.keys(paths)) {
-				paths[name] = paths[name].map(
+		if (compilerOptions.paths) {
+			const paths: Record<string, string[]> = {};
+			for (const [name, values] of Object.entries(compilerOptions.paths)) {
+				paths[name] = values.map(
 					filePath => interpolateConfigDir(filePath, configDir) ?? filePath,
 				);
 			}
+			compilerOptions.paths = paths;
 		}
 
 		config.compilerOptions = normalizeCompilerOptions(compilerOptions);
