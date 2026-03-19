@@ -2,7 +2,7 @@ import path from 'node:path';
 import slash from 'slash';
 import { findUp } from './utils/find-up.js';
 import { tryStat } from './utils/fs-cached.js';
-import { readTsconfig } from './read-tsconfig/index.js';
+import { readTsconfig } from './read-tsconfig.js';
 import { isFileIncluded } from './files-matcher.js';
 import type {
 	TsconfigResult, TsconfigCache, FindTsconfigOptions, GetTsconfigOptions,

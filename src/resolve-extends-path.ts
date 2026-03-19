@@ -2,10 +2,10 @@ import path from 'node:path';
 import Module from 'node:module';
 import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
-import { findUp } from '../utils/find-up.js';
-import { readJsonc } from '../utils/read-jsonc.js';
-import { tryStat } from '../utils/fs-cached.js';
-import type { TsconfigCache } from '../types.js';
+import { findUp } from './utils/find-up.js';
+import { readJsonc } from './utils/read-jsonc.js';
+import { tryStat } from './utils/fs-cached.js';
+import type { TsconfigCache } from './types.js';
 
 const getPnpApi = () => {
 	const { findPnpApi } = Module;

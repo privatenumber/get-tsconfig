@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './get-tsconfig.js';
-export * from './read-tsconfig/index.js';
-export * from './paths-matcher/index.js';
-export * from './files-matcher.js';
+export { readTsconfig, getExtendsChain } from './read-tsconfig.js';
+export { resolveExtendsChain } from './resolve-extends-chain.js';
+export { resolvePathAlias } from './paths-matcher.js';
+export { isFileIncluded } from './files-matcher.js';
