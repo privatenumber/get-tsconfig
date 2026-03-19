@@ -7,15 +7,15 @@ export type TsconfigJsonResolved = Except<TsConfigJson, 'extends'>;
 export type TsconfigResult<Config = TsconfigJsonResolved> = {
 
 	/**
-	 * Absolute path to the tsconfig.json file
-	 */
-	path: string;
-
-	/**
 	 * The tsconfig.json content. When using the default type parameter,
 	 * this is the fully resolved config (extends merged, options normalized).
 	 */
 	config: Config;
+
+	/**
+	 * Absolute path to the tsconfig.json file
+	 */
+	path: string;
 
 	/**
 	 * Paths of all tsconfig files that contributed to this config (via `extends`).

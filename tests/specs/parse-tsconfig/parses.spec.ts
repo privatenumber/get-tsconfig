@@ -245,5 +245,4 @@ describe('parses tsconfig', () => {
 
 		expect(expectedTsconfig).toStrictEqual(parsedTsconfigCached.config);
 	});
-
 });

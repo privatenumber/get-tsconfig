@@ -56,7 +56,7 @@ export const findTsconfig = (
 ): string | undefined => {
 	const {
 		configName = 'tsconfig.json',
-		cache = new Map(),
+		cache = new Map() as TsconfigCache,
 		includes = false,
 	} = options;
 

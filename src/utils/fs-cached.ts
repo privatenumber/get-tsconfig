@@ -2,12 +2,12 @@ import fs from 'node:fs';
 import type { TsconfigCache } from '../types.js';
 
 export const readFile = (
-	cache: TsconfigCache | undefined,
+	cache: TsconfigCache<string> | undefined,
 	filePath: string,
 	encoding: 'utf8',
 ): string => {
 	const cacheKey = `readFileSync:${filePath}:${encoding}`;
-	let result = cache?.get(cacheKey) as string | undefined;
+	let result = cache?.get(cacheKey);
 
 	if (result === undefined) {
 		result = fs.readFileSync(filePath, encoding);
