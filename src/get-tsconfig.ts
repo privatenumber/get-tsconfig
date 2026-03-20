@@ -102,7 +102,9 @@ export const findTsconfig = (
  * @param options.cache Cache for previous results (default: new `Map()`).
  * @param options.includes When true, validates that the tsconfig applies to the
  * `searchPath` file via `include`/`exclude`/`files`. Default: `false`.
- * @returns The tsconfig file path and parsed contents, or `undefined` if not found.
+ * @returns The resolved tsconfig, or `undefined` if no config file was found.
+ * @throws If a config file is found but cannot be parsed — invalid JSON,
+ * circular `extends`, or missing `extends` target.
  */
 export const getTsconfig = (
 	searchPath = process.cwd(),

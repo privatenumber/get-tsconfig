@@ -18,6 +18,8 @@ import { resolveExtendsChain } from './resolve-extends-chain.js';
  * @param options.cache - Cache for filesystem reads (default: new `Map()`).
  * @returns Array of `{ path, config }` entries. `chain[0]` is the root config.
  * Ordered root-first, deepest ancestor last.
+ * @throws If the file cannot be read, contains non-object JSON, has circular
+ * `extends`, or references a missing `extends` target.
  */
 export const getExtendsChain = (
 	tsconfigPath: string,
@@ -106,8 +108,9 @@ export const getExtendsChain = (
  * @param options - Optional read configuration.
  * @param options.cache - Cache for filesystem reads and resolution results
  * (default: new `Map()`).
- * @returns The resolved absolute path and config. The path is the same one used
- * internally for extends resolution.
+ * @returns The resolved absolute path and config.
+ * @throws If the file cannot be read, contains invalid JSON, has circular
+ * `extends`, or references a missing `extends` target.
  */
 export const readTsconfig = (
 	tsconfigPath: string,
