@@ -140,6 +140,34 @@ export default testSuite(({ describe }) => {
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
+			test('preserved with include', async () => {
+				await using fixture = await createFixture({
+					src: {
+						'a.ts': '',
+					},
+					types: {
+						'globals.d.ts': '',
+					},
+					'tsconfig.base.json': createTsconfigJson({
+						files: [
+							'types/globals.d.ts',
+						],
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './tsconfig.base.json',
+						include: ['src'],
+					}),
+				});
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+				expect(tsconfig).toStrictEqual({
+					compilerOptions: {},
+					files: ['./types/globals.d.ts'],
+					include: ['src'],
+				});
+			});
+
 			test('gets overwritten', async () => {
 				await using fixture = await createFixture({
 					'some-dir': {
