@@ -237,11 +237,9 @@ export const resolveExtendsChain = (
 
 		if (config.include) {
 			config.include = config.include.map(slash);
+		}
 
-			if (config.files) {
-				delete config.files;
-			}
-		} else if (config.files) {
+		if (config.files) {
 			config.files = config.files.map(file => (
 				file.startsWith(configDirPlaceholder)
 					? file

@@ -140,7 +140,7 @@ describe('resolveExtendsChain', () => {
 			expect(result.config.exclude).toStrictEqual(['node_modules']);
 		});
 
-		test('files/include/exclude — parent as fallback when child has none', () => {
+		test('files/include/exclude — all inherited from parent', () => {
 			const parentPath = `${projectDir}/base.json`;
 			const result = resolveExtendsChain([
 				entry(tsconfigPath, {
@@ -152,13 +152,13 @@ describe('resolveExtendsChain', () => {
 					exclude: ['dist'],
 				}),
 			]);
-			// include is inherited, so files should be dropped
+			// files and include coexist independently
 			expect(result.config.include).toStrictEqual(['lib/**/*']);
-			expect(result.config.files).toBeUndefined();
+			expect(result.config.files).toStrictEqual(['./parent.ts']);
 			expect(result.config.exclude).toStrictEqual(['dist']);
 		});
 
-		test('include present causes files to be dropped', () => {
+		test('files preserved when child has include', () => {
 			const parentPath = `${projectDir}/base.json`;
 			const result = resolveExtendsChain([
 				entry(tsconfigPath, {
@@ -170,7 +170,7 @@ describe('resolveExtendsChain', () => {
 				}),
 			]);
 			expect(result.config.include).toStrictEqual(['src/**/*']);
-			expect(result.config.files).toBeUndefined();
+			expect(result.config.files).toStrictEqual(['./parent.ts']);
 		});
 
 		test('parent has include, child has neither — parent include inherited', () => {
@@ -675,7 +675,7 @@ describe('resolveExtendsChain', () => {
 			expect(result.config.files).toStrictEqual(['./src/index.ts']);
 		});
 
-		test('include with files — files dropped', () => {
+		test('include with files — both preserved', () => {
 			const result = resolveExtendsChain([
 				entry(tsconfigPath, {
 					files: ['./index.ts'],
@@ -683,7 +683,7 @@ describe('resolveExtendsChain', () => {
 				}),
 			]);
 			expect(result.config.include).toStrictEqual(['src/**/*']);
-			expect(result.config.files).toBeUndefined();
+			expect(result.config.files).toStrictEqual(['./index.ts']);
 		});
 	});
 
