@@ -140,7 +140,7 @@ export default testSuite(({ describe }) => {
 				expect(tsconfig).toStrictEqual(expectedTsconfig);
 			});
 
-			test('preserved with include', async () => {
+			test('preserved when child has include', async () => {
 				await using fixture = await createFixture({
 					src: {
 						'a.ts': '',
@@ -159,13 +159,58 @@ export default testSuite(({ describe }) => {
 					}),
 				});
 
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				// tsc expands include globs into the files array, so compare
+				// include/files/compilerOptions independently
 				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig.include).toStrictEqual(expectedTsconfig.include);
+				expect(tsconfig.files).toStrictEqual(['./types/globals.d.ts']);
+				expect(tsconfig.compilerOptions).toStrictEqual(expectedTsconfig.compilerOptions);
+			});
 
-				expect(tsconfig).toStrictEqual({
-					compilerOptions: {},
-					files: ['./types/globals.d.ts'],
-					include: ['src'],
+			test('preserved when child has files and parent has include', async () => {
+				await using fixture = await createFixture({
+					src: {
+						'a.ts': '',
+					},
+					'globals.d.ts': '',
+					'tsconfig.base.json': createTsconfigJson({
+						include: ['src'],
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './tsconfig.base.json',
+						files: ['globals.d.ts'],
+					}),
 				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig.include).toStrictEqual(expectedTsconfig.include);
+				expect(tsconfig.files).toStrictEqual(['./globals.d.ts']);
+			});
+
+			test('both inherited from parent', async () => {
+				await using fixture = await createFixture({
+					src: {
+						'a.ts': '',
+					},
+					types: {
+						'globals.d.ts': '',
+					},
+					'tsconfig.base.json': createTsconfigJson({
+						files: ['types/globals.d.ts'],
+						include: ['src'],
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './tsconfig.base.json',
+					}),
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig.include).toStrictEqual(expectedTsconfig.include);
+				// tsc expands include globs into files; get-tsconfig keeps them separate
+				expect(tsconfig.files).toStrictEqual(['./types/globals.d.ts']);
 			});
 
 			test('gets overwritten', async () => {
