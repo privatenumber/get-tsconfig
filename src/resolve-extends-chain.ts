@@ -146,22 +146,16 @@ export const resolveExtendsChain = (
 
 				if (rebasedParent.compilerOptions) {
 					const parentCompilerOptions = { ...rebasedParent.compilerOptions };
-					const { baseUrl } = parentCompilerOptions;
-					if (baseUrl && !baseUrl.startsWith(configDirPlaceholder)) {
-						parentCompilerOptions.baseUrl = resolveAndRelativize(
-							directoryPath,
-							extendsDirectoryPath,
-							baseUrl,
-						);
-					}
 
-					const { outDir } = parentCompilerOptions;
-					if (outDir && !outDir.startsWith(configDirPlaceholder)) {
-						parentCompilerOptions.outDir = resolveAndRelativize(
-							directoryPath,
-							extendsDirectoryPath,
-							outDir,
-						);
+					for (const field of ['baseUrl', 'outDir'] as const) {
+						const value = parentCompilerOptions[field];
+						if (value && !value.startsWith(configDirPlaceholder)) {
+							parentCompilerOptions[field] = resolveAndRelativize(
+								directoryPath,
+								extendsDirectoryPath,
+								value,
+							);
+						}
 					}
 
 					rebasedParent.compilerOptions = parentCompilerOptions;
@@ -250,31 +244,19 @@ export const resolveExtendsChain = (
 		if (config.watchOptions) {
 			const { watchOptions } = config;
 
-			if (watchOptions.excludeDirectories) {
-				watchOptions.excludeDirectories = watchOptions.excludeDirectories.map(
-					excludePath => slash(path.resolve(directoryPath, excludePath)),
-				);
+			for (const property of ['excludeDirectories', 'excludeFiles'] as const) {
+				if (watchOptions[property]) {
+					watchOptions[property] = watchOptions[property].map(
+						excludePath => slash(path.resolve(directoryPath, excludePath)),
+					);
+				}
 			}
 
-			if (watchOptions.excludeFiles) {
-				watchOptions.excludeFiles = watchOptions.excludeFiles.map(
-					excludePath => slash(path.resolve(directoryPath, excludePath)),
-				);
-			}
-
-			if (watchOptions.watchFile) {
-				watchOptions.watchFile = watchOptions.watchFile.toLowerCase() as
-					TsconfigJson.WatchOptions['watchFile'];
-			}
-
-			if (watchOptions.watchDirectory) {
-				watchOptions.watchDirectory = watchOptions.watchDirectory.toLowerCase() as
-					TsconfigJson.WatchOptions['watchDirectory'];
-			}
-
-			if (watchOptions.fallbackPolling) {
-				watchOptions.fallbackPolling = watchOptions.fallbackPolling.toLowerCase() as
-					TsconfigJson.WatchOptions['fallbackPolling'];
+			for (const property of ['watchFile', 'watchDirectory', 'fallbackPolling'] as const) {
+				if (watchOptions[property]) {
+					const record = watchOptions as Record<string, string>;
+					record[property] = watchOptions[property]!.toLowerCase();
+				}
 			}
 		}
 

@@ -37,7 +37,6 @@ export const normalizeCompilerOptions = (
 			target = 'es6';
 		}
 
-		// Lower case
 		compilerOptions.target = target;
 
 		if (target === 'esnext') {
@@ -115,12 +114,7 @@ export const normalizeCompilerOptions = (
 			compilerOptions.moduleDetection ??= 'force';
 		}
 
-		if (module === 'node16') {
-			compilerOptions.target ??= 'es2022';
-			compilerOptions.moduleResolution ??= 'node16';
-		}
-
-		if (module === 'node18') {
+		if (module === 'node16' || module === 'node18') {
 			compilerOptions.target ??= 'es2022';
 			compilerOptions.moduleResolution ??= 'node16';
 		}
@@ -187,23 +181,10 @@ export const normalizeCompilerOptions = (
 		}
 	}
 
-	if (compilerOptions.jsx) {
-		compilerOptions.jsx = compilerOptions.jsx.toLowerCase() as TsconfigJson.CompilerOptions.JSX;
-	}
-
-	if (compilerOptions.moduleDetection) {
-		compilerOptions.moduleDetection = compilerOptions.moduleDetection.toLowerCase() as
-			TsconfigJson.CompilerOptions.ModuleDetection;
-	}
-
-	if (compilerOptions.importsNotUsedAsValues) {
-		compilerOptions.importsNotUsedAsValues = compilerOptions.importsNotUsedAsValues.toLowerCase() as
-			TsconfigJson.CompilerOptions.ImportsNotUsedAsValues;
-	}
-
-	if (compilerOptions.newLine) {
-		compilerOptions.newLine = compilerOptions.newLine.toLowerCase() as
-			TsconfigJson.CompilerOptions.NewLine;
+	for (const field of ['jsx', 'moduleDetection', 'importsNotUsedAsValues', 'newLine'] as const) {
+		if (compilerOptions[field]) {
+			(compilerOptions as Record<string, string>)[field] = compilerOptions[field]!.toLowerCase();
+		}
 	}
 
 	if (compilerOptions.esModuleInterop) {

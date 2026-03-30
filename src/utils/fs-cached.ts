@@ -4,13 +4,12 @@ import type { TsconfigCache } from '../types.js';
 export const readFile = (
 	cache: TsconfigCache<string> | undefined,
 	filePath: string,
-	encoding: 'utf8',
 ): string => {
-	const cacheKey = `readFileSync:${filePath}:${encoding}`;
+	const cacheKey = `readFileSync:${filePath}`;
 	let result = cache?.get(cacheKey);
 
 	if (result === undefined) {
-		result = fs.readFileSync(filePath, encoding);
+		result = fs.readFileSync(filePath, 'utf8');
 		cache?.set(cacheKey, result);
 	}
 

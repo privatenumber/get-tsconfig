@@ -7,6 +7,9 @@ import { readJsonc } from './utils/read-jsonc.js';
 import { tryStat } from './utils/fs-cached.js';
 import type { TsconfigCache } from './types.js';
 
+const PACKAGE_JSON = 'package.json';
+const TS_CONFIG_JSON = 'tsconfig.json';
+
 const getPnpApi = () => {
 	const { findPnpApi } = Module;
 
@@ -58,7 +61,7 @@ const resolveFromPackageJsonPath = (
 		return;
 	}
 
-	let resolvedPath = subpath || 'tsconfig.json';
+	let resolvedPath = subpath || TS_CONFIG_JSON;
 
 	if (
 		!ignoreExports
@@ -89,9 +92,6 @@ const resolveFromPackageJsonPath = (
 
 	return resolvedPath;
 };
-
-const PACKAGE_JSON = 'package.json';
-const TS_CONFIG_JSON = 'tsconfig.json';
 
 export const resolveExtendsPath = (
 	requestedPath: string,
@@ -235,7 +235,6 @@ const resolveExtendsPathUncached = (
 			cache,
 		);
 
-		// Blocked
 		if (resolvedPath === false) {
 			return;
 		}
