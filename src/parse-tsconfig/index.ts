@@ -94,6 +94,38 @@ const resolveExtends = (
 				outDir,
 			);
 		}
+
+		const { declarationDir } = compilerOptions;
+		if (declarationDir && !declarationDir.startsWith(configDirPlaceholder)) {
+			compilerOptions.declarationDir = resolveAndRelativize(
+				fromDirectoryPath,
+				extendsDirectoryPath,
+				declarationDir,
+			);
+		}
+
+		const { rootDir } = compilerOptions;
+		if (rootDir && !rootDir.startsWith(configDirPlaceholder)) {
+			compilerOptions.rootDir = resolveAndRelativize(
+				fromDirectoryPath,
+				extendsDirectoryPath,
+				rootDir,
+			);
+		}
+
+		const { rootDirs } = compilerOptions;
+		if (rootDirs) {
+			compilerOptions.rootDirs = rootDirs.map(dir => (dir.startsWith(configDirPlaceholder)
+				? dir
+				: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, dir)));
+		}
+
+		const { typeRoots } = compilerOptions;
+		if (typeRoots) {
+			compilerOptions.typeRoots = typeRoots.map(root => (root.startsWith(configDirPlaceholder)
+				? root
+				: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, root)));
+		}
 	}
 
 	for (const property of filesProperties) {
@@ -561,7 +593,9 @@ export const parseTsconfig = (
 			if (value) {
 				compilerOptions[property] = value.map((v) => {
 					const resolvedPath = interpolateConfigDir(v, configDir);
-					return resolvedPath ? pathRelative(configDir, resolvedPath) : v;
+					return resolvedPath
+						? pathRelative(configDir, resolvedPath)
+						: normalizeRelativePath(v);
 				});
 			}
 		}

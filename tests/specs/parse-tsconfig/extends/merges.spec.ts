@@ -483,6 +483,180 @@ export default testSuite(({ describe }) => {
 			});
 		});
 
+		describe('rootDir', ({ test }) => {
+			test('gets inherited with relative path', async () => {
+				await using fixture = await createFixture({
+					project: {
+						src: {
+							'a.ts': '',
+						},
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								rootDir: 'src',
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('resolves parent rootDir path', async () => {
+				await using fixture = await createFixture({
+					'project/tsconfig.json': createTsconfigJson({
+						compilerOptions: {
+							rootDir: '..',
+						},
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'a.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
+		describe('rootDirs', ({ test }) => {
+			test('gets inherited with relative paths', async () => {
+				await using fixture = await createFixture({
+					project: {
+						src: { 'a.ts': '' },
+						generated: { 'b.ts': '' },
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								rootDirs: ['src', 'generated'],
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('resolves parent rootDirs with mixed paths', async () => {
+				await using fixture = await createFixture({
+					project: {
+						src: { 'a.ts': '' },
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								rootDirs: ['.', './types'],
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
+		describe('typeRoots', ({ test }) => {
+			test('gets inherited with relative paths', async () => {
+				await using fixture = await createFixture({
+					project: {
+						types: { 'index.d.ts': '' },
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								typeRoots: ['types'],
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+
+			test('resolves parent typeRoots with multiple entries', async () => {
+				await using fixture = await createFixture({
+					project: {
+						types: { 'index.d.ts': '' },
+						'custom-types': { 'globals.d.ts': '' },
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								typeRoots: ['types', 'custom-types'],
+							},
+						}),
+					},
+					'tsconfig.json': createTsconfigJson({
+						extends: './project/tsconfig.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
+		describe('declarationDir', ({ test }) => {
+			test('gets inherited with relative path', async () => {
+				await using fixture = await createFixture({
+					'a/dep.json': createTsconfigJson({
+						compilerOptions: {
+							declaration: true,
+							declarationDir: 'types',
+						},
+					}),
+					'tsconfig.json': createTsconfigJson({
+						extends: './a/dep.json',
+					}),
+					'file.ts': '',
+				});
+
+				const expectedTsconfig = await getTscTsconfig(fixture.path);
+				delete expectedTsconfig.files;
+
+				/**
+				 * Same tsc bug as outDir — declarationDir from extended
+				 * tsconfig should be in exclude but tsc doesn't add it
+				 */
+				expectedTsconfig.exclude = ['a/types'];
+
+				const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+				expect(tsconfig).toStrictEqual(expectedTsconfig);
+			});
+		});
+
 		test('nested extends', async () => {
 			await using fixture = await createFixture({
 				'file.ts': '',
