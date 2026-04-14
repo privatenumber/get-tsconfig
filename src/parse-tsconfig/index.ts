@@ -115,20 +115,16 @@ const resolveExtends = (
 
 		const { rootDirs } = compilerOptions;
 		if (rootDirs) {
-			compilerOptions.rootDirs = rootDirs.map(dir =>
-				dir.startsWith(configDirPlaceholder)
-					? dir
-					: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, dir),
-			);
+			compilerOptions.rootDirs = rootDirs.map(dir => (dir.startsWith(configDirPlaceholder)
+				? dir
+				: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, dir)));
 		}
 
 		const { typeRoots } = compilerOptions;
 		if (typeRoots) {
-			compilerOptions.typeRoots = typeRoots.map(root =>
-				root.startsWith(configDirPlaceholder)
-					? root
-					: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, root),
-			);
+			compilerOptions.typeRoots = typeRoots.map(root => (root.startsWith(configDirPlaceholder)
+				? root
+				: resolveAndRelativize(fromDirectoryPath, extendsDirectoryPath, root)));
 		}
 	}
 
