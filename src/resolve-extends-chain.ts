@@ -16,7 +16,7 @@ const filesProperties = [
 /**
  * Resolves a path from extended config to canonical form relative to parent config.
  * TypeScript normalizes these paths: nested/../. → .
- * Used for: baseUrl, outDir, rootDir, declarationDir
+ * Used for: baseUrl, outDir, declarationDir, rootDir, rootDirs, typeRoots
  */
 const resolveAndRelativize = (
 	fromDirectoryPath: string,
@@ -147,7 +147,7 @@ export const resolveExtendsChain = (
 				if (rebasedParent.compilerOptions) {
 					const parentCompilerOptions = { ...rebasedParent.compilerOptions };
 
-					for (const field of ['baseUrl', 'outDir'] as const) {
+					for (const field of ['baseUrl', 'outDir', 'declarationDir', 'rootDir'] as const) {
 						const value = parentCompilerOptions[field];
 						if (value && !value.startsWith(configDirPlaceholder)) {
 							parentCompilerOptions[field] = resolveAndRelativize(
@@ -155,6 +155,17 @@ export const resolveExtendsChain = (
 								extendsDirectoryPath,
 								value,
 							);
+						}
+					}
+
+					for (const field of ['rootDirs', 'typeRoots'] as const) {
+						const values = parentCompilerOptions[field];
+						if (values) {
+							parentCompilerOptions[field] = values.map(value => (
+								value.startsWith(configDirPlaceholder)
+									? value
+									: resolveAndRelativize(directoryPath, extendsDirectoryPath, value)
+							));
 						}
 					}
 
@@ -291,7 +302,9 @@ export const resolveExtendsChain = (
 			if (value) {
 				compilerOptions[property] = value.map((v) => {
 					const resolvedPath = interpolateConfigDir(v, configDir);
-					return resolvedPath ? pathRelative(configDir, resolvedPath) : v;
+					return resolvedPath
+						? pathRelative(configDir, resolvedPath)
+						: normalizeRelativePath(v);
 				});
 			}
 		}

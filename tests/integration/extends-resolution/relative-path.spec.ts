@@ -180,4 +180,64 @@ describe('relative path', () => {
 		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
+
+	test('rootDir in extends', async () => {
+		await using fixture = await createFixture({
+			'a/dep.json': createTsconfigJson({
+				compilerOptions: {
+					rootDir: 'src',
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './a/dep.json',
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('rootDirs in extends', async () => {
+		await using fixture = await createFixture({
+			'a/dep.json': createTsconfigJson({
+				compilerOptions: {
+					rootDirs: ['src', 'generated'],
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './a/dep.json',
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('typeRoots in extends', async () => {
+		await using fixture = await createFixture({
+			'a/dep.json': createTsconfigJson({
+				compilerOptions: {
+					typeRoots: ['types'],
+				},
+			}),
+			'tsconfig.json': createTsconfigJson({
+				extends: './a/dep.json',
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const { config: tsconfig } = readTsconfig(fixture.getPath('tsconfig.json'));
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
 });
