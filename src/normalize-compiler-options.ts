@@ -1,5 +1,18 @@
 import type { TsconfigJson } from './types.js';
 
+// type-fest does not yet model 'es2025'; widen the union locally so the
+// es2025 comparisons below typecheck.
+//
+// `es2025` was added to the derivation switches alongside the v6
+// version-defaults work — TS 6.0 defaults `target: es2025` (LatestStandard),
+// and without these branches the synthesized target would not cascade into
+// `module ??= 'es6'` or `useDefineForClassFields ??= true`. The change is
+// observable for any consumer with an explicit `target: 'es2025'` even
+// without `typescriptVersion` set: they now see the synthesized `module`/
+// `moduleResolution`/`useDefineForClassFields` they didn't before. This
+// aligns with TS itself, but is a behaviour change worth knowing about.
+type Target = TsconfigJson.CompilerOptions.Target | 'es2025';
+
 export const normalizeCompilerOptions = (
 	input: TsconfigJson.CompilerOptions,
 ): TsconfigJson.CompilerOptions => {
@@ -31,13 +44,13 @@ export const normalizeCompilerOptions = (
 	}
 
 	if (compilerOptions.target) {
-		let target = compilerOptions.target.toLowerCase() as TsconfigJson.CompilerOptions.Target;
+		let target = compilerOptions.target.toLowerCase() as Target;
 
 		if (target === 'es2015') {
 			target = 'es6';
 		}
 
-		compilerOptions.target = target;
+		compilerOptions.target = target as TsconfigJson.CompilerOptions.Target;
 
 		if (target === 'esnext') {
 			compilerOptions.module ??= 'es6';
@@ -55,6 +68,7 @@ export const normalizeCompilerOptions = (
 			|| target === 'es2022'
 			|| target === 'es2023'
 			|| target === 'es2024'
+			|| target === 'es2025'
 		) {
 			compilerOptions.module ??= 'es6';
 		}
@@ -63,6 +77,7 @@ export const normalizeCompilerOptions = (
 			target === 'es2022'
 			|| target === 'es2023'
 			|| target === 'es2024'
+			|| target === 'es2025'
 		) {
 			compilerOptions.useDefineForClassFields ??= true;
 		}

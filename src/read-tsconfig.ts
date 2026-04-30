@@ -4,6 +4,7 @@ import type {
 	TsconfigJson, TsconfigResult, GetExtendsChainOptions, ReadTsconfigOptions,
 } from './types.js';
 import { readJsonc } from './utils/read-jsonc.js';
+import { detectTypeScriptVersion } from './utils/typescript-version.js';
 import { resolveExtendsPath } from './resolve-extends-path.js';
 import { resolveExtendsChain } from './resolve-extends-chain.js';
 
@@ -108,6 +109,12 @@ export const getExtendsChain = (
  * @param options - Optional read configuration.
  * @param options.cache - Cache for filesystem reads and resolution results
  * (default: new `Map()`).
+ * @param options.typescriptVersion - Apply unconditional compiler-option
+ * defaults from the target TypeScript version (e.g. TS 6.0's
+ * `moduleResolution: 'bundler'`). Default `'auto'` detects
+ * `node_modules/typescript` (or the Yarn Berry pnp API) from the tsconfig's
+ * directory. Pass an explicit version string (`'5.9.0'`, `'6.0.0'`) to pin,
+ * or `false` to skip version-aware defaults entirely.
  * @returns The resolved absolute path and config.
  * @throws If the file cannot be read, contains invalid JSON, has circular
  * `extends`, or references a missing `extends` target.
@@ -116,7 +123,15 @@ export const readTsconfig = (
 	tsconfigPath: string,
 	options: ReadTsconfigOptions = {},
 ): TsconfigResult => {
-	const { cache = new Map() } = options;
+	const { cache = new Map(), typescriptVersion = 'auto' } = options;
 	const chain = getExtendsChain(tsconfigPath, { cache });
-	return resolveExtendsChain(chain);
+
+	let resolvedVersion: string | undefined;
+	if (typescriptVersion === 'auto') {
+		resolvedVersion = detectTypeScriptVersion(path.dirname(chain[0].path), cache);
+	} else if (typescriptVersion !== false) {
+		resolvedVersion = typescriptVersion;
+	}
+
+	return resolveExtendsChain(chain, { typescriptVersion: resolvedVersion });
 };

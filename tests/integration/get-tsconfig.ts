@@ -170,8 +170,11 @@ describe('getTsconfig', () => {
 		};
 
 		const cache = new Map();
+		// Opt out of version-aware defaults so cache size only reflects
+		// tsconfig parse cache entries, not the version-detection walk.
 		const tsconfig = getTsconfig(fixture.path, {
 			cache,
+			typescriptVersion: false,
 		});
 		expect(tsconfig).toStrictEqual(expectedResult);
 		expect(cache.size).toBe(2);
@@ -180,6 +183,7 @@ describe('getTsconfig', () => {
 
 		const tsconfigCacheHit = getTsconfig(fixture.path, {
 			cache,
+			typescriptVersion: false,
 		});
 		expect(tsconfigCacheHit).toStrictEqual(expectedResult);
 	});

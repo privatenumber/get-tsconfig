@@ -34,10 +34,12 @@ type GetTsconfigOptions = {
     configName?: string   // default: 'tsconfig.json' (use 'jsconfig.json' for JS projects)
     cache?: Map<string, unknown>
     includes?: boolean    // default: false — when true, validates file is a root file before accepting
+    typescriptVersion?: 'auto' | string | false // default: 'auto' — see Use cases
 }
 
 type ReadTsconfigOptions = {
     cache?: Map<string, unknown>
+    typescriptVersion?: 'auto' | string | false // default: 'auto'
 }
 ```
 
@@ -120,6 +122,25 @@ getTsconfig('./src/index.ts')
 // Validates file is a root file before accepting (VS Code behavior)
 getTsconfig('./src/index.ts', { includes: true })
 ```
+
+### TypeScript version-aware defaults
+
+The parser auto-detects the installed TypeScript version and applies its unconditional defaults (e.g. TS 6.0 sets `moduleResolution: 'bundler'`, `strict: true`). This is the default behavior — the parsed config matches what `tsc` would compute.
+
+```ts
+// Default — auto-detects via node_modules walk-up (or Yarn pnp)
+readTsconfig('./tsconfig.json')
+
+// Pin a specific version (deterministic across environments)
+readTsconfig('./tsconfig.json', { typescriptVersion: '6.0.0' })
+
+// Disable — return only the literal config + within-config derivations
+readTsconfig('./tsconfig.json', { typescriptVersion: false })
+```
+
+**When to pass `false`:** library code that runs in environments where TypeScript may not be installed (production runtimes, trimmed Docker images). Auto-detection there would return `undefined` and behave inconsistently with dev. Passing `false` makes output deterministic.
+
+Per-major changes are tracked in `src/version-defaults/{v4,v5,v6}.ts` with links to the corresponding TypeScript source.
 
 ## Understanding `isFileIncluded`
 

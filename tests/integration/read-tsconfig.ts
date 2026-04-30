@@ -223,8 +223,11 @@ describe('parses tsconfig', () => {
 		});
 
 		const cache = new Map();
+		// Opt out of version-aware defaults so cache assertions only count
+		// tsconfig parse cache entries, not the version-detection walk.
 		const parsedTsconfig = readTsconfig(fixture.getPath('tsconfig.json'), {
 			cache,
+			typescriptVersion: false,
 		});
 		expect(cache.size).toBe(1);
 
@@ -240,6 +243,7 @@ describe('parses tsconfig', () => {
 
 		const parsedTsconfigCached = readTsconfig(fixture.getPath('tsconfig.json'), {
 			cache,
+			typescriptVersion: false,
 		});
 		expect(cache.size).toBe(1);
 

@@ -5,13 +5,18 @@ import { tryStat } from './utils/fs-cached.js';
 import { readTsconfig } from './read-tsconfig.js';
 import { isFileIncluded } from './files-matcher.js';
 import type {
-	TsconfigResult, TsconfigCache, FindTsconfigOptions, GetTsconfigOptions,
+	TsconfigResult,
+	TsconfigCache,
+	FindTsconfigOptions,
+	GetTsconfigOptions,
+	TypeScriptVersionOption,
 } from './types.js';
 
 const findConfigApplicable = (
 	searchPath: string,
 	configName: string,
 	cache: TsconfigCache,
+	typescriptVersion: TypeScriptVersionOption | undefined,
 ) => {
 	const resolvedFilePath = path.resolve(searchPath);
 	let currentPath = slash(searchPath);
@@ -23,7 +28,10 @@ const findConfigApplicable = (
 		}
 
 		const absoluteConfigFile = path.resolve(configFile);
-		const result = readTsconfig(absoluteConfigFile, { cache });
+		const result = readTsconfig(absoluteConfigFile, {
+			cache,
+			typescriptVersion,
+		});
 		if (isFileIncluded(result, resolvedFilePath)) {
 			return result;
 		}
@@ -77,7 +85,9 @@ export const findTsconfig = (
 		);
 	}
 
-	return findConfigApplicable(searchPath, configName, cache)?.path;
+	// findTsconfig only returns a path, so skip version detection (saves
+	// the upward walk + JSON parse per candidate tsconfig).
+	return findConfigApplicable(searchPath, configName, cache, false)?.path;
 };
 
 /**
@@ -102,6 +112,11 @@ export const findTsconfig = (
  * @param options.cache Cache for previous results (default: new `Map()`).
  * @param options.includes When true, validates that the tsconfig applies to the
  * `searchPath` file via `include`/`exclude`/`files`. Default: `false`.
+ * @param options.typescriptVersion Apply unconditional compiler-option defaults
+ * from the target TypeScript version (e.g. TS 6.0's `moduleResolution: 'bundler'`).
+ * Default `'auto'` detects `node_modules/typescript` (or the Yarn Berry pnp API)
+ * from the tsconfig's directory. Pass an explicit version string (`'5.9.0'`,
+ * `'6.0.0'`) to pin, or `false` to skip version-aware defaults entirely.
  * @returns The resolved tsconfig, or `undefined` if no config file was found.
  * @throws If a config file is found but cannot be parsed — invalid JSON,
  * circular `extends`, or missing `extends` target.
@@ -114,6 +129,7 @@ export const getTsconfig = (
 		configName = 'tsconfig.json',
 		cache = new Map(),
 		includes = false,
+		typescriptVersion = 'auto',
 	} = options;
 
 	if (!includes) {
@@ -125,8 +141,11 @@ export const getTsconfig = (
 			return;
 		}
 
-		return readTsconfig(configFile, { cache });
+		return readTsconfig(configFile, {
+			cache,
+			typescriptVersion,
+		});
 	}
 
-	return findConfigApplicable(searchPath, configName, cache);
+	return findConfigApplicable(searchPath, configName, cache, typescriptVersion);
 };

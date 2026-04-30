@@ -91,12 +91,14 @@ type GetTsconfigOptions = {
     configName?: string // default: 'tsconfig.json'
     cache?: Map<string, unknown>
     includes?: boolean // default: false
+    typescriptVersion?: 'auto' | string | false // default: 'auto'
 }
 ```
 
 - **configName**: file name to search for (e.g. `'jsconfig.json'`)
 - **cache**: snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
 - **includes**: when `true`, validates the file is a root file (matched by `include`/`files` globs, not excluded) before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig). Note: this checks glob matching only — a file can still be part of a TypeScript program via transitive imports even if not matched by `include`.
+- **typescriptVersion**: applies unconditional compiler-option defaults from the target TypeScript version. Default `'auto'` detects the installed version; pass an explicit version string to pin, or `false` to disable. See [TypeScript version-aware defaults](#typescript-version-aware-defaults).
 
 #### Example
 
@@ -133,8 +135,11 @@ Reads and resolves a tsconfig at a known path. Used internally by `getTsconfig`.
 ```ts
 type ReadTsconfigOptions = {
     cache?: Map<string, unknown>
+    typescriptVersion?: 'auto' | string | false // default: 'auto'
 }
 ```
+
+- **typescriptVersion**: applies unconditional compiler-option defaults from the target TypeScript version. Default `'auto'` detects the installed version; pass an explicit version string to pin, or `false` to disable. See [TypeScript version-aware defaults](#typescript-version-aware-defaults).
 
 ```ts
 import { readTsconfig } from 'get-tsconfig'
@@ -225,6 +230,33 @@ if (tryPaths?.length) {
     // Check if paths in tryPaths exist
 }
 ```
+
+## TypeScript version-aware defaults
+
+TypeScript synthesizes some compiler options when the user doesn't set them — and the synthesized values change between versions. For example, TS 6.0 defaults `moduleResolution` to `'bundler'` and `strict` to `true`, while TS 5.x leaves them unset.
+
+By default, `get-tsconfig` mirrors what TypeScript itself would compute by detecting the installed TypeScript version near the tsconfig file:
+
+```ts
+import { readTsconfig } from 'get-tsconfig'
+
+// Default: auto-detect TypeScript via node_modules walk-up
+// (or the Yarn Berry pnp API when available). If TS is found, its
+// version-aware defaults are applied. If not, no defaults are added.
+readTsconfig('./tsconfig.json')
+
+// Pin a specific version explicitly
+readTsconfig('./tsconfig.json', { typescriptVersion: '6.0.0' })
+
+// Opt out — return only what's literally in the file (plus internal
+// derivations like `strict: true` ⇒ strict-family flags)
+readTsconfig('./tsconfig.json', { typescriptVersion: false })
+```
+
+> [!IMPORTANT]
+> Auto-detection means the parsed config can vary with the runtime environment. If you publish a library that runs both at dev time (with TypeScript installed) and in production (without it), pass an explicit version string or `false` for deterministic output.
+
+The defaults are tracked per-major (v4, v5, v6) and applied cumulatively. Source-of-truth references for each default live in [`src/version-defaults/`](./src/version-defaults).
 
 ## FAQ
 

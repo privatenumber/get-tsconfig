@@ -1,9 +1,15 @@
 import path from 'node:path';
 import slash from 'slash';
-import type { TsconfigJson, TsconfigJsonResolved, TsconfigResult } from './types.js';
+import type {
+	TsconfigJson,
+	TsconfigJsonResolved,
+	TsconfigResult,
+	ResolveExtendsChainOptions,
+} from './types.js';
 import { implicitBaseUrlSymbol, configDirPlaceholder } from './utils/constants.js';
 import { normalizeRelativePath } from './utils/path.js';
 import { normalizeCompilerOptions } from './normalize-compiler-options.js';
+import { applyVersionDefaults } from './version-defaults/index.js';
 
 const pathRelative = (from: string, to: string) => normalizeRelativePath(path.relative(from, to));
 
@@ -84,14 +90,22 @@ const compilerFieldsWithConfigDir = [
  *
  * @param chain - Array of `{ path, config }` entries. `chain[0]` is the
  * root config. Must be acyclic — cyclic extends will cause infinite recursion.
+ * @param options - Optional resolution configuration.
+ * @param options.typescriptVersion - Apply unconditional compiler-option
+ * defaults for the given TypeScript version (e.g. `'6.0.0'`). Must be a
+ * literal version string; this lower-level API does not accept `'auto'` —
+ * detection is the caller's responsibility (see `readTsconfig`).
  * @returns The resolved tsconfig with path and fully merged config.
  */
 export const resolveExtendsChain = (
 	chain: TsconfigResult<TsconfigJson>[],
+	options: ResolveExtendsChainOptions = {},
 ): TsconfigResult => {
 	if (chain.length === 0) {
 		throw new Error('Chain must not be empty');
 	}
+
+	const { typescriptVersion } = options;
 
 	const lookup = new Map(chain.map(entry => [entry.path, entry]));
 	const resolvedCache = new Map<string, TsconfigJsonResolved>();
@@ -319,6 +333,19 @@ export const resolveExtendsChain = (
 			compilerOptions.paths = paths;
 		}
 
+		// Order matters here:
+		//   1. configDir interpolation + path normalization (already done above)
+		//   2. applyVersionDefaults — injects unconditional defaults for the
+		//      target TypeScript version *before* normalize sees the config,
+		//      so normalize's derivation rules (e.g. `module ⇒ moduleResolution`)
+		//      cascade off the synthesized values.
+		//   3. normalizeCompilerOptions — applies version-stable derived
+		//      defaults (those internally consistent within a single config).
+		// Reversing 2 and 3 would mean version-injected `target` couldn't
+		// trigger the `target ⇒ module ⇒ moduleResolution` cascade.
+		if (typescriptVersion) {
+			applyVersionDefaults(compilerOptions, typescriptVersion);
+		}
 		config.compilerOptions = normalizeCompilerOptions(compilerOptions);
 	}
 

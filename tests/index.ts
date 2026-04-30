@@ -6,6 +6,9 @@ describe('get-tsconfig', () => {
 	import('./unit/resolve-extends-chain.ts');
 	import('./unit/paths-matcher.ts');
 	import('./unit/files-matcher.ts');
+	import('./unit/version-defaults/v4.ts');
+	import('./unit/version-defaults/v5.ts');
+	import('./unit/version-defaults/v6.ts');
 
 	// Integration tests (filesystem, tsc)
 	import('./integration/find-tsconfig.ts');
@@ -16,4 +19,5 @@ describe('get-tsconfig', () => {
 	import('./integration/extends-resolution/index.ts');
 	import('./integration/paths-matcher-integration.ts');
 	import('./integration/files-matcher-integration.ts');
+	import('./integration/typescript-version.ts');
 });

@@ -5,17 +5,11 @@ import type { PackageJson } from 'type-fest';
 import { findUp } from './utils/find-up.js';
 import { readJsonc } from './utils/read-jsonc.js';
 import { tryStat } from './utils/fs-cached.js';
+import { getPnpApi } from './utils/pnp.js';
 import type { TsconfigCache } from './types.js';
 
 const PACKAGE_JSON = 'package.json';
 const TS_CONFIG_JSON = 'tsconfig.json';
-
-const getPnpApi = () => {
-	const { findPnpApi } = Module;
-
-	// https://yarnpkg.com/advanced/pnpapi/#requirepnpapi
-	return findPnpApi && findPnpApi(process.cwd());
-};
 
 // Use Node resolution to find the resolved package entry for the requested
 // package specifier or package root.
