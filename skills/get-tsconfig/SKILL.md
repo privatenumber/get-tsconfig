@@ -7,6 +7,9 @@ description: Find, parse, and query tsconfig.json files — extends resolution, 
 
 Lightweight tsconfig.json parser. No TypeScript dependency. Tested against `tsc` for correctness.
 
+> [!NOTE]
+> Upgrading from v4? See [MIGRATION.md](./MIGRATION.md) for the API renames, the ESM-only / Node 20+ requirements, and the new version-aware-defaults behaviour.
+
 ## API
 
 | Function | Purpose | Returns |
