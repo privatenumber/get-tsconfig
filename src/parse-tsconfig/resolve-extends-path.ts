@@ -4,7 +4,7 @@ import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { stat, exists } from '../utils/fs-cached.js';
+import { stat, exists, realpath } from '../utils/fs-cached.js';
 import type { Cache } from '../types.js';
 
 const getPnpApi = () => {
@@ -143,11 +143,21 @@ export const resolveExtendsPath = (
 		} catch {}
 	}
 
-	const packagePath = findUp(
-		path.resolve(directoryPath),
-		path.join('node_modules', packageName),
-		cache,
-	);
+	const nodeModulesPackagePath = path.join('node_modules', packageName);
+	const resolvedDirectoryPath = path.resolve(directoryPath);
+	let packagePath = findUp(resolvedDirectoryPath, nodeModulesPackagePath, cache);
+
+	/**
+	 * When the extending config is behind a symlink (e.g. pnpm's isolated
+	 * node_modules), its dependencies are only reachable from its real
+	 * location, so retry from there like Node.js module resolution does
+	 */
+	if (!packagePath) {
+		const realDirectoryPath = realpath(cache, resolvedDirectoryPath);
+		if (realDirectoryPath !== resolvedDirectoryPath) {
+			packagePath = findUp(realDirectoryPath, nodeModulesPackagePath, cache);
+		}
+	}
 
 	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
 		return;

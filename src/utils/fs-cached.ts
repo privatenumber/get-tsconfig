@@ -37,3 +37,5 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 export const exists = cacheFs('existsSync');
 export const readFile = cacheFs('readFileSync');
 export const stat = cacheFs('statSync');
+// Cast because inferring from the overloaded realpathSync yields string | Buffer
+export const realpath = cacheFs('realpathSync') as (cache: Cache | undefined, path: string) => string;

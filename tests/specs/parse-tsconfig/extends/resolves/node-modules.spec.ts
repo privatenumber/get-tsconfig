@@ -394,6 +394,54 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		}
 	});
 
+	test('resolves dependency of symlinked package in pnpm-style node_modules', async () => {
+		await using fixture = await createFixture({
+			node_modules: {
+				'.pnpm': {
+					'shared-config@1.0.0/node_modules': {
+						'shared-config': {
+							'package.json': createPackageJson({
+								name: 'shared-config',
+								version: '1.0.0',
+							}),
+							'tsconfig.json': createTsconfigJson({
+								extends: 'base-config',
+								compilerOptions: {
+									jsx: 'react',
+								},
+							}),
+						},
+						'base-config': ({ symlink }) => symlink('../../base-config@1.0.0/node_modules/base-config'),
+					},
+					'base-config@1.0.0/node_modules/base-config': {
+						'package.json': createPackageJson({
+							name: 'base-config',
+							version: '1.0.0',
+						}),
+						'tsconfig.json': createTsconfigJson({
+							compilerOptions: {
+								strict: true,
+								allowJs: true,
+							},
+						}),
+					},
+				},
+				'shared-config': ({ symlink }) => symlink('./.pnpm/shared-config@1.0.0/node_modules/shared-config'),
+			},
+			'tsconfig.json': createTsconfigJson({
+				extends: 'shared-config',
+			}),
+			'file.ts': '',
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path);
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
 	describe('package.json#tsconfig', ({ test }) => {
 		test('package.json#tsconfig', async () => {
 			await using fixture = await createFixture({
