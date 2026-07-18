@@ -143,17 +143,11 @@ export const resolveExtendsPath = (
 		} catch {}
 	}
 
-	const nodeModulesPackagePath = path.join('node_modules', packageName);
-	const resolvedDirectoryPath = path.resolve(directoryPath);
-	let packagePath = findUp(resolvedDirectoryPath, nodeModulesPackagePath, cache);
-
-	if (!packagePath) {
-		const realDirectoryPath = realpath(cache, resolvedDirectoryPath);
-
-		if (realDirectoryPath !== resolvedDirectoryPath) {
-			packagePath = findUp(realDirectoryPath, nodeModulesPackagePath, cache);
-		}
-	}
+	const packagePath = findUp(
+		realpath(cache, path.resolve(directoryPath)),
+		path.join('node_modules', packageName),
+		cache,
+	);
 
 	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
 		return;
