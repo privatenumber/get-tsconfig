@@ -147,13 +147,9 @@ export const resolveExtendsPath = (
 	const resolvedDirectoryPath = path.resolve(directoryPath);
 	let packagePath = findUp(resolvedDirectoryPath, nodeModulesPackagePath, cache);
 
-	/**
-	 * When the extending config is behind a symlink (e.g. pnpm's isolated
-	 * node_modules), its dependencies are only reachable from its real
-	 * location, so retry from there like Node.js module resolution does
-	 */
 	if (!packagePath) {
 		const realDirectoryPath = realpath(cache, resolvedDirectoryPath);
+
 		if (realDirectoryPath !== resolvedDirectoryPath) {
 			packagePath = findUp(realDirectoryPath, nodeModulesPackagePath, cache);
 		}

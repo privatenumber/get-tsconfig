@@ -37,5 +37,15 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 export const exists = cacheFs('existsSync');
 export const readFile = cacheFs('readFileSync');
 export const stat = cacheFs('statSync');
-// Cast because inferring from the overloaded realpathSync yields string | Buffer
-export const realpath = cacheFs('realpathSync') as (cache: Cache | undefined, path: string) => string;
+
+const rawRealpath = cacheFs('realpathSync');
+
+export const realpath = (...[child, directory]: Parameters<typeof rawRealpath>): string => {
+	const path = rawRealpath(child, directory);
+
+	if (typeof path !== 'string') {
+		throw new TypeError(`Unexpected resolved path type for ${path} in ${directory}`);
+	}
+
+	return path;
+};
