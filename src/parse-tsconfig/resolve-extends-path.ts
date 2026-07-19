@@ -143,15 +143,17 @@ export const resolveExtendsPath = (
 		} catch {}
 	}
 
-	const packagePath = findUp(
-		realpath(cache, path.resolve(directoryPath)),
+	const rawPackagePath = findUp(
+		path.resolve(directoryPath),
 		path.join('node_modules', packageName),
 		cache,
 	);
 
-	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
+	if (!rawPackagePath || !stat(cache, rawPackagePath)!.isDirectory()) {
 		return;
 	}
+
+	const packagePath = realpath(cache, rawPackagePath);
 
 	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
 	if (exists(cache, packageJsonPath)) {

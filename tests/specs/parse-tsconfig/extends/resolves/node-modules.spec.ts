@@ -442,6 +442,92 @@ export default testSuite('node_modules', ({ describe, test }) => {
 		expect(tsconfig).toStrictEqual(expectedTsconfig);
 	});
 
+	test('resolves dependency from the apparent location of a symlinked project directory', async () => {
+		await using fixture = await createFixture({
+			'real/project': {
+				'tsconfig.json': createTsconfigJson({
+					extends: 'dep',
+				}),
+				'file.ts': '',
+			},
+			apparent: {
+				'node_modules/dep/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'react',
+						strict: true,
+					},
+				}),
+				project: ({ symlink }) => symlink('../real/project', 'dir'),
+			},
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path, 'apparent/project');
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('apparent/project/tsconfig.json'));
+
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('prefers dependency at the apparent location of a symlinked project directory', async () => {
+		await using fixture = await createFixture({
+			real: {
+				'node_modules/dep/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'preserve',
+					},
+				}),
+				project: {
+					'tsconfig.json': createTsconfigJson({
+						extends: 'dep',
+					}),
+					'file.ts': '',
+				},
+			},
+			apparent: {
+				'node_modules/dep/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'react',
+					},
+				}),
+				project: ({ symlink }) => symlink('../real/project', 'dir'),
+			},
+		});
+
+		const expectedTsconfig = await getTscTsconfig(fixture.path, 'apparent/project');
+		delete expectedTsconfig.files;
+
+		const tsconfig = parseTsconfig(fixture.getPath('apparent/project/tsconfig.json'));
+
+		expect(tsconfig).toStrictEqual(expectedTsconfig);
+	});
+
+	test('does not resolve dependency from the apparent location of a symlinked package', async () => {
+		await using fixture = await createFixture({
+			'linked/shared-config/tsconfig.json': createTsconfigJson({
+				extends: 'dep',
+			}),
+			project: {
+				'node_modules/dep/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						jsx: 'react',
+					},
+				}),
+				'node_modules/shared-config': ({ symlink }) => symlink('../../linked/shared-config', 'dir'),
+				'tsconfig.json': createTsconfigJson({
+					extends: 'shared-config',
+				}),
+				'file.ts': '',
+			},
+		});
+
+		const errorMessage = 'File \'dep\' not found';
+		await expect(
+			getTscTsconfig(fixture.path, 'project'),
+		).rejects.toThrow(errorMessage);
+		expect(() => parseTsconfig(fixture.getPath('project/tsconfig.json'))).toThrow(errorMessage);
+	});
+
 	describe('package.json#tsconfig', ({ test }) => {
 		test('package.json#tsconfig', async () => {
 			await using fixture = await createFixture({
