@@ -149,7 +149,7 @@ export const resolveExtendsPath = (
 		cache,
 	);
 
-	if (!rawPackagePath || !stat(cache, rawPackagePath)!.isDirectory()) {
+	if (!rawPackagePath || !stat(cache, rawPackagePath)?.isDirectory()) {
 		return;
 	}
 
