@@ -411,7 +411,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 								},
 							}),
 						},
-						'base-config': ({ symlink }) => symlink('../../base-config@1.0.0/node_modules/base-config'),
+						'base-config': ({ symlink }) => symlink('../../base-config@1.0.0/node_modules/base-config', 'dir'),
 					},
 					'base-config@1.0.0/node_modules/base-config': {
 						'package.json': createPackageJson({
@@ -426,7 +426,7 @@ export default testSuite('node_modules', ({ describe, test }) => {
 						}),
 					},
 				},
-				'shared-config': ({ symlink }) => symlink('./.pnpm/shared-config@1.0.0/node_modules/shared-config'),
+				'shared-config': ({ symlink }) => symlink('./.pnpm/shared-config@1.0.0/node_modules/shared-config', 'dir'),
 			},
 			'tsconfig.json': createTsconfigJson({
 				extends: 'shared-config',
