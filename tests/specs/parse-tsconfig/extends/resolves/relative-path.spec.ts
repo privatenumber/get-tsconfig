@@ -115,7 +115,7 @@ export default testSuite('relative path', ({ test }) => {
 		expect(expectedTsconfig).toStrictEqual(tsconfig);
 	});
 
-	test('shoud not resolve directory', async () => {
+	test('should not resolve directory', async () => {
 		await using fixture = await createFixture({
 			'directory/tsconfig.json': createTsconfigJson({
 				compilerOptions: {
@@ -132,7 +132,7 @@ export default testSuite('relative path', ({ test }) => {
 		).toThrow('File \'./directory\' not found.');
 	});
 
-	test('shoud not resolve directory even with package.json#tsconfig', async () => {
+	test('should not resolve directory even with package.json#tsconfig', async () => {
 		await using fixture = await createFixture({
 			directory: {
 				'package.json': createPackageJson({
