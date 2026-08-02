@@ -4,7 +4,7 @@ import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from './utils/find-up.js';
 import { readJsonc } from './utils/read-jsonc.js';
-import { tryStat } from './utils/fs-cached.js';
+import { realpath, tryStat } from './utils/fs-cached.js';
 import { getPnpApi } from './utils/pnp.js';
 import type { TsconfigCache } from './types.js';
 
@@ -220,7 +220,9 @@ const resolveExtendsPathUncached = (
 		return;
 	}
 
-	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
+	const resolvedPackagePath = realpath(cache, packagePath);
+
+	const packageJsonPath = path.join(resolvedPackagePath, PACKAGE_JSON);
 	if (tryStat(cache, packageJsonPath)) {
 		const resolvedPath = resolveFromPackageJsonPath(
 			packageJsonPath,
@@ -241,7 +243,7 @@ const resolveExtendsPathUncached = (
 		}
 	}
 
-	const fullPackagePath = path.join(packagePath, subpath);
+	const fullPackagePath = path.join(resolvedPackagePath, subpath);
 	const jsonExtension = fullPackagePath.endsWith('.json');
 
 	if (!jsonExtension) {

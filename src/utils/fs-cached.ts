@@ -16,6 +16,21 @@ export const readFile = (
 	return result;
 };
 
+export const realpath = (
+	cache: TsconfigCache<string> | undefined,
+	filePath: string,
+): string => {
+	const cacheKey = `realpathSync:${filePath}`;
+	let result = cache?.get(cacheKey);
+
+	if (result === undefined) {
+		result = fs.realpathSync(filePath);
+		cache?.set(cacheKey, result);
+	}
+
+	return result;
+};
+
 /**
  * Cached stat that returns undefined on ENOENT instead of throwing.
  * Replaces exists() + stat() pairs with a single syscall.
