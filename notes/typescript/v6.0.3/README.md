@@ -43,6 +43,11 @@ Path-like requests remain config-relative and try an optional `.json` suffix, wh
 still use the dedicated NodeNext JSON resolver
 ([config target resolution](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/commandLineParser.ts#L3646-L3677),
 [NodeNext JSON resolver](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/moduleNameResolver.ts#L1798-L1801)).
+Successful non-relative external resolutions also retain the 5.9.3 realpath behavior: with
+`preserveSymlinks` disabled, the resolver canonicalizes a package result before returning it, so
+further inheritance starts from the package's real location
+([symlink handling](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/moduleNameResolver.ts#L224-L252),
+[resolver return path](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/moduleNameResolver.ts#L1899-L1911)).
 
 Two package-resolution edges changed. The NodeNext config resolver recognizes `#/` package-import
 requests. A `null` target reached within an imports/exports map returns terminal
