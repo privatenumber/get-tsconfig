@@ -37,3 +37,15 @@ const cacheFs = <MethodName extends keyof FsMethods>(
 export const exists = cacheFs('existsSync');
 export const readFile = cacheFs('readFileSync');
 export const stat = cacheFs('statSync');
+
+const rawRealpath = cacheFs('realpathSync');
+
+export const realpath = (...[child, directory]: Parameters<typeof rawRealpath>): string => {
+	const path = rawRealpath(child, directory);
+
+	if (typeof path !== 'string') {
+		throw new TypeError(`Unexpected resolved path type for ${path} in ${directory}`);
+	}
+
+	return path;
+};

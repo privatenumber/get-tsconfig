@@ -4,7 +4,7 @@ import { resolveExports } from 'resolve-pkg-maps';
 import type { PackageJson } from 'type-fest';
 import { findUp } from '../utils/find-up.js';
 import { readJsonc } from '../utils/read-jsonc.js';
-import { stat, exists } from '../utils/fs-cached.js';
+import { stat, exists, realpath } from '../utils/fs-cached.js';
 import type { Cache } from '../types.js';
 
 const getPnpApi = () => {
@@ -143,15 +143,17 @@ export const resolveExtendsPath = (
 		} catch {}
 	}
 
-	const packagePath = findUp(
+	const rawPackagePath = findUp(
 		path.resolve(directoryPath),
 		path.join('node_modules', packageName),
 		cache,
 	);
 
-	if (!packagePath || !stat(cache, packagePath)!.isDirectory()) {
+	if (!rawPackagePath || !stat(cache, rawPackagePath)?.isDirectory()) {
 		return;
 	}
+
+	const packagePath = realpath(cache, rawPackagePath);
 
 	const packageJsonPath = path.join(packagePath, PACKAGE_JSON);
 	if (exists(cache, packageJsonPath)) {
