@@ -6,7 +6,25 @@ import type { TsConfigResult, TsConfigJsonResolved } from './types.js';
 
 export type FileMatcher = (filePath: string) => (TsConfigJsonResolved | undefined);
 
-const { join: pathJoin } = path.posix;
+const { join: posixJoin } = path.posix;
+
+/**
+ * `path.posix.join` collapses the leading double slash of a UNC root
+ * (e.g. `//server/share` -> `/server/share`), but the file paths passed
+ * into the matcher keep both slashes, so resolved patterns would never match
+ * https://github.com/privatenumber/get-tsconfig/issues/133
+ */
+const pathJoin = (
+	basePath: string,
+	subpath: string,
+) => {
+	const joined = posixJoin(basePath, subpath);
+	return (
+		basePath.startsWith('//') && !joined.startsWith('//')
+			? `/${joined}`
+			: joined
+	);
+};
 
 const baseExtensions = {
 	ts: ['.ts', '.tsx', '.d.ts'],
