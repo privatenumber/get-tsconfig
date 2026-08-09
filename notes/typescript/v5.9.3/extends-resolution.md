@@ -46,6 +46,14 @@ split before selecting the package directory
 ([ancestor search](https://github.com/microsoft/TypeScript/blob/c63de15a992d37f0d6cec03ac7631872838602cb/src/compiler/moduleNameResolver.ts#L2987-L3034),
 [package-name split](https://github.com/microsoft/TypeScript/blob/c63de15a992d37f0d6cec03ac7631872838602cb/src/compiler/moduleNameResolver.ts#L3054-L3085)).
 
+Successful non-relative external resolutions are canonicalized through the host's realpath when
+`preserveSymlinks` is disabled. The config resolver supplies only NodeNext module resolution, so
+`preserveSymlinks` is absent and this canonicalization applies to package-valued `extends` targets
+([symlink handling](https://github.com/microsoft/TypeScript/blob/c63de15a992d37f0d6cec03ac7631872838602cb/src/compiler/moduleNameResolver.ts#L221-L250),
+[resolver return path](https://github.com/microsoft/TypeScript/blob/c63de15a992d37f0d6cec03ac7631872838602cb/src/compiler/moduleNameResolver.ts#L1891-L1903)).
+Further inheritance is consequently resolved from the package's real location rather than its
+apparent symlink path.
+
 ## Package exports and fallbacks
 
 When a package has a truthy `exports` value, exports resolution takes precedence and blocks direct
