@@ -26,6 +26,7 @@ that behavior is unchanged.
 | `extends` target resolution | Not audited | [Baseline](./v5.9.3/extends-resolution.md) | [Reverified with isolated changes](./v6.0.3/#extends-target-resolution) |
 | `extends` inheritance | Not audited | [Baseline](./v5.9.3/extends-inheritance.md) | [Reverified](./v6.0.3/#extends-inheritance) |
 | Config-relative paths and `${configDir}` | Not audited | [Baseline](./v5.9.3/config-relative-paths.md) | [Reverified with a default change](./v6.0.3/#config-relative-paths) |
+| UNC path normalization and config file specifications | Not audited | [Baseline](./v5.9.3/unc-paths.md) | [Reverified](./v6.0.3/#unc-paths) |
 | Compiler option values | [Defaults](./v4.9.5/compiler-option-defaults.md) | [Baseline](./v5.9.3/compiler-option-values.md) | [Defaults](./v6.0.3/compiler-option-defaults.md) |
 | Root-file selection | Not audited | [Baseline](./v5.9.3/root-file-selection.md) | [Reverified with default changes](./v6.0.3/#root-file-selection) |
 | Wildcard matching | Not audited | [Baseline](./v5.9.3/wildcard-matching.md) | [Reverified](./v6.0.3/#wildcard-matching) |

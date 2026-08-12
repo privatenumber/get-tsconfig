@@ -1334,4 +1334,78 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			assertFilesMatch(matches, tsFiles);
 		});
 	});
+
+	// https://github.com/privatenumber/get-tsconfig/issues/133
+	describe('UNC paths', ({ test }) => {
+		const uncProjectPath = '//server/share/project';
+		const uncTsconfigPath = `${uncProjectPath}/tsconfig.json`;
+
+		test('default include', () => {
+			const tsconfig: TsConfigJsonResolved = {};
+			const matches = createFilesMatcher({
+				config: tsconfig,
+				path: uncTsconfigPath,
+			});
+
+			expect(matches(`${uncProjectPath}/index.ts`)).toBe(tsconfig);
+			expect(matches('//server/other-share/project/index.ts')).toBe(undefined);
+		});
+
+		test('relative include', () => {
+			const tsconfig: TsConfigJsonResolved = {
+				include: ['src'],
+			};
+			const matches = createFilesMatcher({
+				config: tsconfig,
+				path: uncTsconfigPath,
+			});
+
+			expect(matches(`${uncProjectPath}/src/index.ts`)).toBe(tsconfig);
+			expect(matches(`${uncProjectPath}/excluded/index.ts`)).toBe(undefined);
+		});
+
+		test('relative files', () => {
+			const tsconfig: TsConfigJsonResolved = {
+				files: ['src/index.ts'],
+			};
+			const matches = createFilesMatcher({
+				config: tsconfig,
+				path: uncTsconfigPath,
+			});
+
+			expect(matches(`${uncProjectPath}/src/index.ts`)).toBe(tsconfig);
+			expect(matches(`${uncProjectPath}/src/excluded.ts`)).toBe(undefined);
+		});
+
+		if (isWindows) {
+			test('matches tsc through a real UNC path', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					include: ['src'],
+				};
+
+				await using fixture = await createFixture({
+					'tsconfig.json': createTsconfigJson(tsconfig),
+					'src/index.ts': '',
+					'excluded/index.ts': '',
+				});
+
+				// C:\path -> \\localhost\C$\path
+				const tsconfigPath = fixture.getPath('tsconfig.json').replace(
+					/^(\w):/,
+					(_, driveLetter) => `\\\\localhost\\${driveLetter}$`,
+				);
+
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles.length).toBe(1);
+
+				assertFilesMatch(
+					createFilesMatcher({
+						config: tsconfig,
+						path: tsconfigPath,
+					}),
+					tsFiles,
+				);
+			});
+		}
+	});
 });
