@@ -14,6 +14,7 @@ This sparse snapshot is pinned to TypeScript 6.0.3 at
 | `extends` target resolution | [5.9.3 baseline](../v5.9.3/extends-resolution.md), isolated changes below |
 | `extends` inheritance | [5.9.3 baseline](../v5.9.3/extends-inheritance.md), reverified below |
 | Config-relative path ownership | [5.9.3 baseline](../v5.9.3/config-relative-paths.md), reverified below |
+| UNC path normalization and config file specifications | [5.9.3 baseline](../v5.9.3/unc-paths.md), reverified below |
 | Root-file selection algorithm | [5.9.3 baseline](../v5.9.3/root-file-selection.md), reverified below |
 | Wildcard matching algorithm | [5.9.3 baseline](../v5.9.3/wildcard-matching.md), reverified below |
 | `paths` and `baseUrl` matching | [5.9.3 baseline](../v5.9.3/paths-and-baseurl.md), reverified below |
@@ -77,6 +78,17 @@ directory for standard file-loading callers
 [template substitution](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/commandLineParser.ts#L3252-L3315)).
 The omitted-`rootDir` effective default changed and is documented in
 [compiler option defaults](./compiler-option-defaults.md#config-file-root-directory).
+
+## UNC paths
+
+UNC root recognition, backslash normalization, relative path combination, config-base derivation,
+literal `files` resolution, and wildcard traversal retain the 5.9.3 behavior
+([path handling](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/path.ts#L161-L177),
+[path combination](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/path.ts#L526-L530),
+[path normalization](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/path.ts#L579-L640),
+[config and literal files](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/commandLineParser.ts#L3075-L3089),
+[directory scan](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/commandLineParser.ts#L3928-L3971),
+[wildcard traversal](https://github.com/microsoft/TypeScript/blob/050880ce59e30b356b686bd3144efe24f875ebc8/src/compiler/utilities.ts#L9802-L9887)).
 
 ## Root-file selection
 

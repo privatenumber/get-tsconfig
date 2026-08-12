@@ -3,7 +3,25 @@ import slash from 'slash';
 import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import type { TsconfigJson, TsconfigResult } from './types.js';
 
-const { join: pathJoin } = path.posix;
+const { join: posixJoin } = path.posix;
+
+/**
+ * `path.posix.join` collapses the leading double slash of a UNC root
+ * (e.g. `//server/share` -> `/server/share`), but the file paths passed
+ * into the matcher keep both slashes, so resolved patterns would never match
+ * https://github.com/privatenumber/get-tsconfig/issues/133
+ */
+const pathJoin = (
+	basePath: string,
+	subpath: string,
+) => {
+	const joined = posixJoin(basePath, subpath);
+	return (
+		basePath.startsWith('//') && !joined.startsWith('//')
+			? `/${joined}`
+			: joined
+	);
+};
 
 const baseExtensions = {
 	ts: ['.ts', '.tsx', '.d.ts'],
