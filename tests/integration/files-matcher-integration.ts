@@ -1278,50 +1278,47 @@ describe('isFileIncluded', () => {
 	});
 
 	// https://github.com/privatenumber/get-tsconfig/issues/133
-	describe('UNC paths', ({ test }) => {
+	describe('UNC paths', () => {
 		const uncProjectPath = '//server/share/project';
 		const uncTsconfigPath = `${uncProjectPath}/tsconfig.json`;
 
 		test('default include', () => {
-			const tsconfig: TsConfigJsonResolved = {};
-			const matches = createFilesMatcher({
-				config: tsconfig,
+			const tsconfig: TsconfigResult = {
+				config: {},
 				path: uncTsconfigPath,
-			});
+			};
 
-			expect(matches(`${uncProjectPath}/index.ts`)).toBe(tsconfig);
-			expect(matches('//server/other-share/project/index.ts')).toBe(undefined);
+			expect(isFileIncluded(tsconfig, `${uncProjectPath}/index.ts`)).toBe(true);
+			expect(isFileIncluded(tsconfig, '//server/other-share/project/index.ts')).toBe(false);
 		});
 
 		test('relative include', () => {
-			const tsconfig: TsConfigJsonResolved = {
-				include: ['src'],
-			};
-			const matches = createFilesMatcher({
-				config: tsconfig,
+			const tsconfig: TsconfigResult = {
+				config: {
+					include: ['src'],
+				},
 				path: uncTsconfigPath,
-			});
+			};
 
-			expect(matches(`${uncProjectPath}/src/index.ts`)).toBe(tsconfig);
-			expect(matches(`${uncProjectPath}/excluded/index.ts`)).toBe(undefined);
+			expect(isFileIncluded(tsconfig, `${uncProjectPath}/src/index.ts`)).toBe(true);
+			expect(isFileIncluded(tsconfig, `${uncProjectPath}/excluded/index.ts`)).toBe(false);
 		});
 
 		test('relative files', () => {
-			const tsconfig: TsConfigJsonResolved = {
-				files: ['src/index.ts'],
-			};
-			const matches = createFilesMatcher({
-				config: tsconfig,
+			const tsconfig: TsconfigResult = {
+				config: {
+					files: ['src/index.ts'],
+				},
 				path: uncTsconfigPath,
-			});
+			};
 
-			expect(matches(`${uncProjectPath}/src/index.ts`)).toBe(tsconfig);
-			expect(matches(`${uncProjectPath}/src/excluded.ts`)).toBe(undefined);
+			expect(isFileIncluded(tsconfig, `${uncProjectPath}/src/index.ts`)).toBe(true);
+			expect(isFileIncluded(tsconfig, `${uncProjectPath}/src/excluded.ts`)).toBe(false);
 		});
 
 		if (isWindows) {
 			test('matches tsc through a real UNC path', async () => {
-				const tsconfig: TsConfigJsonResolved = {
+				const tsconfig: TsconfigJsonResolved = {
 					include: ['src'],
 				};
 
@@ -1340,13 +1337,7 @@ describe('isFileIncluded', () => {
 				const tsFiles = getTscMatchingFiles(tsconfigPath);
 				expect(tsFiles.length).toBe(1);
 
-				assertFilesMatch(
-					createFilesMatcher({
-						config: tsconfig,
-						path: tsconfigPath,
-					}),
-					tsFiles,
-				);
+				assertFilesMatch(readTsconfig(tsconfigPath), tsFiles);
 			});
 		}
 	});
