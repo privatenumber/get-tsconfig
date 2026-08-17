@@ -406,6 +406,47 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(parsedTsconfig.exclude).toStrictEqual(['dist']);
 		});
+
+		test('adds the overriding outDir, not the inherited one', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'base.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './base.json',
+					compilerOptions: {
+						outDir: 'build',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.exclude).toStrictEqual(['build']);
+		});
+
+		test('adds outDir and declarationDir across extends', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'base.json': createTsconfigJson({
+					compilerOptions: {
+						declaration: true,
+						declarationDir: 'types',
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './base.json',
+					compilerOptions: {
+						outDir: 'build',
+					},
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.exclude).toStrictEqual(['build', 'types']);
+		});
 	});
 
 	test('cache', async () => {
