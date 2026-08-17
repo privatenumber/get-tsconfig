@@ -447,6 +447,56 @@ export default testSuite('parses tsconfig', ({ describe, test }) => {
 			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
 			expect(parsedTsconfig.exclude).toStrictEqual(['build', 'types']);
 		});
+
+		test('adds output directories from nested configs relative to the root', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'base/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						declarationDir: 'types',
+						outDir: 'dist',
+					},
+				}),
+				'intermediate/tsconfig.json': createTsconfigJson({
+					extends: '../base/tsconfig.json',
+					compilerOptions: {
+						outDir: 'build',
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: './intermediate/tsconfig.json',
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.exclude).toStrictEqual(['intermediate/build', 'base/types']);
+		});
+
+		test('adds output directories from the last extended config', async () => {
+			await using fixture = await createFixture({
+				'file.ts': '',
+				'first/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						outDir: 'dist',
+					},
+				}),
+				'second/tsconfig.json': createTsconfigJson({
+					compilerOptions: {
+						declarationDir: 'types',
+						outDir: 'build',
+					},
+				}),
+				'tsconfig.json': createTsconfigJson({
+					extends: [
+						'./first/tsconfig.json',
+						'./second/tsconfig.json',
+					],
+				}),
+			});
+
+			const parsedTsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(parsedTsconfig.exclude).toStrictEqual(['second/build', 'second/types']);
+		});
 	});
 
 	test('cache', async () => {
