@@ -72,7 +72,7 @@ const resolveExtends = (
 	circularExtendsTracker.add(resolvedExtendsPath);
 
 	const extendsDirectoryPath = path.dirname(resolvedExtendsPath);
-	const extendsConfig = _parseTsconfig(resolvedExtendsPath, cache, circularExtendsTracker);
+	const extendsConfig = _parseTsconfig(resolvedExtendsPath, cache, circularExtendsTracker, true);
 	delete extendsConfig.references;
 
 	const { compilerOptions } = extendsConfig;
@@ -153,6 +153,13 @@ const _parseTsconfig = (
 	tsconfigPath: string,
 	cache?: Cache<string>,
 	circularExtendsTracker = new Set<string>(),
+
+	/**
+	 * The default `exclude` comes from the effective `outDir` and `declarationDir`,
+	 * so it can only be derived after `extends` is merged. Deriving it in an
+	 * extended config would leak into the extending config as an explicit `exclude`.
+	 */
+	isExtendedConfig = false,
 ): TsConfigJsonResolved => {
 	/**
 	 * Decided not to cache the TsConfigJsonResolved object because it's
@@ -246,7 +253,7 @@ const _parseTsconfig = (
 			let outputPath = compilerOptions[outputField];
 
 			if (outputPath) {
-				if (!Array.isArray(config.exclude)) {
+				if (!isExtendedConfig && !Array.isArray(config.exclude)) {
 					config.exclude = outputFields
 						.map(field => compilerOptions[field])
 						.filter(Boolean) as string[];
