@@ -138,6 +138,32 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 			expect(matches(fixture.getPath('no-match.ts'))).toBe(undefined);
 		});
 
+		test('trailing slash', async () => {
+			const tsconfig: TsConfigJsonResolved = {
+				files: ['index.ts/'],
+			};
+
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson(tsconfig),
+				'index.ts': '',
+			});
+
+			const tsconfigPath = fixture.getPath('tsconfig.json');
+			const tsFiles = getTscMatchingFiles(tsconfigPath);
+
+			expect(tsFiles).toStrictEqual([
+				slash(fixture.getPath('index.ts')),
+			]);
+
+			assertFilesMatch(
+				createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				}),
+				tsFiles,
+			);
+		});
+
 		test('files outside of project', async () => {
 			const tsconfig: TsConfigJsonResolved = {
 				files: ['../index.ts'],
@@ -266,6 +292,58 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 				}),
 				tsFiles,
 			);
+		});
+
+		test('trailing slash', async () => {
+			const tsconfig: TsConfigJsonResolved = {
+				include: ['dir-a/*/'],
+			};
+
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson(tsconfig),
+				'dir-a': testFiles,
+			});
+
+			const tsconfigPath = fixture.getPath('tsconfig.json');
+			const tsFiles = getTscMatchingFiles(tsconfigPath);
+			expect(tsFiles.length).toBe(7);
+
+			assertFilesMatch(
+				createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				}),
+				tsFiles,
+			);
+		});
+
+		test('ends in recursive wildcard', async () => {
+			const tsconfig: TsConfigJsonResolved = {
+				include: ['dir-a/**', 'dir-b/**/'],
+			};
+
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson(tsconfig),
+				'dir-a': testFiles,
+				'dir-b': testFiles,
+			});
+
+			const tsconfigPath = fixture.getPath('tsconfig.json');
+			const tsFiles = getTscMatchingFiles(tsconfigPath);
+			expect(tsFiles.length).toBe(0);
+
+			const matches = createFilesMatcher({
+				config: tsconfig,
+				path: tsconfigPath,
+			});
+
+			expect(matches(
+				fixture.getPath('dir-a/ts.ts'),
+			)).toBe(undefined);
+
+			expect(matches(
+				fixture.getPath('dir-b/ts.ts'),
+			)).toBe(undefined);
 		});
 
 		test('include matches nested directories', async () => {
@@ -901,6 +979,34 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 				}
 			});
 
+			test('trailing slash', async () => {
+				const tsconfig: TsConfigJsonResolved = {
+					compilerOptions: {
+						outDir: 'out-dir/',
+						declarationDir: 'declaration-dir/',
+					},
+				};
+
+				await using fixture = await createFixture({
+					'tsconfig.json': createTsconfigJson(tsconfig),
+					...directories,
+				});
+
+				const tsconfigPath = fixture.getPath('tsconfig.json');
+				const tsFiles = getTscMatchingFiles(tsconfigPath);
+				expect(tsFiles.length).toBe(0);
+
+				const matches = createFilesMatcher({
+					config: tsconfig,
+					path: tsconfigPath,
+				});
+
+				for (const filePath of directoryFileNames) {
+					const absoluteFilePath = path.join(fixture.path, filePath);
+					expect(matches(absoluteFilePath)).toBe(undefined);
+				}
+			});
+
 			test('overwritable', async () => {
 				const tsconfig: TsConfigJsonResolved = {
 					compilerOptions: {
@@ -956,6 +1062,36 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 
 			expect(matches(
 				fixture.getPath('some-dir/index.ts'),
+			)).toBe(undefined);
+		});
+
+		test('trailing slash', async () => {
+			const tsconfig: TsConfigJsonResolved = {
+				include: ['some-dir', 'other-dir'],
+				exclude: ['some-dir/', 'other-dir/**/'],
+			};
+
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson(tsconfig),
+				'some-dir/index.ts': '',
+				'other-dir/index.ts': '',
+			});
+
+			const tsconfigPath = fixture.getPath('tsconfig.json');
+			const tsFiles = getTscMatchingFiles(tsconfigPath);
+			expect(tsFiles.length).toBe(0);
+
+			const matches = createFilesMatcher({
+				config: tsconfig,
+				path: tsconfigPath,
+			});
+
+			expect(matches(
+				fixture.getPath('some-dir/index.ts'),
+			)).toBe(undefined);
+
+			expect(matches(
+				fixture.getPath('other-dir/index.ts'),
 			)).toBe(undefined);
 		});
 
