@@ -103,6 +103,19 @@ const isImplicitGlobPattern = /(?:^|\/)[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 
+/**
+ * Patterns are built from normalized path components, so a trailing slash
+ * never reaches the pattern and `dist/` is the same spec as `dist`
+ * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8168
+ */
+const trailingSlashes = /(?<=[^/])\/+$/;
+
+/**
+ * An include spec whose last component is `**` is invalid and gets dropped
+ * https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8170
+ */
+const endsInRecursiveWildcard = /(?:^|\/)\*\*$/;
+
 const anyCharacter = '[^/]';
 
 const noPeriodOrSlash = '[^./]';
@@ -134,7 +147,7 @@ export const createFilesMatcher = (
 	} = config;
 	const resolvePattern = (pattern: string) => (
 		path.isAbsolute(pattern) ? pattern : pathJoin(projectDirectory, pattern)
-	);
+	).replace(trailingSlashes, '');
 	const filesList = files?.map(resolvePattern);
 	const extensions = getSupportedExtensions(compilerOptions);
 	const regexpFlags = caseSensitivePaths ? '' : 'i';
@@ -166,8 +179,11 @@ export const createFilesMatcher = (
 
 	// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/commandLineParser.ts#LL3020C29-L3020C47
 	const includeSpec = (files || include) ? include : [matchAllGlob];
-	const includePatterns = includeSpec
-		? includeSpec.map((filePath) => {
+	const validIncludeSpec = includeSpec?.filter(
+		filePath => !endsInRecursiveWildcard.test(resolvePattern(filePath)),
+	);
+	const includePatterns = validIncludeSpec
+		? validIncludeSpec.map((filePath) => {
 			let projectFilePath = resolvePattern(filePath);
 
 			// https://github.com/microsoft/TypeScript/blob/acf854b636e0b8e5a12c3f9951d4edfa0fa73bcd/src/compiler/utilities.ts#L8178
