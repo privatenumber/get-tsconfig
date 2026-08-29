@@ -60,7 +60,7 @@
 		"fs-fixture": "^2.9.0",
 		"is-fs-case-sensitive": "^2.0.0",
 		"jsonc-parser": "^3.3.1",
-		"lintroll": "^1.20.1",
+		"lintroll": "^1.30.2",
 		"manten": "^1.6.0",
 		"pkgroll": "^2.6.1",
 		"slash": "^5.1.0",
