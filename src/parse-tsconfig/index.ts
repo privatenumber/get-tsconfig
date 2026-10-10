@@ -24,7 +24,7 @@ const resolveAndRelativize = (
 	extendsDirectoryPath: string,
 	filePath: string,
 ): string => {
-	const absolutePath = path.join(extendsDirectoryPath, filePath);
+	const absolutePath = path.resolve(extendsDirectoryPath, filePath);
 	const relativePath = path.relative(fromDirectoryPath, absolutePath);
 	return slash(relativePath) || './';
 };

@@ -1,10 +1,28 @@
+import { writeFile } from 'node:fs/promises';
 import { testSuite, expect } from 'manten';
 import { createFixture } from 'fs-fixture';
+import { parseTsconfig } from '#get-tsconfig';
 import { createTsconfigJson } from '../../../utils/fixture-helpers.js';
 import { getTscTsconfig } from '../../../utils/typescript-helpers.js';
-import { parseTsconfig } from '#get-tsconfig';
 
 export default testSuite('merges', ({ describe, test }) => {
+	for (const property of ['rootDirs', 'typeRoots'] as const) {
+		test(`preserves inherited absolute ${property}`, async () => {
+			await using fixture = await createFixture({
+				'src/file.ts': '',
+				'tsconfig.json': createTsconfigJson({ extends: './config/base.json' }),
+				'config/base.json': '',
+			});
+			await writeFile(fixture.getPath('config/base.json'), createTsconfigJson({
+				compilerOptions: { [property]: [fixture.getPath('src')] },
+			}));
+
+			const expectedTsconfig = await getTscTsconfig(fixture.path);
+			delete expectedTsconfig.files;
+			const tsconfig = parseTsconfig(fixture.getPath('tsconfig.json'));
+			expect(tsconfig).toStrictEqual(expectedTsconfig);
+		});
+	}
 	describe('error handling', ({ test }) => {
 		test('invalid path', async () => {
 			await using fixture = await createFixture({
