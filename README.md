@@ -92,6 +92,7 @@ type GetTsconfigOptions = {
     cache?: Map<string, unknown>
     includes?: boolean // default: false
     typescriptVersion?: 'auto' | string | false // default: 'auto'
+    compilerOptions?: TsconfigJson['compilerOptions']
 }
 ```
 
@@ -99,6 +100,7 @@ type GetTsconfigOptions = {
 - **cache**: snapshot cache for fs operations. Reusing after filesystem changes can return stale results.
 - **includes**: when `true`, validates the file is a root file (matched by `include`/`files` globs, not excluded) before accepting the tsconfig. Matches VS Code's Language Server behavior. Default matches `tsc` CLI behavior (nearest tsconfig). Note: this checks glob matching only — a file can still be part of a TypeScript program via transitive imports even if not matched by `include`.
 - **typescriptVersion**: applies unconditional compiler-option defaults from the target TypeScript version. Default `'auto'` detects the installed version; pass an explicit version string to pin, or `false` to disable. See [TypeScript version-aware defaults](#typescript-version-aware-defaults).
+- **compilerOptions**: overrides merged over the tsconfig's `compilerOptions` before implied options are filled in, like `tsc` command-line options. See [Compiler option overrides](#compiler-option-overrides).
 
 #### Example
 
@@ -136,10 +138,12 @@ Reads and resolves a tsconfig at a known path. Used internally by `getTsconfig`.
 type ReadTsconfigOptions = {
     cache?: Map<string, unknown>
     typescriptVersion?: 'auto' | string | false // default: 'auto'
+    compilerOptions?: TsconfigJson['compilerOptions']
 }
 ```
 
 - **typescriptVersion**: applies unconditional compiler-option defaults from the target TypeScript version. Default `'auto'` detects the installed version; pass an explicit version string to pin, or `false` to disable. See [TypeScript version-aware defaults](#typescript-version-aware-defaults).
+- **compilerOptions**: overrides merged over the tsconfig's `compilerOptions` before implied options are filled in, like `tsc` command-line options. See [Compiler option overrides](#compiler-option-overrides).
 
 ```ts
 import { readTsconfig } from 'get-tsconfig'
@@ -257,6 +261,28 @@ readTsconfig('./tsconfig.json', { typescriptVersion: false })
 > Auto-detection means the parsed config can vary with the runtime environment. If you publish a library that runs both at dev time (with TypeScript installed) and in production (without it), pass an explicit version string or `false` for deterministic output.
 
 The defaults are tracked per-major (v4, v5, v6) and applied cumulatively. Source-of-truth references for each default live in [`src/version-defaults/`](./src/version-defaults).
+
+## Compiler option overrides
+
+Pass `compilerOptions` to apply overrides the way `tsc -p tsconfig.json --strict false` does. They are merged over the tsconfig's own `compilerOptions` before version-aware defaults and implied options (e.g. `strict` ⇒ strict-family flags) are computed, so the derived values follow the overrides:
+
+```ts
+import { readTsconfig } from 'get-tsconfig'
+
+// tsconfig.json: { "compilerOptions": { "strict": true } }
+
+const { config } = readTsconfig('./tsconfig.json', {
+    compilerOptions: { strict: false }
+})
+
+console.log(config.compilerOptions)
+// → { strict: false }
+// (without the override: { strict: true, noImplicitAny: true, strictNullChecks: true, ... })
+```
+
+Spreading overrides over the resolved config instead would leave the expanded flags (`strictNullChecks: true`, ...) in place, and TypeScript treats them as explicitly set.
+
+Overrides behave as if written in the tsconfig itself: relative paths (`outDir`, `rootDir`, `baseUrl`, `paths`, ...) and `${configDir}` resolve against the tsconfig's directory, not `process.cwd()`. Options explicitly set in the tsconfig still win over implied values (e.g. `strictNullChecks: true` stays `true` with `strict: false`), matching `tsc`.
 
 ## FAQ
 

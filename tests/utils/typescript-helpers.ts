@@ -10,12 +10,15 @@ const tscPath = path.resolve('node_modules/.bin/tsc');
 export const getTscTsconfig = async (
 	cwd: string,
 	tsconfigPath?: string,
+	extraArgs: string[] = [],
 ): Promise<TsconfigJson> => {
 	const tscArgs = ['--showConfig'];
 
 	if (tsconfigPath) {
 		tscArgs.push('--project', tsconfigPath);
 	}
+
+	tscArgs.push(...extraArgs);
 
 	const tscProcess = await spawn(
 		tscPath,

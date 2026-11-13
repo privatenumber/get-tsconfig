@@ -115,6 +115,10 @@ export const getExtendsChain = (
  * `node_modules/typescript` (or the Yarn Berry pnp API) from the tsconfig's
  * directory. Pass an explicit version string (`'5.9.0'`, `'6.0.0'`) to pin,
  * or `false` to skip version-aware defaults entirely.
+ * @param options.compilerOptions - Compiler options merged over the root
+ * tsconfig's `compilerOptions` before version defaults and implied options
+ * are applied, like `tsc -p tsconfig.json --strict false`. Relative paths and
+ * `${configDir}` resolve against the root tsconfig's directory.
  * @returns The resolved absolute path and config.
  * @throws If the file cannot be read, contains invalid JSON, has circular
  * `extends`, or references a missing `extends` target.
@@ -123,8 +127,31 @@ export const readTsconfig = (
 	tsconfigPath: string,
 	options: ReadTsconfigOptions = {},
 ): TsconfigResult => {
-	const { cache = new Map(), typescriptVersion = 'auto' } = options;
+	const {
+		cache = new Map(),
+		typescriptVersion = 'auto',
+		compilerOptions,
+	} = options;
 	const chain = getExtendsChain(tsconfigPath, { cache });
+
+	if (compilerOptions) {
+		// Merge into the root entry so the overrides take part in extends
+		// merging, version defaults, and normalization like `tsc` CLI options
+		const [root] = chain;
+		const overrides = Object.fromEntries(
+			Object.entries(compilerOptions).filter(([, value]) => value !== undefined),
+		);
+		chain[0] = {
+			...root,
+			config: {
+				...root.config,
+				compilerOptions: {
+					...root.config.compilerOptions,
+					...overrides,
+				},
+			},
+		};
+	}
 
 	let resolvedVersion: string | undefined;
 	if (typescriptVersion === 'auto') {
