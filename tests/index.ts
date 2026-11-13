@@ -14,6 +14,7 @@ describe('get-tsconfig', () => {
 	import('./integration/find-tsconfig.ts');
 	import('./integration/get-tsconfig.ts');
 	import('./integration/read-tsconfig.ts');
+	import('./integration/compiler-options-overrides.ts');
 	import('./integration/extends-chain.ts');
 	import('./integration/extends-merging.ts');
 	import('./integration/extends-resolution/index.ts');

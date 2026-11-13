@@ -54,18 +54,24 @@ type TsconfigSearchOptions = {
 	includes?: boolean;
 };
 
-export type FindTsconfigOptions = TsconfigSearchOptions;
-export type GetTsconfigOptions = TsconfigSearchOptions & {
+type TsconfigResolveOptions = {
 	typescriptVersion?: TypeScriptVersionOption;
+
+	/**
+	 * Compiler options merged over the root tsconfig's `compilerOptions`
+	 * before implied options are filled in, like `tsc` command-line options.
+	 */
+	compilerOptions?: TsConfigJson.CompilerOptions;
 };
+
+export type FindTsconfigOptions = TsconfigSearchOptions;
+export type GetTsconfigOptions = TsconfigSearchOptions & TsconfigResolveOptions;
 
 type TsconfigCacheOptions = {
 	cache?: TsconfigCache;
 };
 
-export type ReadTsconfigOptions = TsconfigCacheOptions & {
-	typescriptVersion?: TypeScriptVersionOption;
-};
+export type ReadTsconfigOptions = TsconfigCacheOptions & TsconfigResolveOptions;
 
 export type ResolveExtendsChainOptions = {
 	typescriptVersion?: TypeScriptVersionOption;

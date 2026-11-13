@@ -9,15 +9,15 @@ import type {
 	TsconfigCache,
 	FindTsconfigOptions,
 	GetTsconfigOptions,
-	TypeScriptVersionOption,
+	ReadTsconfigOptions,
 } from './types.js';
 
 const findConfigApplicable = (
 	searchPath: string,
 	configName: string,
-	cache: TsconfigCache,
-	typescriptVersion: TypeScriptVersionOption | undefined,
+	readOptions: ReadTsconfigOptions & { cache: TsconfigCache },
 ) => {
+	const { cache } = readOptions;
 	const resolvedFilePath = path.resolve(searchPath);
 	let currentPath = slash(searchPath);
 
@@ -28,10 +28,7 @@ const findConfigApplicable = (
 		}
 
 		const absoluteConfigFile = path.resolve(configFile);
-		const result = readTsconfig(absoluteConfigFile, {
-			cache,
-			typescriptVersion,
-		});
+		const result = readTsconfig(absoluteConfigFile, readOptions);
 		if (isFileIncluded(result, resolvedFilePath)) {
 			return result;
 		}
@@ -87,7 +84,10 @@ export const findTsconfig = (
 
 	// findTsconfig only returns a path, so skip version detection (saves
 	// the upward walk + JSON parse per candidate tsconfig).
-	return findConfigApplicable(searchPath, configName, cache, false)?.path;
+	return findConfigApplicable(searchPath, configName, {
+		cache,
+		typescriptVersion: false,
+	})?.path;
 };
 
 /**
@@ -117,6 +117,9 @@ export const findTsconfig = (
  * Default `'auto'` detects `node_modules/typescript` (or the Yarn Berry pnp API)
  * from the tsconfig's directory. Pass an explicit version string (`'5.9.0'`,
  * `'6.0.0'`) to pin, or `false` to skip version-aware defaults entirely.
+ * @param options.compilerOptions Compiler options merged over the found
+ * tsconfig's `compilerOptions` before implied options are filled in, like
+ * `tsc` command-line options. See {@link readTsconfig}.
  * @returns The resolved tsconfig, or `undefined` if no config file was found.
  * @throws If a config file is found but cannot be parsed — invalid JSON,
  * circular `extends`, or missing `extends` target.
@@ -130,7 +133,13 @@ export const getTsconfig = (
 		cache = new Map(),
 		includes = false,
 		typescriptVersion = 'auto',
+		compilerOptions,
 	} = options;
+	const readOptions = {
+		cache,
+		typescriptVersion,
+		compilerOptions,
+	};
 
 	if (!includes) {
 		const configFile = findTsconfig(searchPath, {
@@ -141,11 +150,8 @@ export const getTsconfig = (
 			return;
 		}
 
-		return readTsconfig(configFile, {
-			cache,
-			typescriptVersion,
-		});
+		return readTsconfig(configFile, readOptions);
 	}
 
-	return findConfigApplicable(searchPath, configName, cache, typescriptVersion);
+	return findConfigApplicable(searchPath, configName, readOptions);
 };

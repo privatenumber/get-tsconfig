@@ -38,11 +38,13 @@ type GetTsconfigOptions = {
     cache?: Map<string, unknown>
     includes?: boolean    // default: false — when true, validates file is a root file before accepting
     typescriptVersion?: 'auto' | string | false // default: 'auto' — see Use cases
+    compilerOptions?: TsconfigJson['compilerOptions'] // overrides applied like tsc CLI flags
 }
 
 type ReadTsconfigOptions = {
     cache?: Map<string, unknown>
     typescriptVersion?: 'auto' | string | false // default: 'auto'
+    compilerOptions?: TsconfigJson['compilerOptions'] // overrides applied like tsc CLI flags
 }
 ```
 
@@ -144,6 +146,17 @@ readTsconfig('./tsconfig.json', { typescriptVersion: false })
 **When to pass `false`:** library code that runs in environments where TypeScript may not be installed (production runtimes, trimmed Docker images). Auto-detection there would return `undefined` and behave inconsistently with dev. Passing `false` makes output deterministic.
 
 Per-major changes are tracked in `src/version-defaults/{v4,v5,v6}.ts` with links to the corresponding TypeScript source.
+
+### Overriding compiler options
+
+Pass overrides through `compilerOptions` instead of spreading them over the result. Spreading `{ ...config.compilerOptions, strict: false }` keeps the expanded strict-family flags (`strictNullChecks: true`, ...), which TypeScript treats as explicitly set.
+
+```ts
+// Like `tsc -p tsconfig.json --strict false`: implied options follow the override
+readTsconfig('./tsconfig.json', { compilerOptions: { strict: false } })
+```
+
+Relative paths and `${configDir}` in overrides resolve against the tsconfig's directory.
 
 ## Understanding `isFileIncluded`
 
