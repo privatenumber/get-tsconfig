@@ -103,6 +103,9 @@ const isImplicitGlobPattern = /(?:^|\/)[^.*?]+$/;
 
 const matchAllGlob = '**/*';
 
+// TypeScript preserves dotted capital I when canonicalizing case-insensitive paths.
+const fileNameLowerCasePattern = /[^\u0130\u0131\u00DFa-z0-9\\/:\-_. ]+/g;
+
 const anyCharacter = '[^/]';
 
 const noPeriodOrSlash = '[^./]';
@@ -135,7 +138,12 @@ export const createFilesMatcher = (
 	const resolvePattern = (pattern: string) => (
 		path.isAbsolute(pattern) ? pattern : pathJoin(projectDirectory, pattern)
 	);
-	const filesList = files?.map(resolvePattern);
+	const canonicalizePath = (filePath: string) => (
+		caseSensitivePaths
+			? filePath
+			: filePath.replaceAll(fileNameLowerCasePattern, part => part.toLowerCase())
+	);
+	const filesList = files?.map(filePath => canonicalizePath(resolvePattern(filePath)));
 	const extensions = getSupportedExtensions(compilerOptions);
 	const regexpFlags = caseSensitivePaths ? '' : 'i';
 
@@ -218,7 +226,7 @@ export const createFilesMatcher = (
 			filePath = slash(filePath);
 		}
 
-		if (filesList?.includes(filePath)) {
+		if (filesList?.includes(canonicalizePath(filePath))) {
 			return config;
 		}
 

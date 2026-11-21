@@ -7,6 +7,7 @@ import { isFsCaseSensitive } from 'is-fs-case-sensitive';
 import { createTsconfigJson } from '../utils/fixture-helpers.js';
 import {
 	createFilesMatcher,
+	getTsconfig,
 	parseTsconfig,
 	type TsConfigJsonResolved,
 	type FileMatcher,
@@ -111,6 +112,71 @@ export default testSuite('createFilesMatcher', ({ describe }) => {
 	});
 
 	describe('files', ({ test }) => {
+		test('case insensitive paths', () => {
+			const projectDirectory = path.resolve('/project-root');
+			const config: TsConfigJsonResolved = {
+				files: ['Source/File.TS', slash(path.join(projectDirectory, '../Shared/Types.d.ts'))],
+				exclude: ['**/*'],
+			};
+			const matches = createFilesMatcher({
+				config,
+				path: path.join(projectDirectory, 'tsconfig.json'),
+			}, false);
+
+			expect(matches(path.join(projectDirectory, 'source/file.ts'))).toBe(config);
+			expect(matches(path.join(projectDirectory, '../shared/types.d.ts'))).toBe(config);
+			expect(matches(path.join(projectDirectory, 'source/other.ts'))).toBe(undefined);
+		});
+
+		test('case sensitive paths', () => {
+			const projectDirectory = path.resolve('/project-root');
+			const config: TsConfigJsonResolved = {
+				files: ['Source/File.ts'],
+			};
+			const matches = createFilesMatcher({
+				config,
+				path: path.join(projectDirectory, 'tsconfig.json'),
+			}, true);
+
+			expect(matches(path.join(projectDirectory, 'Source/File.ts'))).toBe(config);
+			expect(matches(path.join(projectDirectory, 'source/file.ts'))).toBe(undefined);
+		});
+
+		test('default case sensitivity follows the filesystem', async () => {
+			const config: TsConfigJsonResolved = {
+				files: ['source/file.ts'],
+			};
+			await using fixture = await createFixture({
+				'tsconfig.json': createTsconfigJson(config),
+				'Source/File.ts': '',
+			});
+			const tsconfigPath = fixture.getPath('tsconfig.json');
+			const filePath = fixture.getPath('Source/File.ts');
+			const matches = createFilesMatcher({
+				config,
+				path: tsconfigPath,
+			});
+
+			expect(matches(filePath)).toBe(fsCaseSensitive ? undefined : config);
+			expect(getTsconfig(filePath, 'tsconfig.json', new Map(), true)?.path).toBe(
+				fsCaseSensitive ? undefined : slash(tsconfigPath),
+			);
+		});
+
+		test('case insensitive paths preserve distinct dotted I names', () => {
+			const projectDirectory = path.resolve('/project-root');
+			const config: TsConfigJsonResolved = {
+				files: ['\u0130.ts'],
+			};
+			const matches = createFilesMatcher({
+				config,
+				path: path.join(projectDirectory, 'tsconfig.json'),
+			}, false);
+
+			expect(matches(path.join(projectDirectory, '\u0130.ts'))).toBe(config);
+			expect(matches(path.join(projectDirectory, 'i\u0307.ts'))).toBe(undefined);
+		});
+
 		test('disables default include', async () => {
 			const tsconfig: TsConfigJsonResolved = {
 				files: ['index.ts'],
