@@ -362,6 +362,59 @@ export default testSuite('paths', ({ describe, test }) => {
 		]);
 	});
 
+	test('prefix and suffix must not overlap', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					paths: {
+						'@/*/utils': ['./src/utils'],
+					},
+				},
+			}),
+			'src/utils.ts': '',
+		});
+
+		const tsconfig = getTsconfig(fixture.path);
+		expect(tsconfig).not.toBeNull();
+
+		const matcher = createPathsMatcher(tsconfig!)!;
+		expect(matcher).not.toBeNull();
+		expect(matcher('@/utils')).toStrictEqual([]);
+
+		for (const specifier of ['@//utils', '@/core/utils']) {
+			const resolvedAttempts = await getTscResolution(specifier, fixture.path);
+			expect(matcher(specifier)).toStrictEqual([
+				resolvedAttempts[0].filePath.slice(0, -3),
+			]);
+		}
+	});
+
+	test('overlapping prefix and suffix falls back to another pattern', async () => {
+		await using fixture = await createFixture({
+			'tsconfig.json': createTsconfigJson({
+				compilerOptions: {
+					paths: {
+						'@/*/utils': ['./src/utils'],
+						'*': ['./fallback/*'],
+					},
+				},
+			}),
+			'src/utils.ts': '',
+			'fallback/@/utils.ts': '',
+		});
+
+		const tsconfig = getTsconfig(fixture.path);
+		expect(tsconfig).not.toBeNull();
+
+		const matcher = createPathsMatcher(tsconfig!)!;
+		expect(matcher).not.toBeNull();
+
+		const resolvedAttempts = await getTscResolution('@/utils', fixture.path);
+		expect(matcher('@/utils')).toStrictEqual([
+			resolvedAttempts[0].filePath.slice(0, -3),
+		]);
+	});
+
 	test('doesnt match current directory', async () => {
 		await using fixture = await createFixture({
 			'tsconfig.json': createTsconfigJson({

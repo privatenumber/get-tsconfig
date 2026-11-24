@@ -28,6 +28,7 @@ export const isPatternMatch = (
 	{ prefix, suffix }: StarPattern,
 	candidate: string,
 ) => (
-	candidate.startsWith(prefix)
+	candidate.length >= prefix.length + suffix.length
+	&& candidate.startsWith(prefix)
 	&& candidate.endsWith(suffix)
 );
