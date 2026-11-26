@@ -67,21 +67,27 @@ export const createPathsMatcher = (
 			: []
 	);
 
+	// Split once so each call does a map lookup instead of a scan
+	const exactPathEntries = new Map<string, PathEntry<string>>();
+	const patternPathEntries: PathEntry<StarPattern>[] = [];
+	for (const pathEntry of pathEntries) {
+		if (typeof pathEntry.pattern === 'string') {
+			if (!exactPathEntries.has(pathEntry.pattern)) {
+				exactPathEntries.set(pathEntry.pattern, pathEntry as PathEntry<string>);
+			}
+		} else {
+			patternPathEntries.push(pathEntry as PathEntry<StarPattern>);
+		}
+	}
+
 	return (specifier: string) => {
 		if (isRelativePathPattern.test(specifier)) {
 			return [];
 		}
 
-		const patternPathEntries: PathEntry<StarPattern>[] = [];
-
-		for (const pathEntry of pathEntries) {
-			if (pathEntry.pattern === specifier) {
-				return pathEntry.substitutions.map(slash);
-			}
-
-			if (typeof pathEntry.pattern !== 'string') {
-				patternPathEntries.push(pathEntry as PathEntry<StarPattern>);
-			}
+		const exactPathEntry = exactPathEntries.get(specifier);
+		if (exactPathEntry) {
+			return exactPathEntry.substitutions.map(slash);
 		}
 
 		let matchedValue: PathEntry<StarPattern> | undefined;
